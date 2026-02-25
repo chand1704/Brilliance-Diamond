@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import 'diamonds_details_pages.dart';
@@ -853,7 +852,7 @@ class _GmssScreenState extends State<GmssScreen> {
           child: Text(
             value,
             style: TextStyle(
-              color: themeColor,
+              color: Colors.black87,
               fontWeight: FontWeight.w900,
               fontSize: 14,
             ),
@@ -1250,7 +1249,7 @@ class _GmssScreenState extends State<GmssScreen> {
               leading: SizedBox(
                 width: 40,
                 height: 40,
-                child: _SafeImage(url: stone.image_link, size: 40),
+                child: SafeImage(url: stone.image_link, size: 40),
               ),
 
               title: Row(
@@ -2069,15 +2068,15 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 }
 
-class _SafeImage extends StatefulWidget {
+class SafeImage extends StatefulWidget {
   final String url;
   final double size;
-  const _SafeImage({required this.url, required this.size});
+  const SafeImage({required this.url, required this.size});
   @override
-  State<_SafeImage> createState() => _SafeImageState();
+  State<SafeImage> createState() => SafeImageState();
 }
 
-class _SafeImageState extends State<_SafeImage> {
+class SafeImageState extends State<SafeImage> {
   Uint8List? _bytes;
   bool _isLoading = true;
   @override
@@ -2088,7 +2087,7 @@ class _SafeImageState extends State<_SafeImage> {
 
   // If the URL changes (e.g., when scrolling), refetch the new image
   @override
-  void didUpdateWidget(_SafeImage oldWidget) {
+  void didUpdateWidget(SafeImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.url != widget.url) {
       _fetch();
@@ -2135,7 +2134,11 @@ class _SafeImageState extends State<_SafeImage> {
 
   Widget _buildContent() {
     if (_bytes != null) {
-      return Image.memory(_bytes!, fit: BoxFit.contain);
+      return Image.memory(
+        _bytes!,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
+      );
     }
     if (_isLoading) {
       return Center(
@@ -2150,13 +2153,13 @@ class _SafeImageState extends State<_SafeImage> {
     // Fallback for errors or empty URLs
     return Icon(
       Icons.diamond_outlined,
-      size: widget.size * 0.5,
-      color: Colors.grey.shade300,
+      size: widget.size,
+      color: Colors.grey.shade600,
     );
   }
 }
 
-class _DiamondCard extends StatelessWidget {
+class _DiamondCard extends StatefulWidget {
   final GmssStone stone;
   final bool isFavorite;
   final VoidCallback onFavoriteTap;
@@ -2172,76 +2175,121 @@ class _DiamondCard extends StatelessWidget {
   });
 
   @override
+  State<_DiamondCard> createState() => _DiamondCardState();
+}
+
+class _DiamondCardState extends State<_DiamondCard> {
+  bool _isHoverd = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onCardTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHoverd = true),
+      onExit: (_) => setState(() => _isHoverd = false),
+
+      child: GestureDetector(
+        onTap: widget.onCardTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _isHoverd
+                  // Colors.grey.shade300 : Colors.grey.shade100,
+                  ? widget.themeColor.withOpacity(0.5)
+                  : Colors.transparent,
+              width: 1,
             ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Center(child: _SafeImage(url: stone.image_link, size: 200)),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: IconButton(
-                      icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? themeColor : Colors.grey.shade300,
+            boxShadow: [
+              BoxShadow(
+                // color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withOpacity(_isHoverd ? 0.08 : 0.03),
+                blurRadius: _isHoverd ? 20 : 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: AnimatedScale(
+                          scale: _isHoverd ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutCubic,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: SafeImage(
+                              url: widget.stone.image_link,
+                              size: 200,
+                            ),
+                          ),
+                        ),
                       ),
-                      onPressed: onFavoriteTap,
-                    ),
+
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: Icon(
+                            widget.isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: widget.isFavorite
+                                ? widget.themeColor
+                                : Colors.grey.shade300,
+                          ),
+                          onPressed: widget.onFavoriteTap,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${stone.weight} CT ${stone.shapeStr.toUpperCase()}",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 0.5,
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${widget.stone.weight} CT ${widget.stone.shapeStr.toUpperCase()}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${stone.colorStr.toUpperCase()} | ${stone.clarityStr.toUpperCase()}",
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 4),
+                    Text(
+                      "${widget.stone.colorStr.toUpperCase()} | ${widget.stone.clarityStr.toUpperCase()}",
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "\$${stone.total_price.toStringAsFixed(0)}",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
-                      fontSize: 18,
+                    const SizedBox(height: 10),
+                    Text(
+                      "\$${widget.stone.total_price.toStringAsFixed(0)}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                        fontSize: 18,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
