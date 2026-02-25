@@ -674,14 +674,6 @@ class _SafeImageState extends State<SafeImage> {
 
   @override
   Widget build(BuildContext context) {
-    // if (_bytes != null) {
-    //   return Image.memory(
-    //     _bytes!,
-    //     width: widget.size,
-    //     height: widget.size,
-    //     fit: BoxFit.contain,
-    //   );
-    // }
     if (_bytes != null) {
       return ColorFiltered(
         // This filter targets the lighter background pixels to blend them away
