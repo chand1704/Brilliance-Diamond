@@ -101,7 +101,7 @@ class GmssApiService {
           "carate_range_all": false,
         },
       },
-      "per_page": 100,
+      "per_page": 3000,
       "page": 1,
       "shape": shapeId != null ? [shapeId] : [],
       "stock_no": "",
