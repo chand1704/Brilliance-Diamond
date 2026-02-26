@@ -353,6 +353,12 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     String shape = stone.shapeStr.toUpperCase();
     bool isRound = shape.contains('ROUND');
     bool isEmerald = shape.contains('EMERALD');
+    bool isCushion = shape.contains('CUSHION');
+    bool isRadiant = shape.contains('RADIANT');
+    bool isMarquise = shape.contains('MARQUISE');
+    bool isPear = shape.contains('PEAR');
+    bool isOval = shape.contains('OVAL');
+    bool isHeart = shape.contains('HEART');
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -371,6 +377,18 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     ? CustomPaint(painter: RoundTopViewPainter(stone: stone))
                     : isEmerald
                     ? CustomPaint(painter: EmeraldTopViewPainter(stone: stone))
+                    : isCushion
+                    ? CustomPaint(painter: CushionTopViewPainter(stone: stone))
+                    : isRadiant
+                    ? CustomPaint(painter: RadiantTopViewPainter(stone: stone))
+                    : isMarquise
+                    ? CustomPaint(painter: MarquiseTopViewPainter(stone: stone))
+                    : isPear
+                    ? CustomPaint(painter: PearTopViewPainter(stone: stone))
+                    : isOval
+                    ? CustomPaint(painter: OvalTopViewPainter(stone: stone))
+                    : isHeart
+                    ? CustomPaint(painter: HeartTopViewPainter(stone: stone))
                     : Center(
                         child: Text(
                           "${stone.shapeStr} diagram coming soon",
