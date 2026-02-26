@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'gmss_screen.dart'; // Import the UI logic file
+import 'gmss_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
           primary: const Color(0xFF009688),
         ),
       ),
-      // home: const DiamondApp(),
       home: const GmssScreen(),
+      // home: DiamondDesign(),
     );
   }
 }

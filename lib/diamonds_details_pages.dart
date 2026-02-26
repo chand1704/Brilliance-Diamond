@@ -5,6 +5,7 @@ import 'dart:ui_web' as ui;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'DiamondDesign.dart';
 import 'model/gmss_stone_model.dart';
 
 class DiamondDetailScreen extends StatefulWidget {
@@ -66,14 +67,14 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
   late bool _isFav;
   // NEW: State variable to track slider value
-  double _currentCaratValue = 0.50;
+  // double _currentCaratValue = 0.50;
   final ValueNotifier<double> _caratNotifier = ValueNotifier<double>(0.50);
   @override
   void initState() {
     super.initState();
     _isFav = widget.isFavorite;
     // Set initial slider position to the actual stone weight
-    _currentCaratValue = widget.stone.weight;
+    // _currentCaratValue = widget.stone.weight;
     _caratNotifier.value = widget.stone.weight;
 
     double initialWeight = widget.stone.weight;
@@ -292,25 +293,145 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: isMobile ? _buildMobileLayout() : _buildDesktopLayout(),
-      ),
+      body: isMobile
+          ? SingleChildScrollView(child: _buildMobileLayout())
+          : _buildDesktopLayout(),
     );
   }
 
   Widget _buildDesktopLayout() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 3, child: _buildMainImageCard()),
-          const SizedBox(width: 15),
-          Expanded(flex: 3, child: _buildHandComparisonCard()),
-          const SizedBox(width: 25),
-          Expanded(flex: 3, child: _buildProductInfoPanel()),
+          // Left Section: Main Image, Hand Comparison, and Video Link
+          Expanded(
+            flex: 6,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: _buildMainImageCard()),
+                      const SizedBox(width: 15),
+                      Expanded(child: _buildHandComparisonCard()),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // Technical diagrams (Table, Depth, Width)
+                  _buildProportionDiagrams(widget.stone),
+                  const SizedBox(height: 20),
+                  // Video player section
+                  _buildEmbeddedVideoPlayer(),
+                  // Bottom padding to ensure the last diagram scrolls fully into view
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 30),
+
+          // Right Section: Product Details and Pricing
+          Expanded(
+            flex: 3,
+            child: Container(
+              // This side has NO ScrollView, so it stays fixed
+              child: _buildProductInfoPanel(),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildProportionDiagrams(GmssStone stone) {
+    // bool isRound = stone.shapeStr.toUpperCase().contains('ROUND');
+    String shape = stone.shapeStr.toUpperCase();
+    bool isRound = shape.contains('ROUND');
+    bool isEmerald = shape.contains('EMERALD');
+    return Container(
+      width: double.infinity,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1000),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                height: 400,
+                padding: const EdgeInsets.all(30),
+                color: const Color(0xFFF9F9F9),
+                child: isRound
+                    ? CustomPaint(painter: RoundTopViewPainter(stone: stone))
+                    : isEmerald
+                    ? CustomPaint(painter: EmeraldTopViewPainter(stone: stone))
+                    : Center(
+                        child: Text(
+                          "${stone.shapeStr} diagram coming soon",
+                          style: TextStyle(color: Colors.grey.shade400),
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 20),
+
+            Expanded(
+              child: Container(
+                height: 400,
+                padding: const EdgeInsets.all(30),
+                color: const Color(0xFFF9F9F9),
+                child: CustomPaint(
+                  painter: DiamondProfilePainter(stone: stone),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmbeddedVideoPlayer() {
+    const String videoUrl =
+        "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
+
+    // Unique ID for the platform view
+    // final String viewId = 'embedded-diamond-video';
+    final String viewId = 'embedded-diamond-video-${widget.stone.id}';
+
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
+      final video = html.VideoElement()
+        ..src = videoUrl
+        ..controls = false
+        ..autoplay = true
+        ..loop = true
+        ..muted = true
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'contain'
+        ..style.border = 'none';
+
+      return video;
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          height: 500, // Adjust the height as needed
+          decoration: const BoxDecoration(color: Colors.black),
+          child: HtmlElementView(viewType: viewId),
+        ),
+      ],
     );
   }
 
@@ -366,11 +487,11 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         "https://www.brilliance.com/front/img/src/assets/images/diamond4c/hand..png";
 
     // Scale logic: 1.0 scale factor is for 0.50ct baseline
-    const double baseStoneSize = 80.0;
+    // const double baseStoneSize = 80.0;
     // const String staticDiamondUrl =
     //     "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
 
-    final String shapeImageUrl = _getStaticShapeUrl(widget.stone.shapeStr);
+    // final String shapeImageUrl = _getStaticShapeUrl(widget.stone.shapeStr);
 
     return ValueListenableBuilder<double>(
       valueListenable: _caratNotifier,
@@ -678,7 +799,7 @@ class _SafeImageState extends State<SafeImage> {
       return ColorFiltered(
         // This filter targets the lighter background pixels to blend them away
         colorFilter: ColorFilter.mode(
-          Colors.white.withOpacity(0.9),
+          Colors.white.withValues(alpha: 0.9),
           BlendMode.modulate,
         ),
         child: Image.memory(

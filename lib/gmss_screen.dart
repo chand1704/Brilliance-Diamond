@@ -2198,7 +2198,7 @@ class _DiamondCardState extends State<_DiamondCard> {
             border: Border.all(
               color: _isHoverd
                   // Colors.grey.shade300 : Colors.grey.shade100,
-                  ? widget.themeColor.withOpacity(0.5)
+                  ? widget.themeColor.withValues(alpha: 0.5)
                   : Colors.transparent,
               width: 1,
             ),

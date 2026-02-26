@@ -7,6 +7,9 @@ class GmssStone {
   final String colorStr;
   final String clarityStr;
   final String cut;
+  final double length;
+  final double ratio;
+
   final String cut_code;
   final String lab;
   final String fl_intensity;
@@ -32,6 +35,10 @@ class GmssStone {
     required this.clarityStr,
     required this.cut,
     required this.cut_code,
+    required this.length,
+    required this.ratio,
+    // this.length = 0.0,
+    // this.ratio = 0.0,
     required this.lab,
     required this.fl_intensity,
     required this.polish,
@@ -49,7 +56,7 @@ class GmssStone {
 
   factory GmssStone.fromJson(Map<String, dynamic> json) {
     double safeDouble(dynamic v) {
-      if (v == null) return 0.0;
+      if (v == null || v.toString() == 'null') return 0.0;
       if (v is num) return v.toDouble();
       return double.tryParse(v.toString()) ?? 0.0;
     }
@@ -90,6 +97,8 @@ class GmssStone {
       depth: safeDouble(json['depth']),
       width: safeDouble(json['width']),
       table: safeDouble(json['table']),
+      ratio: safeDouble(json['ratio']), // MAP THE RATIO HERE
+      length: safeDouble(json['length']),
       weight: safeDouble(json['weight']),
       total_price: safeDouble(json['total_price']),
     );
