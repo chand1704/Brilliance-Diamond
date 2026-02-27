@@ -1203,52 +1203,109 @@ class HeartTopViewPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.shade600
+    final facetPaint = Paint()
+      ..color = Colors
+          .grey
+          .shade700 // Darker grey for better contrast
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
-    final infoPaint = Paint()
+    final dimensionPaint = Paint()
       ..color =
-          const Color(0xFF008080) // Professional Teal branding
+          const Color(0xFF008080) // Professional Teal
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
-    final dashedPaint = Paint()
+    final guidePaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
 
     final center = Offset(size.width / 2, size.height / 2);
 
-    // 1. Scaled Technical Proportions
-    // Calibrated height for the container, scaling width dynamically by ratio.
+    // 1. Precise Scaling based on Stone Ratio
+    // Calibrated height for technical containers, scaling width dynamically.
     final double h = size.height * 0.52;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.14);
 
-    // 2. Technical Boundary Box
-    _drawDashedBoundary(canvas, center, w, h, dashedPaint);
+    // 2. Technical Boundary Guidelines
+    _drawDashedBoundary(canvas, center, w, h, guidePaint);
 
     // 3. Perfect Symmetrical Path
-    final Path heartPath = _getPerfectHeartPath(center, w, h);
-    canvas.drawPath(heartPath, paint);
+    final Path heartPath = Path();
+    double cleftY = center.dy - h * 0.18;
+    double bottomY = center.dy + h * 0.5;
+    double lobeTopY = center.dy - h * 0.48;
+    heartPath.moveTo(center.dx, cleftY);
+    // Left Lobe: Refined control points for "Perfect" curves
+    heartPath.cubicTo(
+      center.dx - w * 0.5,
+      lobeTopY,
+      center.dx - w * 0.65,
+      center.dy + h * 0.1,
+      center.dx,
+      bottomY,
+    );
+    // Right Lobe: Mirrored for absolute symmetry
+    heartPath.moveTo(center.dx, cleftY);
+    heartPath.cubicTo(
+      center.dx + w * 0.5,
+      lobeTopY,
+      center.dx + w * 0.65,
+      center.dy + h * 0.1,
+      center.dx,
+      bottomY,
+    );
+    canvas.drawPath(heartPath, facetPaint);
 
     // 4. Advanced Brilliant Faceting Pattern
-    _drawHeartFacets(canvas, center, w, h, paint);
+    _drawHeartBrilliance(canvas, center, w, h, cleftY, bottomY, facetPaint);
 
-    // 5. Dimension Indicators with Aligned Arrowheads
-    _drawDimensions(canvas, center, w, h, infoPaint);
+    // 5. Dimension Indicators with Arrowheads
+    _drawDimensions(canvas, center, w, h, dimensionPaint);
+  }
+
+  void _drawHeartBrilliance(
+    Canvas canvas,
+    Offset center,
+    double w,
+    double h,
+    double cleftY,
+    double bottomY,
+    Paint paint,
+  ) {
+    // Technical Table (Vertical multifaceted diamond center)
+    final double tw = w * 0.4;
+    final double th = h * 0.35;
+    final Path table = Path();
+    table.moveTo(center.dx, center.dy - th * 0.45);
+    table.lineTo(center.dx + tw * 0.5, center.dy - th * 0.1);
+    table.lineTo(center.dx, center.dy + th * 0.65);
+    table.lineTo(center.dx - tw * 0.5, center.dy - th * 0.1);
+    table.close();
+    canvas.drawPath(table, paint);
+
+    // Vertical Brilliant Connectors
+    canvas.drawLine(
+      Offset(center.dx, cleftY),
+      Offset(center.dx, center.dy - th * 0.45),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, bottomY),
+      Offset(center.dx, center.dy + th * 0.65),
+      paint,
+    );
   }
 
   Path _getPerfectHeartPath(Offset center, double w, double h) {
     final Path path = Path();
-    // Balanced geometric coordinates for technical symmetry
     double topY = center.dy - h * 0.45;
     double bottomY = center.dy + h * 0.5;
     double cleftY = center.dy - h * 0.15;
 
     path.moveTo(center.dx, cleftY);
-    // Left Lobe: Control points set at 65% for full shoulders
+    // Left lobe with precise cubic control points for full shoulders
     path.cubicTo(
       center.dx - w * 0.5,
       topY,
@@ -1257,7 +1314,7 @@ class HeartTopViewPainter extends CustomPainter {
       center.dx,
       bottomY,
     );
-    // Right Lobe: Exact mirrored control points
+    // Right lobe - mirrored for perfect technical symmetry
     path.moveTo(center.dx, cleftY);
     path.cubicTo(
       center.dx + w * 0.5,
@@ -1277,7 +1334,7 @@ class HeartTopViewPainter extends CustomPainter {
     double h,
     Paint paint,
   ) {
-    // Technical Table (Vertical multifaceted diamond center)
+    // 1. Center Table Facet (Angular multifaceted diamond)
     final double tw = w * 0.42;
     final double th = h * 0.35;
     final Path table = Path();
@@ -1288,7 +1345,7 @@ class HeartTopViewPainter extends CustomPainter {
     table.close();
     canvas.drawPath(table, paint);
 
-    // Vertical Brilliant Connectors
+    // 2. Main Vertical Connectors
     canvas.drawLine(
       Offset(center.dx, center.dy - h * 0.15),
       Offset(center.dx, center.dy - th * 0.45),
@@ -1300,24 +1357,27 @@ class HeartTopViewPainter extends CustomPainter {
       paint,
     );
 
-    // Radial Facets for upper lobes and side wings
-    // canvas.drawLine(
-    //   Offset(center.dx - w * 0.15, center.dy - h * 0.25),
-    //   Offset(center.dx - tw * 0.2, center.dy - th * 0.25),
-    //   paint,
-    // );
-    // canvas.drawLine(
-    //   Offset(center.dx + w * 0.35, center.dy - h * 0.25),
-    //   Offset(center.dx + tw * 0.2, center.dy - th * 0.25),
-    //   paint,
-    // );
+    // 3. Radial Brilliant Facets (The "Sunburst" effect)
+    // Upper lobes
     canvas.drawLine(
-      Offset(center.dx - w * 0.48, center.dy + h * 0),
+      Offset(center.dx - w * 0.35, center.dy - h * 0.25),
+      Offset(center.dx - tw * 0.2, center.dy - th * 0.25),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx + w * 0.35, center.dy - h * 0.25),
+      Offset(center.dx + tw * 0.2, center.dy - th * 0.25),
+      paint,
+    );
+
+    // Side wings
+    canvas.drawLine(
+      Offset(center.dx - w * 0.48, center.dy + h * 0.1),
       Offset(center.dx - tw * 0.5, center.dy - th * 0.1),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx + w * 0.48, center.dy + h * 0),
+      Offset(center.dx + w * 0.48, center.dy + h * 0.1),
       Offset(center.dx + tw * 0.5, center.dy - th * 0.1),
       paint,
     );
@@ -1352,8 +1412,11 @@ class HeartTopViewPainter extends CustomPainter {
       }
     }
 
-    drawD(Offset(left, top), Offset(right + 45, top)); // Horizontal guide
-    drawD(Offset(right, top - 45), Offset(right, bottom)); // Vertical guide
+    drawD(Offset(left, top), Offset(right + 45, top)); // Horizontal top guide
+    drawD(
+      Offset(right, top - 45),
+      Offset(right, bottom),
+    ); // Vertical right guide
   }
 
   void _drawDimensions(
@@ -1363,8 +1426,8 @@ class HeartTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar with standardized Teal Arrowheads
-    double widthY = center.dy - h * 0.45 - 40;
+    // Width Bar
+    double widthY = center.dy - h * 0.45 - 35;
     canvas.drawLine(
       Offset(center.dx - w * 0.5, widthY),
       Offset(center.dx + w * 0.5, widthY),
@@ -1378,8 +1441,8 @@ class HeartTopViewPainter extends CustomPainter {
       Offset(center.dx, widthY - 15),
     );
 
-    // Length Bar with standardized Teal Arrowheads
-    double lengthX = center.dx + w * 0.5 + 40;
+    // Length Bar
+    double lengthX = center.dx + w * 0.5 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h * 0.45),
       Offset(lengthX, center.dy + h * 0.5),
@@ -1403,7 +1466,7 @@ class HeartTopViewPainter extends CustomPainter {
       Offset(lengthX + 55, center.dy),
     );
 
-    // Length to Width Ratio Label
+    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
