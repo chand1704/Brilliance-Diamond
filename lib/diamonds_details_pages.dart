@@ -293,33 +293,140 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Colors.black),
+      //     onPressed: () => Navigator.pop(context),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       icon: Icon(
+      //         _isFav ? Icons.favorite : Icons.favorite_border,
+      //         color: _isFav ? Colors.teal : Colors.black,
+      //       ),
+      //       onPressed: () {
+      //         setState(() => _isFav = !_isFav);
+      //         widget.onFavoriteToggle(_isFav);
+      //       },
+      //     ),
+      //     IconButton(
+      //       icon: const Icon(Icons.share_outlined, color: Colors.black),
+      //       onPressed: () {},
+      //     ),
+      //   ],
+      // ),
+      body: Column(
+        children: [
+          if (!isMobile) _buildMainHeader(const Color(0xFF005AAB)),
+          Expanded(
+            child: isMobile
+                ? SingleChildScrollView(child: _buildMobileLayout())
+                : _buildDesktopLayout(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Placeholder Hover Nav Link
+  Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _isFav ? Icons.favorite : Icons.favorite_border,
-              color: _isFav ? Colors.teal : Colors.black,
+      ),
+    );
+  }
+
+  // Add these dummy controllers if they aren't defined
+  final _diamondHoverController = null;
+  final _engagementHoverController = null;
+  final _weddingHoverController = null;
+  final _jewelryHoverController = null;
+  final _aboutHoverController = null;
+
+  // Placeholder Menu builders
+  Widget _buildMegaMenu(Color color) => Container();
+  Widget _buildEngagementMenu(Color color) => Container();
+  Widget _buildWeddingMenu(Color color) => Container();
+  Widget _buildJewelryMenu(Color color) => Container();
+  Widget _buildAboutMenu(Color color) => Container();
+  Widget _buildMainHeader(Color themeColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: Row(
+        children: [
+          // LOGO
+          const Text(
+            "BRILLIANCE",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 4,
+              color: Color(0xFF005AAB), // Brilliance Blue
             ),
-            onPressed: () {
-              setState(() => _isFav = !_isFav);
-              widget.onFavoriteToggle(_isFav);
-            },
+          ),
+          const Spacer(),
+          // NAVIGATION LINKS
+          Row(
+            children: [
+              _hoverNavLink(
+                "Diamonds",
+                _diamondHoverController,
+                _buildMegaMenu(themeColor),
+              ),
+              _hoverNavLink(
+                "Engagement",
+                _engagementHoverController,
+                _buildEngagementMenu(themeColor),
+              ),
+              _hoverNavLink(
+                "Wedding",
+                _weddingHoverController,
+                _buildWeddingMenu(themeColor),
+              ),
+              _hoverNavLink(
+                "Jewelry",
+                _jewelryHoverController,
+                _buildJewelryMenu(themeColor),
+              ),
+              _hoverNavLink(
+                "About",
+                _aboutHoverController,
+                _buildAboutMenu(themeColor),
+              ),
+            ],
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.search, size: 20),
+            onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: Colors.black),
+            icon: const Icon(Icons.favorite_border, size: 20),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_outline, size: 20),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_bag_outlined, size: 20),
             onPressed: () {},
           ),
         ],
       ),
-      body: isMobile
-          ? SingleChildScrollView(child: _buildMobileLayout())
-          : _buildDesktopLayout(),
     );
   }
 
