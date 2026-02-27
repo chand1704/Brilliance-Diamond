@@ -332,7 +332,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
     return MouseRegion(
       onEnter: (_) => _showMegaMenu(context, menu), // Trigger menu on hover
-      onExit: (_) => _hideMegaMenu(), // Hide when cursor leaves
+      // onExit: (_) => _hideMegaMenu(), // Hide when cursor leaves
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Text(
@@ -354,24 +354,32 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: 70, // Position right below your _buildMainHeader
+        top: 61, // Position right below your _buildMainHeader
         left: 0,
         right: 0,
         child: MouseRegion(
-          onEnter: (_) {}, // Keep open while mouse is on the menu
+          // onEnter: (_) {}, // Keep open while mouse is on the menu
           onExit: (_) => _hideMegaMenu(),
-          child: Material(
-            elevation: 8,
-            child: Container(
+          // child: Material(
+          //   elevation: 8,
+          child: Container(
+            decoration: BoxDecoration(
               color: Colors.white,
-              padding: const EdgeInsets.all(40),
-              child: menu, // This is your _buildMegaMenu(themeColor)
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
             ),
+            // padding: const EdgeInsets.all(40),
+            child: menu, // This is your _buildMegaMenu(themeColor)
           ),
+          // ),
         ),
       ),
     );
-
     Overlay.of(context).insert(_overlayEntry!);
   }
 
@@ -558,23 +566,35 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
   // FIX: Helper for individual shape icons in the grid
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-    return SizedBox(
-      width: 80,
-      child: Column(
-        children: [
-          Image.asset(
-            "assets/${shape['icon']}",
-            height: 35,
-            color: const Color(0xFF008080), // Use your Teal theme color
-            errorBuilder: (c, e, s) =>
-                const Icon(Icons.diamond_outlined, color: Colors.teal),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            shape['name'].toString().toUpperCase(),
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
-          ),
-        ],
+    return InkWell(
+      onTap: () {
+        _hideMegaMenu();
+      },
+      borderRadius: BorderRadius.circular(8),
+      hoverColor: Colors.teal.withOpacity(0.05),
+      child: Container(
+        width: 90,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/${shape['icon']}",
+              height: 38,
+              color: const Color(0xFF008080), // Use your Teal theme color
+              errorBuilder: (c, e, s) =>
+                  const Icon(Icons.diamond_outlined, color: Colors.teal),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              shape['name'].toString().toUpperCase(),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -882,7 +902,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w300,
-              letterSpacing: 4,
+              letterSpacing: 6,
               color: Color(0xFF005AAB), // Brilliance Blue
             ),
           ),
