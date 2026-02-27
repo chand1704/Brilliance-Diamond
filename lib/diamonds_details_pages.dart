@@ -4,6 +4,7 @@ import 'dart:ui_web' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart'; // Add this line
 
 import 'DiamondDesign.dart';
 import 'model/gmss_stone_model.dart';
@@ -63,6 +64,29 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     if (s.contains('OVAL')) return 2.38;
     if (s.contains('HEART')) return 5.60;
     return 0.0;
+  }
+
+  Future<void> _launchCertificate(String? url) async {
+    if (url == null || url.isEmpty || url == "null ") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Certificate not available for this stone"),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final Uri uri = Uri.parse(url);
+
+      // On Web, launchUrl is more reliable than canLaunchUrl
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint("Error launching URL: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Could not open certificate link")),
+      );
+    }
   }
 
   late bool _isFav;
@@ -484,7 +508,18 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             left: 20,
             child: Row(
               children: [
-                _buildBadge(Icons.verified_user_outlined, "IGI Certified"),
+                // Only show the InkWell if certi_file is not null
+                if (widget.stone.certi_file != null &&
+                    widget.stone.certi_file!.isNotEmpty)
+                  InkWell(
+                    onTap: () => _launchCertificate(widget.stone.certi_file),
+                    borderRadius: BorderRadius.circular(20),
+                    child: _buildBadge(
+                      Icons.verified_user_outlined,
+                      "IGI Certified",
+                    ),
+                  ),
+                // _buildBadge(Icons.verified_user_outlined, "IGI Certified"),
                 const SizedBox(width: 10),
                 InkWell(
                   onTap: () => _showVideoPopup(widget.stone.video_link),

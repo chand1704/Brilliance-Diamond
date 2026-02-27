@@ -24,6 +24,7 @@ class GmssStone {
   final double table;
   final String culet_size;
   final double total_price;
+  final String? certi_file;
 
   GmssStone({
     required this.id,
@@ -52,6 +53,7 @@ class GmssStone {
     required this.width,
     required this.table,
     required this.total_price,
+    this.certi_file,
   });
 
   factory GmssStone.fromJson(Map<String, dynamic> json) {
@@ -69,6 +71,14 @@ class GmssStone {
         : (rawVideo.startsWith('http')
               ? rawVideo
               : "https://dev2.kodllin.com/$rawVideo");
+
+    String? rawCert = json['certi_file']?.toString();
+    String? fullCert;
+    if (rawCert != null && rawCert.isNotEmpty && rawCert != "null") {
+      fullCert = rawCert.startsWith('http')
+          ? rawCert
+          : "https://dev2.kodllin.com/$rawCert";
+    }
     final shapeItem = json['shape_item'] as Map<String, dynamic>?;
     // final symmetryItem = json['symmetry_item'] as Map<String, dynamic>?;
     final cutItem = json['cut_item'] as Map<String, dynamic>?;
@@ -83,7 +93,7 @@ class GmssStone {
       // video_link: json['video_link']?.toString() ?? "",
       video_link: fullVideo,
       colorStr: json['color_str']?.toString() ?? "",
-
+      certi_file: fullCert,
       clarityStr: json['clarity_str']?.toString() ?? "",
       polish: json['polish']?.toString() ?? '',
       cut: json['cut']?.toString() ?? '',

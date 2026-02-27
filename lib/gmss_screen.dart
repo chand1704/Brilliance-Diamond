@@ -2269,7 +2269,7 @@ class _DiamondCardState extends State<_DiamondCard> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "${widget.stone.colorStr.toUpperCase()} | ${widget.stone.clarityStr.toUpperCase()}",
+                      "${widget.stone.colorStr.toUpperCase()} | ${widget.stone.clarityStr.toUpperCase()} | IGI Certified",
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 11,
