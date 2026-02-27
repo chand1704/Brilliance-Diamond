@@ -79,6 +79,7 @@ class GmssStone {
           ? rawCert
           : "https://dev2.kodllin.com/$rawCert";
     }
+
     final shapeItem = json['shape_item'] as Map<String, dynamic>?;
     // final symmetryItem = json['symmetry_item'] as Map<String, dynamic>?;
     final cutItem = json['cut_item'] as Map<String, dynamic>?;

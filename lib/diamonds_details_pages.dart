@@ -515,7 +515,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     onTap: () => _launchCertificate(widget.stone.certi_file),
                     borderRadius: BorderRadius.circular(20),
                     child: _buildBadge(
-                      Icons.verified_user_outlined,
+                      // Icons.verified_user_outlined,
+                      imageUrl:
+                          "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/IGI_logo.jpg",
                       "IGI Certified",
                     ),
                   ),
@@ -524,7 +526,10 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 InkWell(
                   onTap: () => _showVideoPopup(widget.stone.video_link),
                   borderRadius: BorderRadius.circular(20),
-                  child: _buildBadge(Icons.play_circle_outline, "360 Video"),
+                  child: _buildBadge(
+                    icon: Icons.play_circle_outline,
+                    "360 Video",
+                  ),
                 ),
               ],
             ),
@@ -748,7 +753,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  Widget _buildBadge(IconData icon, String label) {
+  Widget _buildBadge(String label, {IconData? icon, String? imageUrl}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -757,8 +762,22 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14),
+          // Icon(icon, size: 14),
+          if (imageUrl != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: SafeImage(
+                url: imageUrl,
+                size: 18,
+              ), // Using your SafeImage for the logo
+            )
+          else if (icon != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(icon, size: 14),
+            ),
           const SizedBox(width: 6),
           Text(
             label,
