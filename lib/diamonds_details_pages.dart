@@ -26,6 +26,18 @@ class DiamondDetailScreen extends StatefulWidget {
 }
 
 class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
+  final List<Map<String, dynamic>> shapeCategories = [
+    {'id': 1, 'name': 'Round', 'icon': 'images/Round.png'},
+    {'id': 2, 'name': 'Princess', 'icon': 'images/Princess.png'},
+    {'id': 3, 'name': 'Emerald', 'icon': 'images/Emerald.png'},
+    {'id': 4, 'name': 'Cushion', 'icon': 'images/Cushion.png'},
+    {'id': 5, 'name': 'Radiant', 'icon': 'images/Radiant.png'},
+    {'id': 6, 'name': 'Marquise', 'icon': 'images/Marquise.png'},
+    {'id': 7, 'name': 'Pear', 'icon': 'images/Pear.png'},
+    {'id': 8, 'name': 'Oval', 'icon': 'images/Oval.png'},
+    {'id': 9, 'name': 'Heart', 'icon': 'images/Heart.png'},
+    {'id': 27, 'name': 'Asscher', 'icon': 'images/Asscher.png'},
+  ];
   String _getStaticShapeUrl(String shape) {
     final s = shape.toLowerCase().trim();
     if (s.contains('round'))
@@ -49,7 +61,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     if (s.contains('asscher'))
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Asscher..png";
 
-    // Default fallback if shape is unknown
     return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
   }
 
@@ -90,8 +101,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   late bool _isFav;
-  // NEW: State variable to track slider value
-  // double _currentCaratValue = 0.50;
   final ValueNotifier<double> _caratNotifier = ValueNotifier<double>(0.50);
   @override
   void initState() {
@@ -115,7 +124,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
     final String viewId = 'diamond-video-${widget.stone.id}';
 
-    // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
       viewId,
       (int viewId) => html.IFrameElement()
@@ -293,30 +301,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back, color: Colors.black),
-      //     onPressed: () => Navigator.pop(context),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       icon: Icon(
-      //         _isFav ? Icons.favorite : Icons.favorite_border,
-      //         color: _isFav ? Colors.teal : Colors.black,
-      //       ),
-      //       onPressed: () {
-      //         setState(() => _isFav = !_isFav);
-      //         widget.onFavoriteToggle(_isFav);
-      //       },
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(Icons.share_outlined, color: Colors.black),
-      //       onPressed: () {},
-      //     ),
-      //   ],
-      // ),
+
       body: Column(
         children: [
           if (!isMobile) _buildMainHeader(const Color(0xFF005AAB)),
@@ -331,18 +316,68 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   // Placeholder Hover Nav Link
+  // Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 15),
+  //     child: Text(
+  //       label,
+  //       style: const TextStyle(
+  //         fontSize: 14,
+  //         fontWeight: FontWeight.w500,
+  //         color: Colors.black87,
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: Colors.black87,
+    return MouseRegion(
+      onEnter: (_) => _showMegaMenu(context, menu), // Trigger menu on hover
+      onExit: (_) => _hideMegaMenu(), // Hide when cursor leaves
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
         ),
       ),
     );
+  }
+
+  OverlayEntry? _overlayEntry;
+
+  void _showMegaMenu(BuildContext context, Widget menu) {
+    _hideMegaMenu(); // Clear existing menu
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 70, // Position right below your _buildMainHeader
+        left: 0,
+        right: 0,
+        child: MouseRegion(
+          onEnter: (_) {}, // Keep open while mouse is on the menu
+          onExit: (_) => _hideMegaMenu(),
+          child: Material(
+            elevation: 8,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(40),
+              child: menu, // This is your _buildMegaMenu(themeColor)
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideMegaMenu() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   // Add these dummy controllers if they aren't defined
@@ -353,11 +388,511 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   final _aboutHoverController = null;
 
   // Placeholder Menu builders
-  Widget _buildMegaMenu(Color color) => Container();
-  Widget _buildEngagementMenu(Color color) => Container();
-  Widget _buildWeddingMenu(Color color) => Container();
-  Widget _buildJewelryMenu(Color color) => Container();
-  Widget _buildAboutMenu(Color color) => Container();
+  Widget _buildMegaMenu(Color themeColor) {
+    return Material(
+      elevation: 20,
+      shadowColor: Colors.black26,
+      child: Container(
+        color: Colors.white,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. SHOP BY SHAPE GRID
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "SHOP BY SHAPE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 30,
+                    children: shapeCategories
+                        .map((shape) => _buildShapeIconItem(shape))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+
+            // 2. NATURAL DIAMONDS COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("NATURAL DIAMONDS", [
+                "All Natural Diamonds",
+                "Fancy Color Diamonds",
+                "GIA Certified",
+              ]),
+            ),
+
+            // 3. LAB GROWN COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("LAB GROWN", [
+                "All Lab Diamonds",
+                "Sustainable Choice",
+                "IGI Certified",
+              ]),
+            ),
+
+            // 4. NEW ARRIVALS PROMO CARD
+            _buildPromoCard(
+              "images/diamonds.png",
+              "NEW ARRIVALS",
+              "Exquisite Lab Brilliance",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // FIX: Defines the vertical text columns for the menu
+  Widget _menuColumn(String title, List<String> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 13,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              item,
+              style: const TextStyle(color: Colors.black87, fontSize: 13),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // FIX: Defines the dark-themed promo card on the right
+  Widget _buildPromoCard(String assetPath, String title, String subtitle) {
+    return Container(
+      width: 240,
+      height: 320,
+      margin: const EdgeInsets.only(left: 30),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              assetPath,
+              fit: BoxFit.cover,
+              errorBuilder: (c, e, s) => Container(
+                color: const Color(0xFF001F3F),
+              ), // Dark blue fallback
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.center,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.9),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FIX: Helper for individual shape icons in the grid
+  Widget _buildShapeIconItem(Map<String, dynamic> shape) {
+    return SizedBox(
+      width: 80,
+      child: Column(
+        children: [
+          Image.asset(
+            "assets/${shape['icon']}",
+            height: 35,
+            color: const Color(0xFF008080), // Use your Teal theme color
+            errorBuilder: (c, e, s) =>
+                const Icon(Icons.diamond_outlined, color: Colors.teal),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            shape['name'].toString().toUpperCase(),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildShapeIconItem(Map<String, dynamic> shape) {
+  //   return SizedBox(
+  //     width: 80,
+  //     child: Column(
+  //       children: [
+  //         Image.asset(
+  //           "assets/${shape['icon']}",
+  //           height: 35,
+  //           color: const Color(0xFF008080), // Teal theme color
+  //           errorBuilder: (c, e, s) =>
+  //               const Icon(Icons.diamond_outlined, color: Colors.teal),
+  //         ),
+  //         const SizedBox(height: 12),
+  //         Text(
+  //           shape['name'].toString().toUpperCase(),
+  //           style: const TextStyle(
+  //             fontSize: 10,
+  //             fontWeight: FontWeight.w700,
+  //             letterSpacing: 0.5,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildEngagementMenu(Color themeColor) {
+    return Material(
+      elevation: 0,
+      shadowColor: Colors.white,
+      child: Container(
+        color: Colors.white,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. SHOP BY STYLE
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "SHOP BY STYLE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _engagementStyleItem("Solitaire"),
+                  _engagementStyleItem("Side Stone"),
+                  _engagementStyleItem("Halo"),
+                  _engagementStyleItem("Three Stones"),
+                  _engagementStyleItem("Vintage"),
+                ],
+              ),
+            ),
+
+            // 2. CREATE YOUR OWN RING
+            Expanded(
+              flex: 2,
+              child: _menuColumn("CREATE YOUR OWN RING", [
+                "Start with a Setting",
+                "Start with a Diamond",
+                "3D Ring Creator",
+              ]),
+            ),
+
+            // 3. SHOP BY METAL & TIPS
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _menuColumn("SHOP BY METAL", [
+                    "White Gold",
+                    "Yellow Gold",
+                    "Rose Gold",
+                    "Platinum",
+                  ]),
+                  const SizedBox(height: 30),
+                  _menuColumn("ENGAGEMENT RING TIPS", [
+                    "Ring Guide",
+                    "Find Your Ring Size",
+                  ]),
+                ],
+              ),
+            ),
+
+            // 4. FEATURED 3D CREATOR CARD
+            _buildPromoCard(
+              "images/engagement.png", // Path to your ring image
+              "CREATE YOUR OWN RING",
+              "Explore Our 3D Creator",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _engagementStyleItem(String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          const Icon(Icons.diamond_outlined, size: 18, color: Colors.black54),
+          const SizedBox(width: 15),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeddingMenu(Color themeColor) {
+    return Material(
+      elevation: 20,
+      shadowColor: Colors.black26,
+      child: Container(
+        color: Colors.white,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. WOMEN'S RINGS COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("Women's Rings", [
+                "Diamond Wedding Bands",
+                "Diamond Eternity Bands",
+                "Gemstone Wedding Bands",
+                "Bestsellers",
+              ]),
+            ),
+
+            // 2. MEN'S RINGS COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("Men's Rings", [
+                "Men's Wedding Bands",
+                "Men's Diamond Rings",
+                "Top 10 Men's Rings",
+                "Timeless Inspired Rings",
+                "Bold & Unique Rings",
+              ]),
+            ),
+
+            // 3. WEDDING RING TIPS COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("Weddings Ring Tips", [
+                "Ring Size Chart",
+                "Metal Education",
+                "Women's Ring Guide",
+                "Men's Ring Guide",
+              ]),
+            ),
+
+            // 4. FEATURED WEDDING RINGS PROMO CARD
+            _buildPromoCard(
+              "images/wedding.png", // Ensure this path is in your assets
+              "Wedding Rings",
+              "Explore Our Best Sellers",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJewelryMenu(Color themeColor) {
+    return Material(
+      elevation: 20,
+      shadowColor: Colors.black26,
+      child: Container(
+        color: Colors.white,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. BRACELETS & RINGS COLUMN
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _menuColumn("Bracelets", [
+                    "Lab Diamond Bracelets",
+                    "Diamond Bracelets",
+                    "Gemstone Bracelets",
+                  ]),
+                  const SizedBox(height: 30),
+                  _menuColumn("Rings", [
+                    "Fashion Rings",
+                    "Eternity Rings",
+                    "Gemstone Rings",
+                  ]),
+                ],
+              ),
+            ),
+
+            // 2. GIFTS & COLLECTIONS COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("Gifts & Collections", [
+                "Gifts For Her",
+                "Tennis Bracelets",
+                "Hoop Earrings",
+              ]),
+            ),
+
+            // 3. FEATURED COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("Featured", [
+                "Custom Designed Jewelry",
+                "Jewelry Guids",
+                "Best Seller Bracelets",
+              ]),
+            ),
+
+            // 4. VAULT SALE PROMO CARD
+            _buildPromoCard(
+              "images/jwelry.png", // Ensure this path is in your assets
+              "Shop Vault Sale",
+              "Get 50% Off with code VAULT",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAboutMenu(Color themeColor) {
+    return Material(
+      elevation: 20,
+      shadowColor: Colors.black26,
+      child: Container(
+        color: Colors.white,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. BRILLIANCE COMPANY COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("BRILLIANCE", [
+                "About",
+                "Contact Us",
+                "Diamond Experts",
+                "Brilliance Reviews",
+                "Flexible Financing",
+              ]),
+            ),
+
+            // 2. CUSTOMER CARE COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("CUSTOMER CARE", [
+                "30 Day Return",
+                "Low Price Returns",
+                "Lifetime Warranty",
+                "FAQs",
+                "Resize Your Ring",
+                "care & Maintenance",
+              ]),
+            ),
+
+            // 3. EDUCATION & ARTICLES COLUMN
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _menuColumn("Education", [
+                    "Diamond Education",
+                    "Jewelry Education",
+                    "Engagement Ring Guide",
+                  ]),
+                  const SizedBox(height: 30),
+                  _menuColumn("Articles", [
+                    "Jewelry Cleaning Guide",
+                    "Diamond Fluorescence Explained",
+                    "What Is Rhodium Plating?",
+                  ]),
+                ],
+              ),
+            ),
+
+            // 4. HANDMADE PROMO CARD
+            _buildPromoCard(
+              "images/about.png", // Path to your about promo image
+              "Handmade with Love",
+              "Learn About Our Process",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMainHeader(Color themeColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -577,7 +1112,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         Container(
           width: double.infinity,
           height: 500, // Adjust the height as needed
-          decoration: const BoxDecoration(color: Colors.black),
+          // decoration: const BoxDecoration(color: Colors.black),
           child: HtmlElementView(viewType: viewId),
         ),
       ],

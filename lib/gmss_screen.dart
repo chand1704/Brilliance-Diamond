@@ -1354,18 +1354,17 @@ class _GmssScreenState extends State<GmssScreen> {
       ),
       child: Row(
         children: [
-          // LOGO
           const Text(
             "BRILLIANCE",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w300,
               letterSpacing: 4,
-              color: Color(0xFF005AAB), // Brilliance Blue
+              color: Color(0xFF005AAB),
             ),
           ),
           const Spacer(),
-          // NAVIGATION LINKS
+          // These links now use MouseRegion + OverlayPortal to show details on hover
           Row(
             children: [
               _hoverNavLink(
@@ -1396,6 +1395,7 @@ class _GmssScreenState extends State<GmssScreen> {
             ],
           ),
           const Spacer(),
+          // Action Icons
           IconButton(
             icon: const Icon(Icons.search, size: 20),
             onPressed: () {},
@@ -1593,15 +1593,17 @@ class _GmssScreenState extends State<GmssScreen> {
     Widget menuContent,
   ) {
     return MouseRegion(
-      onEnter: (_) => controller.show(), // Uses class-level controller
+      onEnter: (_) => controller.show(),
+      // We do NOT hide onExit here to allow the user to move the mouse into the menu
       child: OverlayPortal(
         controller: controller,
         overlayChildBuilder: (context) => Positioned(
-          top: 80,
+          top: 80, // Positioned exactly below the header
           left: 0,
           right: 0,
           child: MouseRegion(
-            onExit: (_) => controller.hide(),
+            onExit: (_) => controller
+                .hide(), // Hide only when leaving the entire menu area
             child: menuContent,
           ),
         ),
@@ -1612,44 +1614,96 @@ class _GmssScreenState extends State<GmssScreen> {
 
   Widget _buildMegaMenu(Color themeColor) {
     return Material(
-      elevation: 25, // Increased for a more "floating" luxury effect
-      shadowColor: Colors.black12,
+      elevation: 20,
+      shadowColor: Colors.black26,
       child: Container(
         color: Colors.white,
-        // Increased horizontal padding for a spacious, breathable layout
-        padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 40),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildIconGrid("SEARCH BY SHAPE", shapeCategories),
-
-              const VerticalDivider(width: 60, color: Colors.transparent),
-
-              _buildTextColumn("DIAMONDS", [
-                "Natural Diamonds",
-                "Lab Grown Diamonds",
-                "Fancy Color Diamonds",
-                "Melee Diamonds",
-              ]),
-              Spacer(),
-
-              _buildTextColumn("DIAMOND TIPS", [
-                "How to Buy a Diamond",
-                "Learn About the 4C's",
-                "Certification",
-                "Diamond Care",
-              ]),
-              Spacer(),
-
-              _buildPromoCard(
-                "images/diamonds.png", // FIXED: Removed "assets/" prefix to solve 404
-                "LAB GROWN DIAMONDS",
-                "Sustainable Brilliance",
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. SHOP BY SHAPE GRID (2 rows of icons)
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "SHOP BY SHAPE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 30,
+                    children: shapeCategories
+                        .map((shape) => _buildShapeIconItem(shape))
+                        .toList(),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            // 2. NATURAL DIAMONDS COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("NATURAL DIAMONDS", [
+                "All Natural Diamonds",
+                "Fancy Color Diamonds",
+                "GIA Certified",
+              ]),
+            ),
+
+            // 3. LAB GROWN COLUMN
+            Expanded(
+              flex: 2,
+              child: _menuColumn("LAB GROWN", [
+                "All Lab Diamonds",
+                "Sustainable Choice",
+                "IGI Certified",
+              ]),
+            ),
+
+            // 4. NEW ARRIVALS PROMO CARD
+            _buildPromoCard(
+              "images/diamonds.png", // Ensure this path is correct in your assets
+              "NEW ARRIVALS",
+              "Exquisite Lab Brilliance",
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildShapeIconItem(Map<String, dynamic> shape) {
+    return SizedBox(
+      width: 80,
+      child: Column(
+        children: [
+          // Using your existing asset logic
+          Image.asset(
+            "assets/${shape['icon']}",
+            height: 35,
+            color: const Color(0xFF008080), // Use your Teal theme color
+            errorBuilder: (c, e, s) =>
+                const Icon(Icons.diamond_outlined, color: Colors.teal),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            shape['name'].toString().toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }
