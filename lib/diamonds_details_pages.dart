@@ -579,32 +579,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  // Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-  //   return SizedBox(
-  //     width: 80,
-  //     child: Column(
-  //       children: [
-  //         Image.asset(
-  //           "assets/${shape['icon']}",
-  //           height: 35,
-  //           color: const Color(0xFF008080), // Teal theme color
-  //           errorBuilder: (c, e, s) =>
-  //               const Icon(Icons.diamond_outlined, color: Colors.teal),
-  //         ),
-  //         const SizedBox(height: 12),
-  //         Text(
-  //           shape['name'].toString().toUpperCase(),
-  //           style: const TextStyle(
-  //             fontSize: 10,
-  //             fontWeight: FontWeight.w700,
-  //             letterSpacing: 0.5,
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildEngagementMenu(Color themeColor) {
     return Material(
       elevation: 0,
