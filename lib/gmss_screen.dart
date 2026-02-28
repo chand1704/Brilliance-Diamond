@@ -584,10 +584,10 @@ class _GmssScreenState extends State<GmssScreen> {
           // 4.with image only checkbox
           const SizedBox(height: 40),
           _buildStaticFilters(themeColor),
-          const Divider(),
+          // const Divider(),
           //5. color
           const SizedBox(height: 40),
-          _buildColorSlider(themeColor),
+          // _buildColorSlider(themeColor),
           const Divider(), // Add a divider
           const SizedBox(height: 20),
           _buildClaritySlider(themeColor),
