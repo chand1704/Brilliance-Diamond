@@ -13,6 +13,55 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
+  bool isFancyExpanded = false;
+  String? selectedFancyColor;
+  final List<Map<String, dynamic>> fancyColors = [
+    {
+      'name': 'Green',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Green.png',
+    },
+    {
+      'name': 'Orange',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Orange.png',
+    },
+    {
+      'name': 'Pink',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Pink.png',
+    },
+    {
+      'name': 'Purple',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Purple.png',
+    },
+    {
+      'name': 'Yellow',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Yellow.png',
+    },
+    {
+      'name': 'Blue',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Blue.png',
+    },
+    {
+      'name': 'Grey',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Grey.png',
+    },
+    {
+      'name': 'Brown',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Brown.png',
+    },
+    {
+      'name': 'White',
+      'url':
+          'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_NZ.png',
+    },
+  ];
   // --------------------------------------------------------------------------------
   final OverlayPortalController _diamondHoverController =
       OverlayPortalController();
@@ -176,32 +225,47 @@ class _GmssScreenState extends State<GmssScreen> {
               : Colors.blue.shade700;
           List<GmssStone> applyFilters(List<GmssStone> list) {
             return list.where((stone) {
-              // 1. Basic Filters
-              // final bool matchesShape = (selectedShape == 'ALL')
-              //     ? true
-              //     : (stone.shapeStr ?? "").toLowerCase().trim() ==
-              //           selectedShape.toLowerCase().trim();
-              // Inside applyFilters method
               final bool matchesShape =
                   (selectedShapeId == 0 ||
                       selectedShape == "ALL") // Assuming 0 is 'ALL'
                   ? true
                   : (stone.shapeStr).toLowerCase().trim() ==
                         selectedShape.toLowerCase().trim();
+
               final bool matchesCarat =
                   stone.weight >= _caratRange.start &&
                   stone.weight <= _caratRange.end;
+
               final bool matchesPrice =
                   stone.total_price >= _priceRange.start &&
                   stone.total_price <= _priceRange.end;
+
+              bool matchesColor = false;
+
+              if (selectedFancyColor != null) {
+                // If a fancy color is picked, check if the stone color string contains it
+                matchesColor = stone.colorStr.toLowerCase().contains(
+                  selectedFancyColor!.toLowerCase(),
+                );
+              } else {
+                // Default D-L Range Logic
+                int colorIdx = shadeLabels.indexOf(
+                  stone.colorStr.trim().toUpperCase(),
+                );
+                matchesColor =
+                    (colorIdx == -1) ||
+                    (colorIdx >= _colorRange.start.toInt() &&
+                        colorIdx <= _colorRange.end.toInt());
+              }
               // 2. Color & Clarity (FIX: Added ?? "" to prevent the indexOf crash)
               int colorIdx = shadeLabels.indexOf(
                 (stone.colorStr).trim().toUpperCase(),
               );
-              bool matchesColor =
-                  (colorIdx == -1) ||
-                  (colorIdx >= _colorRange.start.toInt() &&
-                      colorIdx <= _colorRange.end.toInt());
+              // bool matchesColor =
+              //     (colorIdx == -1) ||
+              //     (colorIdx >= _colorRange.start.toInt() &&
+              //         colorIdx <= _colorRange.end.toInt());
+
               int clarityIdx = clarityLabels.indexOf(
                 (stone.clarityStr).trim().toUpperCase(),
               );
@@ -218,6 +282,7 @@ class _GmssScreenState extends State<GmssScreen> {
               int polishIdx = polishLabels.indexOf(
                 (stone.polish).trim().toUpperCase(),
               );
+
               bool matchesPolish =
                   (polishIdx == -1) ||
                   (polishIdx >= _polishRange.start.toInt() &&
@@ -225,6 +290,7 @@ class _GmssScreenState extends State<GmssScreen> {
               int flIdx = flLabels.indexOf(
                 (stone.fl_intensity).trim().toUpperCase(),
               );
+
               bool matchesFl =
                   (flIdx == -1) ||
                   (flIdx >= _flRange.start.toInt() &&
@@ -232,33 +298,42 @@ class _GmssScreenState extends State<GmssScreen> {
               int symIdx = symLabels.indexOf(
                 (stone.symmetry).trim().toUpperCase(),
               );
+
               bool matchesSym =
                   (symIdx == -1) ||
                   (symIdx >= _symRange.start.toInt() &&
                       symIdx <= _symRange.end.toInt());
+
               // 4. Depth & Table
               bool matchesDepth =
                   stone.depth >= _depthRange.start &&
                   stone.depth <= _depthRange.end;
+
               bool matchesTable =
                   stone.table >= _tableRange.start &&
                   stone.table <= _tableRange.end;
+
               int certIdx = certLabels.indexOf(
                 (stone.lab).trim().toUpperCase(),
               );
+
               bool matchesCert =
                   (certIdx == -1) ||
                   (certIdx >= _certRange.start.toInt() &&
                       certIdx <= _certRange.end.toInt());
+
               bool matchesImage = showOnlyWithImages
                   ? ((stone.image_link).isNotEmpty)
                   : true;
+
               // 6. Origin Filter
               final String stoneName = (stone.stoneName).toUpperCase();
+
               final bool matchesOrigin = (selectedOrigin == 1)
                   ? (stoneName.contains("LAB") || stoneName.contains("LGD"))
                   : (stoneName.contains("NATURAL") ||
                         stoneName.contains("NAT"));
+
               return matchesShape &&
                   matchesCarat &&
                   matchesPrice &&
@@ -335,6 +410,79 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
+  Widget _buildFancyColorFilter(Color themeColor) {
+    if (fancyColors == null || fancyColors.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final visibleColors = isFancyExpanded
+        ? fancyColors
+        : fancyColors.take(6).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader("Color"),
+        const SizedBox(height: 15),
+        Wrap(
+          spacing: 15,
+          runSpacing: 15,
+          children: visibleColors.map((item) {
+            bool isSelected = selectedFancyColor == item['name'];
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedFancyColor = isSelected ? null : item['name'];
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  // This creates the black square outline when selected
+                  border: Border.all(
+                    color: isSelected ? Colors.black : Colors.transparent,
+                    width: 1.5,
+                  ),
+                ),
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      // image: NetworkImage(item['url']),
+                      image: NetworkImage(
+                        "https://corsproxy.io/?${Uri.encodeComponent(item['url'])}",
+                      ),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 10),
+        // "Show more" / "Show less" toggle
+        InkWell(
+          onTap: () => setState(() => isFancyExpanded = !isFancyExpanded),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              isFancyExpanded ? "Show less" : "Show more",
+              style: const TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 14,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   // --- CENTERED SIDEBAR FILTERS ---
   Widget _buildSidebarFilters(Color themeColor) {
     return Container(
@@ -369,6 +517,8 @@ class _GmssScreenState extends State<GmssScreen> {
           const SizedBox(height: 15),
           _buildOriginSegmentedControl(),
           const SizedBox(height: 40),
+          _buildFancyColorFilter(themeColor),
+          const Divider(),
           // 2. CARAT SECTION
           _sectionHeader("Carat"),
           const SizedBox(height: 15),
@@ -706,6 +856,7 @@ class _GmssScreenState extends State<GmssScreen> {
                 _caratRange = const RangeValues(0.0, 15.0);
                 _priceRange = const RangeValues(0.0, 100000.0);
                 selectedOrigin = 1;
+                selectedFancyColor = null;
               });
             },
             icon: const Icon(
