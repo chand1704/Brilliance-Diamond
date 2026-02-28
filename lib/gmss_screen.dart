@@ -13,6 +13,7 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
+  bool isFancySearch = false;
   bool isFancyExpanded = false;
   String? selectedFancyColor;
   final List<Map<String, dynamic>> fancyColors = [
@@ -411,6 +412,19 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   Widget _buildFancyColorFilter(Color themeColor) {
+    String shapName = "RD"; // Default Round
+    String currentShape = selectedShape.toUpperCase();
+
+    if (currentShape == "PEAR") shapName = "PE";
+    if (currentShape == "EMERALD") shapName = "EM";
+    if (currentShape == "MARQUISE") shapName = "MQ";
+    if (currentShape == "CUSHION") shapName = "CU";
+    if (currentShape == "RADIANT") shapName = "RA";
+    if (currentShape == "OVAL") shapName = "OV";
+    if (currentShape == "HEART") shapName = "HT";
+    if (currentShape == "PRINCESS") shapName = "PR";
+    if (currentShape == "ASSCHER") shapName = "AS";
+
     if (fancyColors == null || fancyColors.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -422,13 +436,20 @@ class _GmssScreenState extends State<GmssScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader("Color"),
+        _sectionHeader("Fancy Color"),
         const SizedBox(height: 15),
         Wrap(
           spacing: 15,
           runSpacing: 15,
           children: visibleColors.map((item) {
             bool isSelected = selectedFancyColor == item['name'];
+
+            String colorFileName = item['name'];
+            if (colorFileName == "White") {
+              colorFileName = "NZ";
+            }
+            String imageUrl =
+                "https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_$colorFileName.png";
 
             return GestureDetector(
               onTap: () {
@@ -450,9 +471,9 @@ class _GmssScreenState extends State<GmssScreen> {
                   height: 42,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      // image: NetworkImage(item['url']),
                       image: NetworkImage(
-                        "https://corsproxy.io/?${Uri.encodeComponent(item['url'])}",
+                        // "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_${item['name']}.png")}",
+                        "https://corsproxy.io/?${Uri.encodeComponent(imageUrl)}",
                       ),
                       fit: BoxFit.contain,
                     ),
@@ -517,8 +538,18 @@ class _GmssScreenState extends State<GmssScreen> {
           const SizedBox(height: 15),
           _buildOriginSegmentedControl(),
           const SizedBox(height: 40),
-          _buildFancyColorFilter(themeColor),
-          const Divider(),
+          if (isFancySearch) ...[
+            _buildFancyColorFilter(
+              themeColor,
+            ), // Only show if user clicked "Fancy Color"
+            const Divider(),
+          ] else ...[
+            _buildColorSlider(
+              themeColor,
+            ), // Show standard slider for normal search
+            const Divider(),
+          ],
+
           // 2. CARAT SECTION
           _sectionHeader("Carat"),
           const SizedBox(height: 15),
@@ -1804,8 +1835,25 @@ class _GmssScreenState extends State<GmssScreen> {
             Expanded(
               flex: 2,
               child: _menuColumn("NATURAL DIAMONDS", [
-                "All Natural Diamonds",
-                "Fancy Color Diamonds",
+                _menuItem(
+                  "All Natural Diamonds",
+                  onTap: () {
+                    setState(() {
+                      isFancySearch = false; // Show the D-L Slider
+                    });
+                    _diamondHoverController.hide();
+                  },
+                ),
+                _menuItem(
+                  "Fancy Color Diamonds",
+                  onTap: () {
+                    setState(() {
+                      isFancySearch = true; // Show the Fancy Grid
+                      selectedFancyColor = null;
+                    });
+                    _diamondHoverController.hide();
+                  },
+                ),
                 "GIA Certified",
               ]),
             ),
@@ -1829,6 +1877,23 @@ class _GmssScreenState extends State<GmssScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _menuItem(String label, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      // child: Padding(
+      //   padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.black87,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+      // ),
     );
   }
 
@@ -2027,7 +2092,7 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  Widget _menuColumn(String title, List<String> items) {
+  Widget _menuColumn(String title, List<dynamic> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2036,15 +2101,26 @@ class _GmssScreenState extends State<GmssScreen> {
           style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
         const SizedBox(height: 20),
-        ...items.map(
-          (item) => Padding(
+        ...items.map((item) {
+          Widget content = item is String
+              ? Text(
+                  item,
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
+                )
+              : item as Widget;
+          return Padding(
             padding: const EdgeInsetsDirectional.only(bottom: 12),
-            child: Text(
-              item,
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
-            ),
-          ),
-        ),
+            child: content,
+          );
+          // Padding(
+          // padding: const EdgeInsetsDirectional.only(bottom: 12),
+          // child: item,
+          // Text(
+          //   item,
+          //   style: const TextStyle(color: Colors.black87, fontSize: 14),
+          // ),
+          // ),
+        }),
       ],
     );
   }
