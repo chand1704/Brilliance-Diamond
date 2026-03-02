@@ -60,6 +60,13 @@ class GmssStone {
       return double.tryParse(v.toString()) ?? 0.0;
     }
 
+    String rawImage = json['image_link']?.toString() ?? "";
+    String fullImage = rawImage;
+
+    if (rawImage.isNotEmpty && !rawImage.startsWith('http')) {
+      fullImage = "https://dev2.kodllin.com/$rawImage";
+    }
+
     String rawShape = json['shape_str']?.toString() ?? 'ROUND';
     String cleanShape = rawShape.split(' ')[0];
 
@@ -95,7 +102,8 @@ class GmssStone {
       lab: json['lab_name']?.toString() ?? '',
       fl_intensity: json['fl_intensity']?.toString() ?? '',
       polish: json['polish']?.toString() ?? '',
-      image_link: json['image_link']?.toString() ?? '',
+      image_link: fullImage,
+      // image_link: json['image_link']?.toString() ?? '',
       video_link: fullVideo,
       stoneName: json['stone_name']?.toString() ?? '',
       gridle_condition: json['gridle_condition']?.toString() ?? '',

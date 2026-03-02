@@ -127,6 +127,144 @@ class RoundTopViewPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+class PrincessTopViewPainter extends CustomPainter {
+  final GmssStone stone;
+  PrincessTopViewPainter({required this.stone});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.shade600
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    final infoPaint = Paint()
+      ..color =
+          const Color(0xFF008080) // Professional Teal
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // 1. Precise Scaling based on Stone Ratio
+    // Princess cuts are ideally square (1.00 to 1.05 ratio)
+    final double h = size.height * 0.5;
+    final double w = h / (stone.ratio > 0 ? stone.ratio : 1.0);
+
+    // 2. Outer Girdle (Square/Rectangle)
+    Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
+    canvas.drawRect(outerRect, paint);
+
+    // 3. Table Facet (Inner Square)
+    // The table of a princess cut is typically 65-75% of the width
+    final double tableW = w * 0.65;
+    final double tableH = h * 0.65;
+    Rect tableRect = Rect.fromCenter(
+      center: center,
+      width: tableW,
+      height: tableH,
+    );
+    canvas.drawRect(tableRect, paint);
+
+    // 4. Facet Lines (The characteristic "X" pattern)
+    _drawPrincessFacets(canvas, outerRect, tableRect, paint);
+
+    // 5. Professional Dimensioning
+    _drawDimensions(canvas, center, w, h, infoPaint);
+  }
+
+  void _drawPrincessFacets(Canvas canvas, Rect outer, Rect inner, Paint paint) {
+    // Corner Bezel Lines (Connecting the four corners)
+    canvas.drawLine(outer.topLeft, inner.topLeft, paint);
+    canvas.drawLine(outer.topRight, inner.topRight, paint);
+    canvas.drawLine(outer.bottomLeft, inner.bottomLeft, paint);
+    canvas.drawLine(outer.bottomRight, inner.bottomRight, paint);
+
+    // Star Facets (Cross pattern from table corners to side mid-points)
+    Offset topMid = Offset(outer.center.dx, outer.top);
+    Offset bottomMid = Offset(outer.center.dx, outer.bottom);
+    Offset leftMid = Offset(outer.left, outer.center.dy);
+    Offset rightMid = Offset(outer.right, outer.center.dy);
+
+    canvas.drawLine(inner.topLeft, topMid, paint);
+    canvas.drawLine(inner.topRight, topMid, paint);
+
+    canvas.drawLine(inner.bottomLeft, bottomMid, paint);
+    canvas.drawLine(inner.bottomRight, bottomMid, paint);
+
+    canvas.drawLine(inner.topLeft, leftMid, paint);
+    canvas.drawLine(inner.bottomLeft, leftMid, paint);
+
+    canvas.drawLine(inner.topRight, rightMid, paint);
+    canvas.drawLine(inner.bottomRight, rightMid, paint);
+  }
+
+  void _drawDimensions(
+    Canvas canvas,
+    Offset center,
+    double w,
+    double h,
+    Paint infoPaint,
+  ) {
+    // Width Bar (Top)
+    double widthY = center.dy - h / 2 - 30;
+    canvas.drawLine(
+      Offset(center.dx - w / 2, widthY),
+      Offset(center.dx + w / 2, widthY),
+      infoPaint,
+    );
+    _drawText(
+      canvas,
+      "Width: ${stone.width} mm",
+      Offset(center.dx, widthY - 15),
+    );
+
+    // Length Bar (Right)
+    double lengthX = center.dx + w / 2 + 35;
+    canvas.drawLine(
+      Offset(lengthX, center.dy - h / 2),
+      Offset(lengthX, center.dy + h / 2),
+      infoPaint,
+    );
+    _drawText(
+      canvas,
+      "Length: ${stone.length} mm",
+      Offset(lengthX + 50, center.dy),
+    );
+
+    // Ratio Label (Bottom)
+    _drawText(
+      canvas,
+      "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
+      Offset(center.dx, center.dy + h / 2 + 45),
+      isGrey: true,
+    );
+  }
+
+  void _drawText(
+    Canvas canvas,
+    String text,
+    Offset pos, {
+    bool isGrey = false,
+  }) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: isGrey ? Colors.grey.shade700 : const Color(0xFF008080),
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class EmeraldTopViewPainter extends CustomPainter {
   final GmssStone stone;
   EmeraldTopViewPainter({required this.stone});

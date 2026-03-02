@@ -1012,6 +1012,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     // bool isRound = stone.shapeStr.toUpperCase().contains('ROUND');
     String shape = stone.shapeStr.toUpperCase();
     bool isRound = shape.contains('ROUND');
+    bool isPrincess = shape.contains('PRINCESS');
     bool isEmerald = shape.contains('EMERALD');
     bool isCushion = shape.contains('CUSHION');
     bool isRadiant = shape.contains('RADIANT');
@@ -1035,6 +1036,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 color: const Color(0xFFF9F9F9),
                 child: isRound
                     ? CustomPaint(painter: RoundTopViewPainter(stone: stone))
+                    : isPrincess
+                    ? CustomPaint(painter: PrincessTopViewPainter(stone: stone))
                     : isEmerald
                     ? CustomPaint(painter: EmeraldTopViewPainter(stone: stone))
                     : isCushion
