@@ -1020,6 +1020,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     bool isPear = shape.contains('PEAR');
     bool isOval = shape.contains('OVAL');
     bool isHeart = shape.contains('HEART');
+    bool isBaguette = shape.contains('BAGUETTE');
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -1052,6 +1053,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     ? CustomPaint(painter: OvalTopViewPainter(stone: stone))
                     : isHeart
                     ? CustomPaint(painter: HeartTopViewPainter(stone: stone))
+                    : isBaguette
+                    ? CustomPaint(painter: BaguetteTopViewPainter(stone: stone))
                     : Center(
                         child: Text(
                           "${stone.shapeStr} diagram coming soon",

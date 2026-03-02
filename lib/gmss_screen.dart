@@ -174,6 +174,57 @@ class _GmssScreenState extends State<GmssScreen> {
     {'id': 8, 'name': 'Oval', 'icon': '${shapeBaseUrl}Oval.svg'},
     {'id': 9, 'name': 'Heart', 'icon': '${shapeBaseUrl}Heart.svg'},
     {'id': 27, 'name': 'Asscher', 'icon': '${shapeBaseUrl}1_sf_1734065506.svg'},
+    {'id': -1, 'name': 'Other', 'icon': '${shapeBaseUrl}white/Other.svg'},
+  ];
+  final List<Map<String, dynamic>> otherShapes = [
+    {'id': 10, 'name': 'Rose', 'icon': '${shapeBaseUrl}Other.svg'},
+    {'id': 11, 'name': 'Baguette', 'icon': '${shapeBaseUrl}Other.svg'},
+    {'id': 23, 'name': 'SQ Radiant', 'icon': '${shapeBaseUrl}Sq%20Radiant.svg'},
+    {
+      'id': 38,
+      'name': 'SQ Emerald',
+      'icon': '${shapeBaseUrl}1_sf_1734065422.svg',
+    },
+
+    {
+      'id': 43,
+      'name': 'Half Moon',
+      'icon': '${shapeBaseUrl}1_sf_1734074276.svg',
+    },
+    {
+      'id': 44,
+      'name': 'Trapezoid',
+      'icon': '${shapeBaseUrl}1_sf_1734074928.svg',
+    },
+    {
+      'id': 47,
+      'name': 'Pentagonal',
+      'icon': '${shapeBaseUrl}1_sf_1734074321.svg',
+    },
+    {
+      'id': 48,
+      'name': 'Hexagonal',
+      'icon': '${shapeBaseUrl}1_sf_1734074309.svg',
+    },
+    {
+      'id': 50,
+      'name': 'Triangular',
+      'icon': '${shapeBaseUrl}1_sf_1734074973.svg',
+    },
+    {
+      'id': 51,
+      'name': 'Trilliant',
+      'icon': '${shapeBaseUrl}1_sf_1734074959.svg',
+    },
+    {'id': 53, 'name': 'Shield', 'icon': '${shapeBaseUrl}1_sf_1734075003.svg'},
+    {'id': 54, 'name': 'Lozenge', 'icon': '${shapeBaseUrl}1_sf_1734075016.svg'},
+    {'id': 55, 'name': 'Kite', 'icon': '${shapeBaseUrl}1_sf_1734075038.svg'},
+    {
+      'id': 77,
+      'name': 'Portuguese',
+      'icon': '${shapeBaseUrl}50_sf_1737092508.svg',
+    },
+    // Add more as needed by your API
   ];
   @override
   void initState() {
@@ -1396,16 +1447,20 @@ class _GmssScreenState extends State<GmssScreen> {
 
           return GestureDetector(
             onTap: () {
-              setState(() {
-                // FIX 2: Update both the ID and the String Name
-                selectedShapeId = s['id'];
-                selectedShape = s['name'];
+              if (s['name'] == 'Other') {
+                _showOtherShapesPopup();
+              } else {
+                setState(() {
+                  // FIX 2: Update both the ID and the String Name
+                  selectedShapeId = s['id'];
+                  selectedShape = s['name'];
 
-                // FIX 3: Trigger the API call with the new ID
-                _future = GmssApiService.fetchGmssData(
-                  shapeId: selectedShapeId,
-                );
-              });
+                  // FIX 3: Trigger the API call with the new ID
+                  _future = GmssApiService.fetchGmssData(
+                    shapeId: selectedShapeId,
+                  );
+                });
+              }
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -1469,6 +1524,193 @@ class _GmssScreenState extends State<GmssScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  // void _showOtherShapesPopup() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text(
+  //         "Select Other Shapes",
+  //         style: TextStyle(fontWeight: FontWeight.bold),
+  //       ),
+  //       content: SizedBox(
+  //         width: 400,
+  //         child: GridView.builder(
+  //           shrinkWrap: true,
+  //           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //             crossAxisCount: 3,
+  //             mainAxisSpacing: 10,
+  //             crossAxisSpacing: 10,
+  //           ),
+  //           itemCount: otherShapes.length,
+  //           itemBuilder: (context, index) {
+  //             final shape = otherShapes[index];
+  //             return InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   selectedShapeId = shape['id'];
+  //                   selectedShape = shape['name'];
+  //                   // Fetch products from API based on the new shape ID
+  //                   _future = GmssApiService.fetchGmssData(
+  //                     shapeId: selectedShapeId,
+  //                   );
+  //                 });
+  //                 Navigator.pop(context); // Close popup
+  //               },
+  //               child: Column(
+  //                 children: [
+  //                   Expanded(
+  //                     child: SvgPicture.network(
+  //                       "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
+  //                       placeholderBuilder: (context) =>
+  //                           const CircularProgressIndicator(),
+  //                     ),
+  //                   ),
+  //                   Text(shape['name'], style: const TextStyle(fontSize: 12)),
+  //                 ],
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+  void _showOtherShapesPopup() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "OtherShapes",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) => const SizedBox(),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return Transform.scale(
+          scale: anim1.value,
+          child: Opacity(
+            opacity: anim1.value,
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              titlePadding: EdgeInsets.zero,
+              title: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 24,
+                ),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Browse More Shapes",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              content: Container(
+                width: 500,
+                padding: const EdgeInsets.only(top: 10),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 15,
+                    crossAxisSpacing: 15,
+                    childAspectRatio: 0.9,
+                  ),
+                  itemCount: otherShapes.length,
+                  itemBuilder: (context, index) {
+                    final shape = otherShapes[index];
+                    return _buildShapeGridItem(shape);
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildShapeGridItem(Map<String, dynamic> shape) {
+    bool isSelected = selectedShapeId == shape['id'];
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedShapeId = shape['id'];
+          selectedShape = shape['name'];
+          _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+        });
+        Navigator.pop(context);
+      },
+      borderRadius: BorderRadius.circular(15),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.teal.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isSelected ? Colors.teal : Colors.grey.shade200,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 45,
+              width: 45,
+              child: SvgPicture.network(
+                "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
+                colorFilter: ColorFilter.mode(
+                  isSelected ? Colors.teal : Colors.black87,
+                  BlendMode.srcIn,
+                ),
+                placeholderBuilder: (context) => const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.teal,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              shape['name'].toString().toUpperCase(),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: isSelected ? Colors.teal : Colors.black54,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

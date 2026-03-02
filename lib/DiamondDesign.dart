@@ -1659,6 +1659,225 @@ class HeartTopViewPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
+class BaguetteTopViewPainter extends CustomPainter {
+  final GmssStone stone;
+  BaguetteTopViewPainter({required this.stone});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 1. Setup Paints
+    final facetPaint = Paint()
+      ..color = Colors.grey.shade700
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.3;
+
+    final filledPaint = Paint()
+      ..color = const Color(0xFF008080).withOpacity(0.05)
+      ..style = PaintingStyle.fill;
+
+    final dimensionPaint = Paint()
+      ..color = const Color(0xFF008080)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final guidePaint = Paint()
+      ..color = Colors.grey.shade300
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Scaling: Hexagons are usually equal in width/height (Ratio 1.0)
+    final double radius = (size.width * 0.45) / 2;
+    final double h = radius * 2;
+    final double w = h / (stone.ratio > 0 ? stone.ratio : 1.0);
+
+    // 2. Draw Technical Guides
+    _drawDashedBoundary(canvas, center, w, h, guidePaint);
+
+    // 3. Define Hexagon Points (Outer Girdle)
+    List<Offset> outerPoints = [];
+    for (int i = 0; i < 6; i++) {
+      double angle = (i * 60) * math.pi / 180;
+      outerPoints.add(
+        Offset(
+          center.dx + radius * math.cos(angle),
+          center.dy + radius * math.sin(angle),
+        ),
+      );
+    }
+
+    // 4. Define Table Points (Inner Hexagon)
+    final double tableRadius = radius * 0.45;
+    List<Offset> tablePoints = [];
+    for (int i = 0; i < 6; i++) {
+      double angle = (i * 60) * math.pi / 180;
+      tablePoints.add(
+        Offset(
+          center.dx + tableRadius * math.cos(angle),
+          center.dy + tableRadius * math.sin(angle),
+        ),
+      );
+    }
+
+    // 5. Draw the Geometry
+    final Path hexPath = Path()..addPolygon(outerPoints, true);
+    canvas.drawPath(hexPath, filledPaint); // Soft teal background
+    canvas.drawPath(hexPath, facetPaint); // Outer border
+
+    // Draw Inner Table
+    canvas.drawPath(Path()..addPolygon(tablePoints, true), facetPaint);
+
+    // 6. Draw Internal Facet Lines (As per your image)
+    for (int i = 0; i < 6; i++) {
+      // Connect Table corners to Girdle corners
+      canvas.drawLine(tablePoints[i], outerPoints[i], facetPaint);
+
+      // Draw the triangular "star" facets between main segments
+      // Connect table corner to the midpoint of the outer girdle edge
+      double midAngle = (i * 60 + 30) * math.pi / 180;
+      Offset girdleMid = Offset(
+        center.dx + (radius * 0.866) * math.cos(midAngle), // 0.866 is cos(30)
+        center.dy + (radius * 0.866) * math.sin(midAngle),
+      );
+
+      canvas.drawLine(tablePoints[i], girdleMid, facetPaint);
+      canvas.drawLine(tablePoints[(i + 1) % 6], girdleMid, facetPaint);
+
+      // Vertical/Horizontal cross-hair pattern seen in your reference
+      canvas.drawLine(center, tablePoints[i], facetPaint);
+    }
+
+    // 7. Draw Professional Dimensions
+    _drawDimensions(canvas, center, radius, dimensionPaint);
+  }
+
+  void _drawDashedBoundary(
+    Canvas canvas,
+    Offset center,
+    double w,
+    double h,
+    Paint paint,
+  ) {
+    final double top = center.dy - h / 2;
+    final double bottom = center.dy + h / 2;
+    final double left = center.dx - w / 2;
+    final double right = center.dx + w / 2;
+    const double ext = 15.0;
+
+    void drawLine(Offset p1, Offset p2) {
+      double dist = (p2 - p1).distance;
+      for (double i = 0; i < dist; i += 8) {
+        canvas.drawLine(
+          Offset(
+            p1.dx + (p2.dx - p1.dx) * i / dist,
+            p1.dy + (p2.dy - p1.dy) * i / dist,
+          ),
+          Offset(
+            p1.dx + (p2.dx - p1.dx) * (i + 4) / dist,
+            p1.dy + (p2.dy - p1.dy) * (i + 4) / dist,
+          ),
+          paint,
+        );
+      }
+    }
+
+    // Corner L-pipes
+    drawLine(Offset(left - ext, top), Offset(left, top));
+    drawLine(Offset(left, top - ext), Offset(left, top));
+    drawLine(Offset(right, top), Offset(right + ext, top));
+    drawLine(Offset(right, top - ext), Offset(right, top));
+    drawLine(Offset(left - ext, bottom), Offset(left, bottom));
+    drawLine(Offset(left, bottom), Offset(left, bottom + ext));
+    drawLine(Offset(right, bottom), Offset(right + ext, bottom));
+    drawLine(Offset(right, bottom), Offset(right, bottom + ext));
+  }
+
+  void _drawDimensions(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    Paint infoPaint,
+  ) {
+    // Width (Top)
+    double widthY = center.dy - radius - 35;
+    canvas.drawLine(
+      Offset(center.dx - radius, widthY),
+      Offset(center.dx + radius, widthY),
+      infoPaint,
+    );
+    _drawArrow(canvas, Offset(center.dx - radius, widthY), 0, infoPaint);
+    _drawArrow(canvas, Offset(center.dx + radius, widthY), 180, infoPaint);
+    _drawText(
+      canvas,
+      "Width: ${stone.width} mm",
+      Offset(center.dx, widthY - 15),
+    );
+
+    // Length (Right)
+    double lengthX = center.dx + radius + 35;
+    canvas.drawLine(
+      Offset(lengthX, center.dy - radius),
+      Offset(lengthX, center.dy + radius),
+      infoPaint,
+    );
+    _drawArrow(canvas, Offset(lengthX, center.dy - radius), 90, infoPaint);
+    _drawArrow(canvas, Offset(lengthX, center.dy + radius), 270, infoPaint);
+    _drawText(
+      canvas,
+      "Length: ${stone.length} mm",
+      Offset(lengthX + 55, center.dy),
+    );
+
+    // Ratio (Bottom)
+    _drawText(
+      canvas,
+      "Ratio: ${stone.ratio.toStringAsFixed(2)} to 1",
+      Offset(center.dx, center.dy + radius + 45),
+      isGrey: true,
+    );
+  }
+
+  void _drawArrow(Canvas canvas, Offset point, double angleDeg, Paint paint) {
+    double angle = angleDeg * math.pi / 180;
+    Path p = Path()
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + 6 * math.cos(angle - 0.5),
+        point.dy + 6 * math.sin(angle - 0.5),
+      )
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + 6 * math.cos(angle + 0.5),
+        point.dy + 6 * math.sin(angle + 0.5),
+      );
+    canvas.drawPath(p, paint);
+  }
+
+  void _drawText(
+    Canvas canvas,
+    String text,
+    Offset pos, {
+    bool isGrey = false,
+  }) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: isGrey ? Colors.grey.shade700 : const Color(0xFF008080),
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
 class DiamondProfilePainter extends CustomPainter {
   final GmssStone stone;
   DiamondProfilePainter({required this.stone});
