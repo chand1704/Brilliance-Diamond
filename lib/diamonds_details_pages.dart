@@ -897,15 +897,15 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       child: Row(
         children: [
           // LOGO
-          const Text(
-            "BRILLIANCE",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 6,
-              color: Color(0xFF005AAB), // Brilliance Blue
-            ),
-          ),
+          // const Text(
+          //   "BRILLIANCE",
+          //   style: TextStyle(
+          //     fontSize: 24,
+          //     fontWeight: FontWeight.w300,
+          //     letterSpacing: 6,
+          //     color: Color(0xFF005AAB), // Brilliance Blue
+          //   ),
+          // ),
           const Spacer(),
           // NAVIGATION LINKS
           Row(

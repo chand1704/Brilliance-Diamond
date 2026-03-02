@@ -7,7 +7,7 @@ import '../model/gmss_stone_model.dart';
 class GmssApiService {
   static const String apiUrl = 'https://dev2.kodllin.com/apis/api/gmss';
 
-  static Future<List<GmssStone>> fetchGmssData({int? shapeId}) async {
+  static Future<List<GmssStone>> fetchGmssData({required int shapeId}) async {
     final body = {
       "fl_ar": {
         "stone_lab": [],

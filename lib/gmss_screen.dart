@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 
 import 'diamonds_details_pages.dart';
@@ -160,17 +161,19 @@ class _GmssScreenState extends State<GmssScreen> {
   ); // Start with all selected
   int selectedOrigin = 1;
   final String baseAssetUrl = "https://dev2.kodllin.com/";
+  static const String shapeBaseUrl =
+      "https://demo.kodllin.com/apis/storage/app/shape_images/";
   final List<Map<String, dynamic>> shapeCategories = [
-    {'id': 1, 'name': 'Round', 'icon': 'images/Round.png'},
-    {'id': 2, 'name': 'Princess', 'icon': 'images/Princess.png'},
-    {'id': 3, 'name': 'Emerald', 'icon': 'images/Emerald.png'},
-    {'id': 4, 'name': 'Cushion', 'icon': 'images/Cushion.png'},
-    {'id': 5, 'name': 'Radiant', 'icon': 'images/Radiant.png'},
-    {'id': 6, 'name': 'Marquise', 'icon': 'images/Marquise.png'},
-    {'id': 7, 'name': 'Pear', 'icon': 'images/Pear.png'},
-    {'id': 8, 'name': 'Oval', 'icon': 'images/Oval.png'},
-    {'id': 9, 'name': 'Heart', 'icon': 'images/Heart.png'},
-    {'id': 27, 'name': 'Asscher', 'icon': 'images/Asscher.png'},
+    {'id': 1, 'name': 'Round', 'icon': '${shapeBaseUrl}Round.svg'},
+    {'id': 2, 'name': 'Princess', 'icon': '${shapeBaseUrl}Princess.svg'},
+    {'id': 3, 'name': 'Emerald', 'icon': '${shapeBaseUrl}Emerald.svg'},
+    {'id': 4, 'name': 'Cushion', 'icon': '${shapeBaseUrl}Cushion.svg'},
+    {'id': 5, 'name': 'Radiant', 'icon': '${shapeBaseUrl}L%20Radiant.svg'},
+    {'id': 6, 'name': 'Marquise', 'icon': '${shapeBaseUrl}Marquise.svg'},
+    {'id': 7, 'name': 'Pear', 'icon': '${shapeBaseUrl}Pear.svg'},
+    {'id': 8, 'name': 'Oval', 'icon': '${shapeBaseUrl}Oval.svg'},
+    {'id': 9, 'name': 'Heart', 'icon': '${shapeBaseUrl}Heart.svg'},
+    {'id': 27, 'name': 'Asscher', 'icon': '${shapeBaseUrl}1_sf_1734065506.svg'},
   ];
   @override
   void initState() {
@@ -1408,6 +1411,7 @@ class _GmssScreenState extends State<GmssScreen> {
               duration: const Duration(milliseconds: 300),
               width: 90,
               margin: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: active ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(15),
@@ -1415,19 +1419,42 @@ class _GmssScreenState extends State<GmssScreen> {
                   color: active ? Colors.teal : Colors.grey.shade200,
                   width: active ? 2 : 1,
                 ),
+                boxShadow: active
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : [],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    // s['icon']!,
-                    "assets/${s['icon']}",
+                  SvgPicture.network(
+                    "https://corsproxy.io/?${Uri.encodeComponent(s['icon'])}",
                     height: 30,
                     width: 30,
-                    // color: active ? Colors.teal : Colors.grey,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.diamond_outlined),
+                    colorFilter: ColorFilter.mode(
+                      active ? Colors.teal : Colors.grey,
+                      BlendMode.srcIn,
+                    ),
+                    placeholderBuilder: (context) => const SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: CircularProgressIndicator(strokeWidth: 1),
+                    ),
                   ),
+                  // Image.asset(
+                  //   // s['icon']!,
+                  //   "assets/${s['icon']}",
+                  //   height: 30,
+                  //   width: 30,
+                  //   // color: active ? Colors.teal : Colors.grey,
+                  //   errorBuilder: (context, error, stackTrace) =>
+                  //       const Icon(Icons.diamond_outlined, color: Colors.grey),
+                  // ),
                   const SizedBox(height: 8),
                   Text(
                     s['name']!.toUpperCase(),
@@ -2099,14 +2126,29 @@ class _GmssScreenState extends State<GmssScreen> {
       width: 80,
       child: Column(
         children: [
-          // Using your existing asset logic
-          Image.asset(
-            "assets/${shape['icon']}",
+          SvgPicture.network(
+            "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
             height: 35,
-            color: const Color(0xFF008080), // Use your Teal theme color
+            colorFilter: const ColorFilter.mode(
+              Color(0xFF008080), // Teal theme color
+              BlendMode.srcIn,
+            ),
+            placeholderBuilder: (context) => const SizedBox(
+              height: 35,
+              width: 35,
+              child: CircularProgressIndicator(strokeWidth: 1),
+            ),
             errorBuilder: (c, e, s) =>
                 const Icon(Icons.diamond_outlined, color: Colors.teal),
           ),
+          // Using your existing asset logic
+          // Image.asset(
+          //   "assets/${shape['icon']}",
+          //   height: 35,
+          //   color: const Color(0xFF008080), // Use your Teal theme color
+          //   errorBuilder: (c, e, s) =>
+          //       const Icon(Icons.diamond_outlined, color: Colors.teal),
+          // ),
           const SizedBox(height: 12),
           Text(
             shape['name'].toString().toUpperCase(),
@@ -2182,7 +2224,11 @@ class _GmssScreenState extends State<GmssScreen> {
   Widget _enhancedShapeMenuItem(Map<String, dynamic> shape, Color themeColor) {
     return InkWell(
       onTap: () {
-        setState(() => selectedShape = shape['name']!);
+        setState(() {
+          selectedShape = shape['name']!;
+          selectedShapeId = shape['id'];
+          _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+        });
         _diamondHoverController.hide();
       },
       // Adding a transparent hover color for better feedback
@@ -2194,12 +2240,19 @@ class _GmssScreenState extends State<GmssScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(
           children: [
-            Image.asset(
-              "assets/${shape['icon']}",
+            SvgPicture.network(
+              "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
               height: 38,
+              placeholderBuilder: (context) => const SizedBox(height: 38),
               errorBuilder: (c, e, s) =>
                   const Icon(Icons.diamond_outlined, color: Colors.grey),
             ),
+            // Image.asset(
+            //   "assets/${shape['icon']}",
+            //   height: 38,
+            //   errorBuilder: (c, e, s) =>
+            //       const Icon(Icons.diamond_outlined, color: Colors.grey),
+            // ),
             const SizedBox(height: 12),
             Text(
               shape['name']!.toUpperCase(),
