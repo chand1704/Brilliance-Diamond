@@ -13,6 +13,17 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
+  double selectedSaturation = 0;
+  // Add this in your State class where other filters like _caratRange are defined
+  RangeValues _saturationRange = const RangeValues(0, 5);
+  final List<String> saturationLabels = [
+    "Light",
+    "Fancy",
+    "Intense",
+    "Vivid",
+    "Deep",
+    "Dark",
+  ];
   bool isFancySearch = false;
   bool isFancyExpanded = false;
   String? selectedFancyColor;
@@ -226,6 +237,28 @@ class _GmssScreenState extends State<GmssScreen> {
               : Colors.blue.shade700;
           List<GmssStone> applyFilters(List<GmssStone> list) {
             return list.where((stone) {
+              bool matchesSaturation = true;
+              if (isFancySearch) {
+                // bool colorMatches = selectedFancyColor == null ||
+                //     stone.colorStr.toLowerCase().contains(selectedFancyColor!.toLowerCase());
+                // Extract the saturation level from the stone's color string
+                // (e.g., "Fancy Intense Yellow" contains "Intense")
+                int stoneSaturationIdx = -1;
+                for (int i = 0; i < saturationLabels.length; i++) {
+                  if (stone.colorStr.toUpperCase().contains(
+                    saturationLabels[i].toUpperCase(),
+                  )) {
+                    stoneSaturationIdx = i;
+                    break;
+                  }
+                }
+
+                // Check if the stone's saturation falls within the selected range
+                matchesSaturation =
+                    (stoneSaturationIdx == -1) ||
+                    (stoneSaturationIdx >= _saturationRange.start.toInt() &&
+                        stoneSaturationIdx <= _saturationRange.end.toInt());
+              }
               final bool matchesShape =
                   (selectedShapeId == 0 ||
                       selectedShape == "ALL") // Assuming 0 is 'ALL'
@@ -243,13 +276,17 @@ class _GmssScreenState extends State<GmssScreen> {
 
               bool matchesColor = false;
 
-              if (selectedFancyColor != null) {
-                // If a fancy color is picked, check if the stone color string contains it
-                matchesColor = stone.colorStr.toLowerCase().contains(
-                  selectedFancyColor!.toLowerCase(),
-                );
+              if (isFancySearch && selectedFancyColor != null) {
+                String targetColor = selectedFancyColor!.toLowerCase();
+                String targetSaturation =
+                    saturationLabels[selectedSaturation.toInt()].toLowerCase();
+
+                // Checks if the stone string contains both the color and saturation (e.g., "Fancy Intense Yellow")
+                matchesColor =
+                    stone.colorStr.toLowerCase().contains(targetColor) &&
+                    stone.colorStr.toLowerCase().contains(targetSaturation);
               } else {
-                // Default D-L Range Logic
+                // Default D-L Range Logic for standard diamonds
                 int colorIdx = shadeLabels.indexOf(
                   stone.colorStr.trim().toUpperCase(),
                 );
@@ -348,6 +385,7 @@ class _GmssScreenState extends State<GmssScreen> {
                   matchesTable &&
                   matchesCert &&
                   matchesImage &&
+                  matchesSaturation &&
                   matchesOrigin;
             }).toList();
           }
@@ -408,6 +446,72 @@ class _GmssScreenState extends State<GmssScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSaturationSlider(Color themeColor) {
+    // Safety check to prevent the 'start' of undefined error
+    // If _saturationRange is null, we initialize it or return an empty box
+    final RangeValues currentRange =
+        _saturationRange ?? const RangeValues(0, 5);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Saturation",
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 15,
+            color: Color(0xFF2D3142),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 4,
+            activeTrackColor: themeColor,
+            inactiveTrackColor: Colors.grey.shade200,
+            rangeThumbShape: const RoundRangeSliderThumbShape(
+              enabledThumbRadius: 10,
+              elevation: 4,
+            ),
+            overlayColor: themeColor.withOpacity(0.1),
+            tickMarkShape: SliderTickMarkShape.noTickMark,
+          ),
+          child: RangeSlider(
+            values: currentRange,
+            min: 0,
+            max: (saturationLabels.length - 1).toDouble(),
+            divisions: saturationLabels.length - 1,
+            onChanged: (RangeValues values) {
+              setState(() {
+                _saturationRange = values;
+              });
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(saturationLabels.length, (index) {
+              // Null-safe access to start and end
+              bool isActive =
+                  index >= currentRange.start.toInt() &&
+                  index <= currentRange.end.toInt();
+              return Text(
+                saturationLabels[index],
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                  color: isActive ? Colors.black87 : Colors.grey.shade400,
+                ),
+              );
+            }),
+          ),
+        ),
+      ],
     );
   }
 
@@ -539,14 +643,13 @@ class _GmssScreenState extends State<GmssScreen> {
           _buildOriginSegmentedControl(),
           const SizedBox(height: 40),
           if (isFancySearch) ...[
-            _buildFancyColorFilter(
-              themeColor,
-            ), // Only show if user clicked "Fancy Color"
+            _buildFancyColorFilter(themeColor),
+            const SizedBox(height: 30),
+            _buildSaturationSlider(themeColor),
+            const SizedBox(height: 30),
             const Divider(),
           ] else ...[
-            _buildColorSlider(
-              themeColor,
-            ), // Show standard slider for normal search
+            _buildColorSlider(themeColor),
             const Divider(),
           ],
 
@@ -586,10 +689,10 @@ class _GmssScreenState extends State<GmssScreen> {
           _buildStaticFilters(themeColor),
           // const Divider(),
           //5. color
-          const SizedBox(height: 40),
+          // const SizedBox(height: 40),
           // _buildColorSlider(themeColor),
           const Divider(), // Add a divider
-          const SizedBox(height: 20),
+          // const SizedBox(height: 20),
           _buildClaritySlider(themeColor),
           const SizedBox(height: 20),
           _buildAdvancedFilters(themeColor), // <--- Add this here
