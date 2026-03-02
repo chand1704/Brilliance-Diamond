@@ -237,10 +237,14 @@ class _GmssScreenState extends State<GmssScreen> {
               : Colors.blue.shade700;
           List<GmssStone> applyFilters(List<GmssStone> list) {
             return list.where((stone) {
+              bool matchesColor = false;
               bool matchesSaturation = true;
               if (isFancySearch) {
-                // bool colorMatches = selectedFancyColor == null ||
-                //     stone.colorStr.toLowerCase().contains(selectedFancyColor!.toLowerCase());
+                bool colorMatches =
+                    selectedFancyColor == null ||
+                    stone.colorStr.toLowerCase().contains(
+                      selectedFancyColor!.toLowerCase(),
+                    );
                 // Extract the saturation level from the stone's color string
                 // (e.g., "Fancy Intense Yellow" contains "Intense")
                 int stoneSaturationIdx = -1;
@@ -252,12 +256,21 @@ class _GmssScreenState extends State<GmssScreen> {
                     break;
                   }
                 }
-
                 // Check if the stone's saturation falls within the selected range
                 matchesSaturation =
                     (stoneSaturationIdx == -1) ||
                     (stoneSaturationIdx >= _saturationRange.start.toInt() &&
                         stoneSaturationIdx <= _saturationRange.end.toInt());
+
+                matchesColor = colorMatches;
+              } else {
+                int colorIdx = shadeLabels.indexOf(
+                  stone.colorStr.trim().toUpperCase(),
+                );
+                matchesColor =
+                    (colorIdx == -1) ||
+                    (colorIdx >= _colorRange.start.toInt() &&
+                        colorIdx <= _colorRange.end.toInt());
               }
               final bool matchesShape =
                   (selectedShapeId == 0 ||
@@ -273,8 +286,6 @@ class _GmssScreenState extends State<GmssScreen> {
               final bool matchesPrice =
                   stone.total_price >= _priceRange.start &&
                   stone.total_price <= _priceRange.end;
-
-              bool matchesColor = false;
 
               if (isFancySearch && selectedFancyColor != null) {
                 String targetColor = selectedFancyColor!.toLowerCase();
@@ -471,6 +482,7 @@ class _GmssScreenState extends State<GmssScreen> {
           data: SliderTheme.of(context).copyWith(
             trackHeight: 4,
             activeTrackColor: themeColor,
+            thumbColor: themeColor,
             inactiveTrackColor: Colors.grey.shade200,
             rangeThumbShape: const RoundRangeSliderThumbShape(
               enabledThumbRadius: 10,
@@ -528,10 +540,10 @@ class _GmssScreenState extends State<GmssScreen> {
     if (currentShape == "HEART") shapName = "HT";
     if (currentShape == "PRINCESS") shapName = "PR";
     if (currentShape == "ASSCHER") shapName = "AS";
-
-    if (fancyColors == null || fancyColors.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    //
+    // if (fancyColors == null || fancyColors.isEmpty) {
+    //   return const SizedBox.shrink();
+    // }
 
     final visibleColors = isFancyExpanded
         ? fancyColors
@@ -548,62 +560,88 @@ class _GmssScreenState extends State<GmssScreen> {
           children: visibleColors.map((item) {
             bool isSelected = selectedFancyColor == item['name'];
 
-            String colorFileName = item['name'];
-            if (colorFileName == "White") {
-              colorFileName = "NZ";
-            }
+            String colorFileName = item['name'] == "White"
+                ? "NZ"
+                : item['name'];
+            // if (colorFileName == "White") {
+            //   colorFileName = "NZ";
+            // }
             String imageUrl =
                 "https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_$colorFileName.png";
 
             return GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedFancyColor = isSelected ? null : item['name'];
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  // This creates the black square outline when selected
-                  border: Border.all(
-                    color: isSelected ? Colors.black : Colors.transparent,
-                    width: 1.5,
-                  ),
-                ),
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        // "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_${item['name']}.png")}",
-                        "https://corsproxy.io/?${Uri.encodeComponent(imageUrl)}",
+              onTap: () => setState(
+                () => selectedFancyColor = isSelected ? null : item['name'],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      // This creates the black square outline when selected
+                      border: Border.all(
+                        color: isSelected ? Colors.black : Colors.transparent,
+                        width: 1,
                       ),
+                    ),
+                    // child: Container(
+                    // width: 42,
+                    // height: 42,
+                    // decoration: BoxDecoration(
+                    //   image: DecorationImage(
+                    //     image:
+                    child: Image.network(
+                      // "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_${item['name']}.png")}",
+                      "https://corsproxy.io/?${Uri.encodeComponent(imageUrl)}",
+                      width: 42,
+                      height: 42,
                       fit: BoxFit.contain,
                     ),
                   ),
-                ),
+                  // fit: BoxFit.contain,
+                  // ),
+                  // ),
+                  const SizedBox(height: 4),
+                  Text(
+                    item['name'],
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isSelected ? Colors.black : Colors.grey,
+                    ),
+                  ),
+                  // ),
+                ],
               ),
             );
           }).toList(),
         ),
-        const SizedBox(height: 10),
-        // "Show more" / "Show less" toggle
-        InkWell(
-          onTap: () => setState(() => isFancyExpanded = !isFancyExpanded),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              isFancyExpanded ? "Show less" : "Show more",
-              style: const TextStyle(
-                color: Colors.blueAccent,
-                fontSize: 14,
-                decoration: TextDecoration.underline,
-                fontWeight: FontWeight.w500,
-              ),
+        TextButton(
+          onPressed: () => setState(() => isFancyExpanded = !isFancyExpanded),
+          child: Text(
+            isFancyExpanded ? "Show less" : "Show more",
+            style: const TextStyle(
+              fontSize: 12,
+              decoration: TextDecoration.underline,
             ),
           ),
         ),
+        // const SizedBox(height: 10),
+        // "Show more" / "Show less" toggle
+        // InkWell(
+        //   onTap: () => setState(() => isFancyExpanded = !isFancyExpanded),
+        //   child: Padding(
+        //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+        //     child: Text(
+        //       isFancyExpanded ? "Show less" : "Show more",
+        //       style: const TextStyle(
+        //         color: Colors.blueAccent,
+        //         fontSize: 14,
+        //         decoration: TextDecoration.underline,
+        //         fontWeight: FontWeight.w500,
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
@@ -804,21 +842,59 @@ class _GmssScreenState extends State<GmssScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2D3142),
+          ),
         ),
-        RangeSlider(
-          values: values,
-          min: 0,
-          max: (labels.length - 1).toDouble(),
-          divisions: labels.length - 1,
-          activeColor: themeColor,
-          onChanged: onChanged,
+        const SizedBox(height: 8),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: themeColor,
+            inactiveTrackColor: Colors.grey.shade200,
+            thumbColor: Colors.white,
+            overlayColor: themeColor.withOpacity(0.1),
+          ),
+          child: RangeSlider(
+            values: values,
+            min: 0,
+            max: (labels.length - 1).toDouble(),
+            divisions: labels.length - 1,
+            activeColor: themeColor,
+            onChanged: onChanged,
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: labels
-              .map((l) => Text(l, style: const TextStyle(fontSize: 10)))
-              .toList(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: labels.asMap().entries.map((entry) {
+              int idx = entry.key;
+              String label = entry.value;
+
+              bool isActive =
+                  idx >= values.start.toInt() && idx <= values.end.toInt();
+
+              return Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  color: isActive ? Colors.black87 : Colors.grey.shade400,
+                ),
+              );
+            }).toList(),
+            //         (l) => Text(
+            //           l,
+            //           style: const TextStyle(
+            //             fontSize: 10,
+            //             color: isActive ? Colors.black : Colors.grey.shade400,
+            //           ),
+            //         ),
+            //       )
+            //       .toList(),
+          ),
         ),
       ],
     );
@@ -1205,18 +1281,36 @@ class _GmssScreenState extends State<GmssScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: clarityLabels
-                        .map(
-                          (s) => Text(
-                            s,
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        )
-                        .toList(),
+                    children: List.generate(clarityLabels.length, (index) {
+                      bool isActive =
+                          index >= _clarityRange.start.toInt() &&
+                          index <= _clarityRange.end.toInt();
+
+                      return Text(
+                        clarityLabels[index],
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          color: isActive ? Colors.black : Colors.grey.shade400,
+                        ),
+                      );
+                    }),
+
+                    // clarityLabels
+                    //     .map(
+                    //       (s) => Text(
+                    //         s,
+                    //         style: TextStyle(
+                    //           fontSize: 8,
+                    //           fontWeight: FontWeight.bold,
+                    //           // color: Colors.grey.shade400,
+                    //           color: isActive
+                    //               ? Colors.black87
+                    //               : Colors.grey.shade400,
+                    //         ),
+                    //       ),
+                    //     )
+                    //       .toList(),
                   ),
                 ),
               ],
@@ -1639,15 +1733,15 @@ class _GmssScreenState extends State<GmssScreen> {
       ),
       child: Row(
         children: [
-          const Text(
-            "BRILLIANCE",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 4,
-              color: Color(0xFF005AAB),
-            ),
-          ),
+          // const Text(
+          //   "BRILLIANCE",
+          //   style: TextStyle(
+          //     fontSize: 24,
+          //     fontWeight: FontWeight.w300,
+          //     letterSpacing: 4,
+          //     color: Color(0xFF005AAB),
+          //   ),
+          // ),
           const Spacer(),
           // These links now use MouseRegion + OverlayPortal to show details on hover
           Row(
