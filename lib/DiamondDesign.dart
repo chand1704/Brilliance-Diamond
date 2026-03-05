@@ -1435,91 +1435,90 @@ class HeartTopViewPainter extends CustomPainter {
       paint,
     );
   }
+  // Path _getPerfectHeartPath(Offset center, double w, double h) {
+  //   final Path path = Path();
+  //   double topY = center.dy - h * 0.45;
+  //   double bottomY = center.dy + h * 0.5;
+  //   double cleftY = center.dy - h * 0.15;
+  //
+  //   path.moveTo(center.dx, cleftY);
+  //   // Left lobe with precise cubic control points for full shoulders
+  //   path.cubicTo(
+  //     center.dx - w * 0.5,
+  //     topY,
+  //     center.dx - w * 0.65,
+  //     center.dy + h * 0.1,
+  //     center.dx,
+  //     bottomY,
+  //   );
+  //   // Right lobe - mirrored for perfect technical symmetry
+  //   path.moveTo(center.dx, cleftY);
+  //   path.cubicTo(
+  //     center.dx + w * 0.5,
+  //     topY,
+  //     center.dx + w * 0.65,
+  //     center.dy + h * 0.1,
+  //     center.dx,
+  //     bottomY,
+  //   );
+  //   return path;
+  // }
 
-  Path _getPerfectHeartPath(Offset center, double w, double h) {
-    final Path path = Path();
-    double topY = center.dy - h * 0.45;
-    double bottomY = center.dy + h * 0.5;
-    double cleftY = center.dy - h * 0.15;
-
-    path.moveTo(center.dx, cleftY);
-    // Left lobe with precise cubic control points for full shoulders
-    path.cubicTo(
-      center.dx - w * 0.5,
-      topY,
-      center.dx - w * 0.65,
-      center.dy + h * 0.1,
-      center.dx,
-      bottomY,
-    );
-    // Right lobe - mirrored for perfect technical symmetry
-    path.moveTo(center.dx, cleftY);
-    path.cubicTo(
-      center.dx + w * 0.5,
-      topY,
-      center.dx + w * 0.65,
-      center.dy + h * 0.1,
-      center.dx,
-      bottomY,
-    );
-    return path;
-  }
-
-  void _drawHeartFacets(
-    Canvas canvas,
-    Offset center,
-    double w,
-    double h,
-    Paint paint,
-  ) {
-    // 1. Center Table Facet (Angular multifaceted diamond)
-    final double tw = w * 0.42;
-    final double th = h * 0.35;
-    final Path table = Path();
-    table.moveTo(center.dx, center.dy - th * 0.45);
-    table.lineTo(center.dx + tw * 0.5, center.dy - th * 0.1);
-    table.lineTo(center.dx, center.dy + th * 0.65);
-    table.lineTo(center.dx - tw * 0.5, center.dy - th * 0.1);
-    table.close();
-    canvas.drawPath(table, paint);
-
-    // 2. Main Vertical Connectors
-    canvas.drawLine(
-      Offset(center.dx, center.dy - h * 0.15),
-      Offset(center.dx, center.dy - th * 0.45),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx, center.dy + h * 0.5),
-      Offset(center.dx, center.dy + th * 0.65),
-      paint,
-    );
-
-    // 3. Radial Brilliant Facets (The "Sunburst" effect)
-    // Upper lobes
-    canvas.drawLine(
-      Offset(center.dx - w * 0.35, center.dy - h * 0.25),
-      Offset(center.dx - tw * 0.2, center.dy - th * 0.25),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx + w * 0.35, center.dy - h * 0.25),
-      Offset(center.dx + tw * 0.2, center.dy - th * 0.25),
-      paint,
-    );
-
-    // Side wings
-    canvas.drawLine(
-      Offset(center.dx - w * 0.48, center.dy + h * 0.1),
-      Offset(center.dx - tw * 0.5, center.dy - th * 0.1),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx + w * 0.48, center.dy + h * 0.1),
-      Offset(center.dx + tw * 0.5, center.dy - th * 0.1),
-      paint,
-    );
-  }
+  // void _drawHeartFacets(
+  //   Canvas canvas,
+  //   Offset center,
+  //   double w,
+  //   double h,
+  //   Paint paint,
+  // ) {
+  //   // 1. Center Table Facet (Angular multifaceted diamond)
+  //   final double tw = w * 0.42;
+  //   final double th = h * 0.35;
+  //   final Path table = Path();
+  //   table.moveTo(center.dx, center.dy - th * 0.45);
+  //   table.lineTo(center.dx + tw * 0.5, center.dy - th * 0.1);
+  //   table.lineTo(center.dx, center.dy + th * 0.65);
+  //   table.lineTo(center.dx - tw * 0.5, center.dy - th * 0.1);
+  //   table.close();
+  //   canvas.drawPath(table, paint);
+  //
+  //   // 2. Main Vertical Connectors
+  //   canvas.drawLine(
+  //     Offset(center.dx, center.dy - h * 0.15),
+  //     Offset(center.dx, center.dy - th * 0.45),
+  //     paint,
+  //   );
+  //   canvas.drawLine(
+  //     Offset(center.dx, center.dy + h * 0.5),
+  //     Offset(center.dx, center.dy + th * 0.65),
+  //     paint,
+  //   );
+  //
+  //   // 3. Radial Brilliant Facets (The "Sunburst" effect)
+  //   // Upper lobes
+  //   canvas.drawLine(
+  //     Offset(center.dx - w * 0.35, center.dy - h * 0.25),
+  //     Offset(center.dx - tw * 0.2, center.dy - th * 0.25),
+  //     paint,
+  //   );
+  //   canvas.drawLine(
+  //     Offset(center.dx + w * 0.35, center.dy - h * 0.25),
+  //     Offset(center.dx + tw * 0.2, center.dy - th * 0.25),
+  //     paint,
+  //   );
+  //
+  //   // Side wings
+  //   canvas.drawLine(
+  //     Offset(center.dx - w * 0.48, center.dy + h * 0.1),
+  //     Offset(center.dx - tw * 0.5, center.dy - th * 0.1),
+  //     paint,
+  //   );
+  //   canvas.drawLine(
+  //     Offset(center.dx + w * 0.48, center.dy + h * 0.1),
+  //     Offset(center.dx + tw * 0.5, center.dy - th * 0.1),
+  //     paint,
+  //   );
+  // }
 
   void _drawDashedBoundary(
     Canvas canvas,
@@ -1672,7 +1671,7 @@ class BaguetteTopViewPainter extends CustomPainter {
       ..strokeWidth = 1.3;
 
     final filledPaint = Paint()
-      ..color = const Color(0xFF008080).withOpacity(0.05)
+      ..color = const Color(0xFF008080).withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
 
     final dimensionPaint = Paint()

@@ -40,26 +40,36 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   ];
   String _getStaticShapeUrl(String shape) {
     final s = shape.toLowerCase().trim();
-    if (s.contains('round'))
+    if (s.contains('round')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
-    if (s.contains('cushion'))
+    }
+    if (s.contains('cushion')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Cushion..png";
-    if (s.contains('princess'))
+    }
+    if (s.contains('princess')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Princess..png";
-    if (s.contains('emerald'))
+    }
+    if (s.contains('emerald')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Emerald..png";
-    if (s.contains('radiant'))
+    }
+    if (s.contains('radiant')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Radiant..png";
-    if (s.contains('marquise'))
+    }
+    if (s.contains('marquise')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Marquise..png";
-    if (s.contains('pear'))
+    }
+    if (s.contains('pear')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Pear..png";
-    if (s.contains('oval'))
+    }
+    if (s.contains('oval')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Oval..png";
-    if (s.contains('heart'))
+    }
+    if (s.contains('heart')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Heart..png";
-    if (s.contains('asscher'))
+    }
+    if (s.contains('asscher')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Asscher..png";
+    }
 
     return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
   }
@@ -100,12 +110,12 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     }
   }
 
-  late bool _isFav;
+  // late bool _isFav;
   final ValueNotifier<double> _caratNotifier = ValueNotifier<double>(0.50);
   @override
   void initState() {
     super.initState();
-    _isFav = widget.isFavorite;
+    // _isFav = widget.isFavorite;
     // Set initial slider position to the actual stone weight
     // _currentCaratValue = widget.stone.weight;
     _caratNotifier.value = widget.stone.weight;
@@ -367,7 +377,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 30,
                   offset: const Offset(0, 15),
                 ),
@@ -571,7 +581,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         _hideMegaMenu();
       },
       borderRadius: BorderRadius.circular(8),
-      hoverColor: Colors.teal.withOpacity(0.05),
+      hoverColor: Colors.teal.withValues(alpha: 0.05),
       child: Container(
         width: 90,
         padding: const EdgeInsets.symmetric(vertical: 12),

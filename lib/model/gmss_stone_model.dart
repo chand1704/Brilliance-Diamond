@@ -5,6 +5,7 @@ class GmssStone {
   final String shapeIcon;
   final double weight;
   final String colorStr;
+  final String fancy_color;
   final String clarityStr;
   final String cut;
   final String cut_code;
@@ -32,6 +33,7 @@ class GmssStone {
     required this.shapeIcon,
     required this.weight,
     required this.colorStr,
+    required this.fancy_color,
     required this.clarityStr,
     required this.cut,
     required this.cut_code,
@@ -95,7 +97,8 @@ class GmssStone {
       shapeStr: cleanShape,
       shapeIcon: shapeItem?['image_link']?.toString() ?? '',
       weight: safeDouble(json['weight']),
-      colorStr: json['color_str']?.toString() ?? "",
+      colorStr: json['color_str_2']?.toString() ?? "",
+      fancy_color: json['fancy_color']?.toString() ?? "",
       clarityStr: json['clarity_str']?.toString() ?? "",
       cut: json['cut']?.toString() ?? '',
       cut_code: cutItem?['cut_code']?.toString() ?? '',
