@@ -25,17 +25,19 @@ class DiamondDetailScreen extends StatefulWidget {
 }
 
 class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
+  static const String shapeBaseUrl =
+      "https://demo.kodllin.com/apis/storage/app/shape_images/";
   final List<Map<String, dynamic>> shapeCategories = [
-    {'id': 1, 'name': 'Round', 'icon': 'images/Round.png'},
-    {'id': 2, 'name': 'Princess', 'icon': 'images/Princess.png'},
-    {'id': 3, 'name': 'Emerald', 'icon': 'images/Emerald.png'},
-    {'id': 4, 'name': 'Cushion', 'icon': 'images/Cushion.png'},
-    {'id': 5, 'name': 'Radiant', 'icon': 'images/Radiant.png'},
-    {'id': 6, 'name': 'Marquise', 'icon': 'images/Marquise.png'},
-    {'id': 7, 'name': 'Pear', 'icon': 'images/Pear.png'},
-    {'id': 8, 'name': 'Oval', 'icon': 'images/Oval.png'},
-    {'id': 9, 'name': 'Heart', 'icon': 'images/Heart.png'},
-    {'id': 27, 'name': 'Asscher', 'icon': 'images/Asscher.png'},
+    {'id': 1, 'name': 'Round', 'icon': '${shapeBaseUrl}Round.svg'},
+    {'id': 2, 'name': 'Princess', 'icon': '${shapeBaseUrl}Princess.svg'},
+    {'id': 3, 'name': 'Emerald', 'icon': '${shapeBaseUrl}Emerald.svg'},
+    {'id': 4, 'name': 'Cushion', 'icon': '${shapeBaseUrl}Cushion.svg'},
+    {'id': 5, 'name': 'Radiant', 'icon': '${shapeBaseUrl}L%20Radiant.svg'},
+    {'id': 6, 'name': 'Marquise', 'icon': '${shapeBaseUrl}Marquise.svg'},
+    {'id': 7, 'name': 'Pear', 'icon': '${shapeBaseUrl}Pear.svg'},
+    {'id': 8, 'name': 'Oval', 'icon': '${shapeBaseUrl}Oval.svg'},
+    {'id': 9, 'name': 'Heart', 'icon': '${shapeBaseUrl}Heart.svg'},
+    {'id': 27, 'name': 'Asscher', 'icon': '${shapeBaseUrl}1_sf_1734065506.svg'},
   ];
   String _getStaticShapeUrl(String shape) {
     final s = shape.toLowerCase().trim();
@@ -525,42 +527,42 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
     final String iconUrl = shape['icon'];
-    // return
-    // InkWell(
-    // onTap: () {
-    //   _hideMegaMenu();
-    // },
-    // borderRadius: BorderRadius.circular(8),
-    // hoverColor: Colors.teal.withValues(alpha: 0.05),
-    // child: Container(
-    //   width: 90,
-    //   padding: const EdgeInsets.symmetric(vertical: 12),
-    //   child:
-    return Column(
-      children: [
-        SvgPicture.network(
-          "https://corsproxy.io/?${Uri.encodeComponent(iconUrl)}",
-          height: 38,
-          colorFilter: const ColorFilter.mode(
-            Color(0xFF008080),
-            BlendMode.srcIn,
-          ),
-          placeholderBuilder: (context) => const CircularProgressIndicator(),
-          errorBuilder: (c, e, s) =>
-              const Icon(Icons.diamond_outlined, color: Colors.teal),
+    return InkWell(
+      onTap: () {
+        _hideMegaMenu();
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      },
+      borderRadius: BorderRadius.circular(8),
+      hoverColor: Colors.teal.withValues(alpha: 0.05),
+      child: Container(
+        width: 90,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          children: [
+            SvgPicture.network(
+              "https://corsproxy.io/?${Uri.encodeComponent(iconUrl)}",
+              height: 38,
+              colorFilter: const ColorFilter.mode(
+                Color(0xFF008080),
+                BlendMode.srcIn,
+              ),
+              placeholderBuilder: (context) =>
+                  const CircularProgressIndicator(),
+              errorBuilder: (c, e, s) =>
+                  const Icon(Icons.diamond_outlined, color: Colors.teal),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              shape['name'].toString().toUpperCase(),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        Text(
-          shape['name'].toString().toUpperCase(),
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.8,
-          ),
-        ),
-      ],
-      //   ),
-      // ),
+      ),
     );
   }
 
