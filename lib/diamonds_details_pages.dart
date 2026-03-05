@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui_web' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -416,7 +417,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ]),
             ),
             _buildPromoCard(
-              "images/diamonds.png",
+              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
               "NEW ARRIVALS",
               "Exquisite Lab Brilliance",
             ),
@@ -452,7 +453,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  Widget _buildPromoCard(String assetPath, String title, String subtitle) {
+  Widget _buildPromoCard(String url, String title, String subtitle) {
     return Container(
       width: 240,
       height: 320,
@@ -471,8 +472,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              assetPath,
+            child: Image.network(
+              "https://corsproxy.io/?${Uri.encodeComponent(url)}",
               fit: BoxFit.cover,
               errorBuilder: (c, e, s) =>
                   Container(color: const Color(0xFF001F3F)),
@@ -523,36 +524,43 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-    return InkWell(
-      onTap: () {
-        _hideMegaMenu();
-      },
-      borderRadius: BorderRadius.circular(8),
-      hoverColor: Colors.teal.withValues(alpha: 0.05),
-      child: Container(
-        width: 90,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          children: [
-            Image.asset(
-              "assets/${shape['icon']}",
-              height: 38,
-              color: const Color(0xFF008080),
-              errorBuilder: (c, e, s) =>
-                  const Icon(Icons.diamond_outlined, color: Colors.teal),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              shape['name'].toString().toUpperCase(),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.8,
-              ),
-            ),
-          ],
+    final String iconUrl = shape['icon'];
+    // return
+    // InkWell(
+    // onTap: () {
+    //   _hideMegaMenu();
+    // },
+    // borderRadius: BorderRadius.circular(8),
+    // hoverColor: Colors.teal.withValues(alpha: 0.05),
+    // child: Container(
+    //   width: 90,
+    //   padding: const EdgeInsets.symmetric(vertical: 12),
+    //   child:
+    return Column(
+      children: [
+        SvgPicture.network(
+          "https://corsproxy.io/?${Uri.encodeComponent(iconUrl)}",
+          height: 38,
+          colorFilter: const ColorFilter.mode(
+            Color(0xFF008080),
+            BlendMode.srcIn,
+          ),
+          placeholderBuilder: (context) => const CircularProgressIndicator(),
+          errorBuilder: (c, e, s) =>
+              const Icon(Icons.diamond_outlined, color: Colors.teal),
         ),
-      ),
+        const SizedBox(height: 12),
+        Text(
+          shape['name'].toString().toUpperCase(),
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.8,
+          ),
+        ),
+      ],
+      //   ),
+      // ),
     );
   }
 
@@ -617,7 +625,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ),
             ),
             _buildPromoCard(
-              "images/engagement.png",
+              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/engagement_promo.jpg",
               "CREATE YOUR OWN RING",
               "Explore Our 3D Creator",
             ),
@@ -687,7 +695,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ]),
             ),
             _buildPromoCard(
-              "images/wedding.png",
+              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/wedding_promo.jpg",
               "Wedding Rings",
               "Explore Our Best Sellers",
             ),
@@ -744,7 +752,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ]),
             ),
             _buildPromoCard(
-              "images/jwelry.png",
+              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/jewelry_promo.jpg",
               "Shop Vault Sale",
               "Get 50% Off with code VAULT",
             ),
@@ -806,7 +814,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ),
             ),
             _buildPromoCard(
-              "images/about.png", // Path to your about promo image
+              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/workshop.jpg", // Path to your about promo image
               "Handmade with Love",
               "Learn About Our Process",
             ),

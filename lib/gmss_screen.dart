@@ -14,6 +14,15 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
+  void _hideMegaMenu() {
+    // Hide all possible mega menus
+    _diamondHoverController.hide();
+    _engagementHoverController.hide();
+    _weddingHoverController.hide();
+    _jewelryHoverController.hide();
+    _aboutHoverController.hide();
+  }
+
   double selectedSaturation = 0;
   RangeValues _saturationRange = const RangeValues(0, 5);
   final List<String> saturationLabels = [
@@ -69,7 +78,7 @@ class _GmssScreenState extends State<GmssScreen> {
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Brown.png',
     },
     {
-      'name': 'White',
+      'name': 'NZ',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_NZ.png',
     },
@@ -278,9 +287,15 @@ class _GmssScreenState extends State<GmssScreen> {
               bool matchesSaturation = true;
               if (isFancySearch) {
                 if (selectedFancyColor == null) {
+                  // Show everything categorized generally as "Fancy" by the API
                   matchesColor = stone.colorStr.toLowerCase() == "fancy";
                 } else {
+                  // DYNAMIC STRING CHECK:
+                  // Match specific color (e.g. PINK) against detailed API variable
+                  // We use .toUpperCase() to match API data like "FANCY VIVID PINK"
                   String searchColor = selectedFancyColor!.toUpperCase();
+
+                  // This ensures if "PINK" is in the string, it matches the user
                   matchesColor = stone.fancy_color.toUpperCase().contains(
                     searchColor,
                   );
@@ -298,8 +313,9 @@ class _GmssScreenState extends State<GmssScreen> {
                     (stoneSaturationIdx == -1) ||
                     (stoneSaturationIdx >= _saturationRange.start.toInt() &&
                         stoneSaturationIdx <= _saturationRange.end.toInt());
-                matchesColor = matchesColor;
               } else {
+                // Logic for Standard White Diamonds (D-L shades)
+                // This ONLY runs if isFancySearch is false
                 int colorIdx = shadeLabels.indexOf(
                   stone.colorStr.trim().toUpperCase(),
                 );
@@ -308,7 +324,6 @@ class _GmssScreenState extends State<GmssScreen> {
                     (colorIdx >= _colorRange.start.toInt() &&
                         colorIdx <= _colorRange.end.toInt());
               }
-              selectedShape.toLowerCase().trim();
               final bool matchesShape =
                   (selectedShapeId == 0 || selectedShape == "ALL")
                   ? true
@@ -1912,8 +1927,8 @@ class _GmssScreenState extends State<GmssScreen> {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: Image.asset(
-                        "images/engagement.png",
+                      child: Image.network(
+                        "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/engagement_promo.jpg")}",
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: Colors.blue.shade50,
@@ -2090,7 +2105,7 @@ class _GmssScreenState extends State<GmssScreen> {
               ]),
             ),
             _buildPromoCard(
-              "images/diamonds.png",
+              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
               "NEW ARRIVALS",
               "Exquisite Lab Brilliance",
             ),
@@ -2115,35 +2130,61 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-    return SizedBox(
-      width: 80,
-      child: Column(
-        children: [
-          SvgPicture.network(
-            "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
-            height: 35,
-            colorFilter: const ColorFilter.mode(
-              Color(0xFF008080),
-              BlendMode.srcIn,
-            ),
-            placeholderBuilder: (context) => const SizedBox(
+    return InkWell(
+      onTap: () {
+        // 1. UPDATE THE STATE
+        setState(() {
+          selectedShapeId = shape['id'];
+          selectedShape = shape['name'];
+
+          // 2. TRIGGER DYNAMIC FETCH
+          // Ensure you use your proxy and dynamic parameters for the API call
+          _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+        });
+
+        // 3. CLOSE THE MENU
+        _hideMegaMenu();
+
+        // 4. OPTIONAL: SCROLL TO TOP
+        // If the user is far down the page, scroll back to show the new results
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      },
+      borderRadius: BorderRadius.circular(8),
+      hoverColor: Colors.teal.withOpacity(0.05),
+      child: SizedBox(
+        width: 80,
+        child: Column(
+          children: [
+            SvgPicture.network(
+              "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
               height: 35,
-              width: 35,
-              child: CircularProgressIndicator(strokeWidth: 1),
+              colorFilter: const ColorFilter.mode(
+                Color(0xFF008080),
+                BlendMode.srcIn,
+              ),
+              placeholderBuilder: (context) => const SizedBox(
+                height: 35,
+                width: 35,
+                child: CircularProgressIndicator(strokeWidth: 1),
+              ),
+              errorBuilder: (c, e, s) =>
+                  const Icon(Icons.diamond_outlined, color: Colors.teal),
             ),
-            errorBuilder: (c, e, s) =>
-                const Icon(Icons.diamond_outlined, color: Colors.teal),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            shape['name'].toString().toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
+            const SizedBox(height: 12),
+            Text(
+              shape['name'].toString().toUpperCase(),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2177,7 +2218,9 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  Widget _buildPromoCard(String assetPath, String title, String subtitle) {
+  Widget _buildPromoCard(String url, String title, String subtitle) {
+    final String proxiedUrl =
+        "https://corsproxy.io/?${Uri.encodeComponent(url)}";
     return Container(
       height: 280,
       margin: const EdgeInsets.only(left: 30),
@@ -2195,8 +2238,8 @@ class _GmssScreenState extends State<GmssScreen> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              assetPath,
+            child: Image.network(
+              proxiedUrl,
               fit: BoxFit.cover,
               errorBuilder: (c, e, s) =>
                   Container(color: Colors.blueGrey.shade50),
@@ -2336,8 +2379,10 @@ class _GmssScreenState extends State<GmssScreen> {
                     height: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(
-                        image: AssetImage("images/wedding.png"),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/wedding_promo.jpg")}",
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -2417,8 +2462,10 @@ class _GmssScreenState extends State<GmssScreen> {
                     height: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      image: const DecorationImage(
-                        image: AssetImage("images/jwelry.png"),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/jewelry_promo.jpg")}",
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -2487,7 +2534,7 @@ class _GmssScreenState extends State<GmssScreen> {
                 ),
               ),
               _buildPromoCard(
-                "images/about.png",
+                "https://www.brilliance.com/sites/default/files/vue/workshop.jpg",
                 "Handmade with Love",
                 "Learn About Our Process",
               ),
