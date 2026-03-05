@@ -106,7 +106,6 @@ class GmssStone {
       fl_intensity: json['fl_intensity']?.toString() ?? '',
       polish: json['polish']?.toString() ?? '',
       image_link: fullImage,
-      // image_link: json['image_link']?.toString() ?? '',
       video_link: fullVideo,
       stoneName: json['stone_name']?.toString() ?? '',
       gridle_condition: json['gridle_condition']?.toString() ?? '',

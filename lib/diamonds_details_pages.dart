@@ -4,7 +4,7 @@ import 'dart:ui_web' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart'; // Add this line
+import 'package:url_launcher/url_launcher.dart';
 
 import 'DiamondDesign.dart';
 import 'model/gmss_stone_model.dart';
@@ -13,14 +13,12 @@ class DiamondDetailScreen extends StatefulWidget {
   final GmssStone stone;
   final bool isFavorite;
   final Function(bool) onFavoriteToggle;
-
   const DiamondDetailScreen({
     super.key,
     required this.stone,
     required this.isFavorite,
     required this.onFavoriteToggle,
   });
-
   @override
   State<DiamondDetailScreen> createState() => _DiamondDetailScreenState();
 }
@@ -70,13 +68,11 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     if (s.contains('asscher')) {
       return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Asscher..png";
     }
-
     return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
   }
 
   double _getRotationAngle(String shape) {
     final s = shape.toUpperCase();
-
     if (s.contains('MARQUISE')) return 2.48;
     if (s.contains('RADIANT')) return 2.39;
     if (s.contains('CUSHION')) return 2.45;
@@ -96,11 +92,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       );
       return;
     }
-
     try {
       final Uri uri = Uri.parse(url);
-
-      // On Web, launchUrl is more reliable than canLaunchUrl
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
       debugPrint("Error launching URL: $e");
@@ -110,16 +103,11 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     }
   }
 
-  // late bool _isFav;
   final ValueNotifier<double> _caratNotifier = ValueNotifier<double>(0.50);
   @override
   void initState() {
     super.initState();
-    // _isFav = widget.isFavorite;
-    // Set initial slider position to the actual stone weight
-    // _currentCaratValue = widget.stone.weight;
     _caratNotifier.value = widget.stone.weight;
-
     double initialWeight = widget.stone.weight;
     _caratNotifier.value = initialWeight.clamp(0.1, 5.0);
   }
@@ -131,9 +119,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       ).showSnackBar(const SnackBar(content: Text("360 Video not available")));
       return;
     }
-
     final String viewId = 'diamond-video-${widget.stone.id}';
-
     ui.platformViewRegistry.registerViewFactory(
       viewId,
       (int viewId) => html.IFrameElement()
@@ -143,7 +129,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         ..height = '100%'
         ..allowFullscreen = true,
     );
-
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -308,10 +293,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 900;
-
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Column(
         children: [
           if (!isMobile) _buildMainHeader(const Color(0xFF005AAB)),
@@ -325,24 +308,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  // Placeholder Hover Nav Link
-  // Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 15),
-  //     child: Text(
-  //       label,
-  //       style: const TextStyle(
-  //         fontSize: 14,
-  //         fontWeight: FontWeight.w500,
-  //         color: Colors.black87,
-  //       ),
-  //     ),
-  //   );
-  // }
   Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
     return MouseRegion(
       onEnter: (_) => _showMegaMenu(context, menu), // Trigger menu on hover
-      // onExit: (_) => _hideMegaMenu(), // Hide when cursor leaves
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Text(
@@ -358,20 +326,15 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   OverlayEntry? _overlayEntry;
-
   void _showMegaMenu(BuildContext context, Widget menu) {
-    _hideMegaMenu(); // Clear existing menu
-
+    _hideMegaMenu();
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: 61, // Position right below your _buildMainHeader
+        top: 61,
         left: 0,
         right: 0,
         child: MouseRegion(
-          // onEnter: (_) {}, // Keep open while mouse is on the menu
           onExit: (_) => _hideMegaMenu(),
-          // child: Material(
-          //   elevation: 8,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -383,10 +346,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ),
               ],
             ),
-            // padding: const EdgeInsets.all(40),
-            child: menu, // This is your _buildMegaMenu(themeColor)
+            child: menu,
           ),
-          // ),
         ),
       ),
     );
@@ -398,14 +359,11 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     _overlayEntry = null;
   }
 
-  // Add these dummy controllers if they aren't defined
   final _diamondHoverController = null;
   final _engagementHoverController = null;
   final _weddingHoverController = null;
   final _jewelryHoverController = null;
   final _aboutHoverController = null;
-
-  // Placeholder Menu builders
   Widget _buildMegaMenu(Color themeColor) {
     return Material(
       elevation: 20,
@@ -417,7 +375,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. SHOP BY SHAPE GRID
             Expanded(
               flex: 5,
               child: Column(
@@ -442,8 +399,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ],
               ),
             ),
-
-            // 2. NATURAL DIAMONDS COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("NATURAL DIAMONDS", [
@@ -452,8 +407,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "GIA Certified",
               ]),
             ),
-
-            // 3. LAB GROWN COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("LAB GROWN", [
@@ -462,8 +415,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "IGI Certified",
               ]),
             ),
-
-            // 4. NEW ARRIVALS PROMO CARD
             _buildPromoCard(
               "images/diamonds.png",
               "NEW ARRIVALS",
@@ -475,7 +426,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  // FIX: Defines the vertical text columns for the menu
   Widget _menuColumn(String title, List<String> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,7 +452,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  // FIX: Defines the dark-themed promo card on the right
   Widget _buildPromoCard(String assetPath, String title, String subtitle) {
     return Container(
       width: 240,
@@ -525,9 +474,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             child: Image.asset(
               assetPath,
               fit: BoxFit.cover,
-              errorBuilder: (c, e, s) => Container(
-                color: const Color(0xFF001F3F),
-              ), // Dark blue fallback
+              errorBuilder: (c, e, s) =>
+                  Container(color: const Color(0xFF001F3F)),
             ),
           ),
           Positioned.fill(
@@ -574,7 +522,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  // FIX: Helper for individual shape icons in the grid
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
     return InkWell(
       onTap: () {
@@ -590,7 +537,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             Image.asset(
               "assets/${shape['icon']}",
               height: 38,
-              color: const Color(0xFF008080), // Use your Teal theme color
+              color: const Color(0xFF008080),
               errorBuilder: (c, e, s) =>
                   const Icon(Icons.diamond_outlined, color: Colors.teal),
             ),
@@ -620,7 +567,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. SHOP BY STYLE
             Expanded(
               flex: 2,
               child: Column(
@@ -643,8 +589,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ],
               ),
             ),
-
-            // 2. CREATE YOUR OWN RING
             Expanded(
               flex: 2,
               child: _menuColumn("CREATE YOUR OWN RING", [
@@ -653,8 +597,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "3D Ring Creator",
               ]),
             ),
-
-            // 3. SHOP BY METAL & TIPS
             Expanded(
               flex: 2,
               child: Column(
@@ -674,10 +616,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ],
               ),
             ),
-
-            // 4. FEATURED 3D CREATOR CARD
             _buildPromoCard(
-              "images/engagement.png", // Path to your ring image
+              "images/engagement.png",
               "CREATE YOUR OWN RING",
               "Explore Our 3D Creator",
             ),
@@ -718,7 +658,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. WOMEN'S RINGS COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("Women's Rings", [
@@ -728,8 +667,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "Bestsellers",
               ]),
             ),
-
-            // 2. MEN'S RINGS COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("Men's Rings", [
@@ -740,8 +677,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "Bold & Unique Rings",
               ]),
             ),
-
-            // 3. WEDDING RING TIPS COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("Weddings Ring Tips", [
@@ -751,10 +686,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "Men's Ring Guide",
               ]),
             ),
-
-            // 4. FEATURED WEDDING RINGS PROMO CARD
             _buildPromoCard(
-              "images/wedding.png", // Ensure this path is in your assets
+              "images/wedding.png",
               "Wedding Rings",
               "Explore Our Best Sellers",
             ),
@@ -775,7 +708,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. BRACELETS & RINGS COLUMN
             Expanded(
               flex: 2,
               child: Column(
@@ -795,8 +727,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ],
               ),
             ),
-
-            // 2. GIFTS & COLLECTIONS COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("Gifts & Collections", [
@@ -805,8 +735,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "Hoop Earrings",
               ]),
             ),
-
-            // 3. FEATURED COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("Featured", [
@@ -815,10 +743,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "Best Seller Bracelets",
               ]),
             ),
-
-            // 4. VAULT SALE PROMO CARD
             _buildPromoCard(
-              "images/jwelry.png", // Ensure this path is in your assets
+              "images/jwelry.png",
               "Shop Vault Sale",
               "Get 50% Off with code VAULT",
             ),
@@ -839,7 +765,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. BRILLIANCE COMPANY COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("BRILLIANCE", [
@@ -850,8 +775,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "Flexible Financing",
               ]),
             ),
-
-            // 2. CUSTOMER CARE COLUMN
             Expanded(
               flex: 2,
               child: _menuColumn("CUSTOMER CARE", [
@@ -863,8 +786,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 "care & Maintenance",
               ]),
             ),
-
-            // 3. EDUCATION & ARTICLES COLUMN
             Expanded(
               flex: 2,
               child: Column(
@@ -884,8 +805,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ],
               ),
             ),
-
-            // 4. HANDMADE PROMO CARD
             _buildPromoCard(
               "images/about.png", // Path to your about promo image
               "Handmade with Love",
@@ -906,18 +825,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       ),
       child: Row(
         children: [
-          // LOGO
-          // const Text(
-          //   "BRILLIANCE",
-          //   style: TextStyle(
-          //     fontSize: 24,
-          //     fontWeight: FontWeight.w300,
-          //     letterSpacing: 6,
-          //     color: Color(0xFF005AAB), // Brilliance Blue
-          //   ),
-          // ),
           const Spacer(),
-          // NAVIGATION LINKS
           Row(
             children: [
               _hoverNavLink(
@@ -972,11 +880,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   Widget _buildDesktopLayout() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left Section: Main Image, Hand Comparison, and Video Link
           Expanded(
             flex: 6,
             child: SingleChildScrollView(
@@ -991,35 +897,22 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // Technical diagrams (Table, Depth, Width)
                   _buildProportionDiagrams(widget.stone),
                   const SizedBox(height: 20),
-                  // Video player section
                   _buildEmbeddedVideoPlayer(),
-                  // Bottom padding to ensure the last diagram scrolls fully into view
                   const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
-
           const SizedBox(width: 30),
-
-          // Right Section: Product Details and Pricing
-          Expanded(
-            flex: 3,
-            child: Container(
-              // This side has NO ScrollView, so it stays fixed
-              child: _buildProductInfoPanel(),
-            ),
-          ),
+          Expanded(flex: 3, child: Container(child: _buildProductInfoPanel())),
         ],
       ),
     );
   }
 
   Widget _buildProportionDiagrams(GmssStone stone) {
-    // bool isRound = stone.shapeStr.toUpperCase().contains('ROUND');
     String shape = stone.shapeStr.toUpperCase();
     bool isRound = shape.contains('ROUND');
     bool isPrincess = shape.contains('PRINCESS');
@@ -1074,7 +967,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ),
             ),
             const SizedBox(width: 20),
-
             Expanded(
               child: Container(
                 height: 400,
@@ -1094,12 +986,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   Widget _buildEmbeddedVideoPlayer() {
     const String videoUrl =
         "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
-
-    // Unique ID for the platform view
-    // final String viewId = 'embedded-diamond-video';
     final String viewId = 'embedded-diamond-video-${widget.stone.id}';
-
-    // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
       final video = html.VideoElement()
         ..src = videoUrl
@@ -1111,18 +998,15 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         ..style.height = '100%'
         ..style.objectFit = 'contain'
         ..style.border = 'none';
-
       return video;
     });
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
         Container(
           width: double.infinity,
-          height: 500, // Adjust the height as needed
-          // decoration: const BoxDecoration(color: Colors.black),
+          height: 500,
           child: HtmlElementView(viewType: viewId),
         ),
       ],
@@ -1160,20 +1044,17 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             left: 20,
             child: Row(
               children: [
-                // Only show the InkWell if certi_file is not null
                 if (widget.stone.certi_file != null &&
                     widget.stone.certi_file!.isNotEmpty)
                   InkWell(
                     onTap: () => _launchCertificate(widget.stone.certi_file),
                     borderRadius: BorderRadius.circular(20),
                     child: _buildBadge(
-                      // Icons.verified_user_outlined,
                       imageUrl:
                           "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/IGI_logo.jpg",
                       "IGI Certified",
                     ),
                   ),
-                // _buildBadge(Icons.verified_user_outlined, "IGI Certified"),
                 const SizedBox(width: 10),
                 InkWell(
                   onTap: () => _showVideoPopup(widget.stone.video_link),
@@ -1191,18 +1072,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  // UPDATED SECTION: Logic added to scale diamond with slider
   Widget _buildHandComparisonCard() {
     const String handImageUrl =
         "https://www.brilliance.com/front/img/src/assets/images/diamond4c/hand..png";
-
-    // Scale logic: 1.0 scale factor is for 0.50ct baseline
-    // const double baseStoneSize = 80.0;
-    // const String staticDiamondUrl =
-    //     "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
-
-    // final String shapeImageUrl = _getStaticShapeUrl(widget.stone.shapeStr);
-
     return ValueListenableBuilder<double>(
       valueListenable: _caratNotifier,
       builder: (context, caratValue, child) {
@@ -1210,23 +1082,17 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             ? (caratValue / 0.50).clamp(0.6, 1.2)
             : (1.2 + (caratValue - 1.50) * 0.2).clamp(1.2, 2.5);
         return Container(
-          height: 500, // Height adjusted to accommodate the slider panel
+          height: 500,
           width: double.infinity,
           decoration: const BoxDecoration(color: Color(0xFFF9F9F9)),
           child: Stack(
             children: [
-              // 1. Hand Image
               Positioned.fill(child: SafeImage(url: handImageUrl, size: 400)),
-
-              // 2. Dynamic Diamond - Grows/Shrinks based on slider
               Positioned(
                 top: 120,
                 left: 216,
                 child: Transform.rotate(
                   angle: _getRotationAngle(widget.stone.shapeStr),
-                  // widget.stone.shapeStr.toUpperCase().contains('MARQUISE')
-                  // ? 2.35
-                  // : 0.0,
                   child: Transform.scale(
                     scale: scaleFactor,
                     alignment: Alignment.center,
@@ -1237,7 +1103,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                   ),
                 ),
               ),
-              // 3. Slider UI Panel
               Positioned(
                 bottom: 25,
                 left: 25,
@@ -1247,7 +1112,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     horizontal: 20,
                     vertical: 10,
                   ),
-
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -1416,14 +1280,10 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Icon(icon, size: 14),
           if (imageUrl != null)
             Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: SafeImage(
-                url: imageUrl,
-                size: 18,
-              ), // Using your SafeImage for the logo
+              child: SafeImage(url: imageUrl, size: 18),
             )
           else if (icon != null)
             Padding(
@@ -1477,7 +1337,6 @@ class SafeImage extends StatefulWidget {
   final String url;
   final double size;
   const SafeImage({super.key, required this.url, required this.size});
-
   @override
   State<SafeImage> createState() => _SafeImageState();
 }
@@ -1485,7 +1344,6 @@ class SafeImage extends StatefulWidget {
 class _SafeImageState extends State<SafeImage> {
   Uint8List? _bytes;
   bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -1521,7 +1379,6 @@ class _SafeImageState extends State<SafeImage> {
   Widget build(BuildContext context) {
     if (_bytes != null) {
       return ColorFiltered(
-        // This filter targets the lighter background pixels to blend them away
         colorFilter: ColorFilter.mode(
           Colors.white.withValues(alpha: 0.9),
           BlendMode.modulate,
@@ -1531,7 +1388,6 @@ class _SafeImageState extends State<SafeImage> {
           width: widget.size,
           height: widget.size,
           fit: BoxFit.contain,
-          // We remove the ShaderMask for a cleaner look
         ),
       );
     }

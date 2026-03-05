@@ -6,7 +6,6 @@ import '../model/gmss_stone_model.dart';
 
 class GmssApiService {
   static const String apiUrl = 'https://dev2.kodllin.com/apis/api/gmss';
-
   static Future<List<GmssStone>> fetchGmssData({required int shapeId}) async {
     final body = {
       "fl_ar": {
@@ -110,7 +109,6 @@ class GmssApiService {
       "user_sk": "IEx6bkZGMWxwU2NaYWVZM3hFZHBH",
       "sort": "",
     };
-
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
@@ -119,11 +117,9 @@ class GmssApiService {
       },
       body: jsonEncode(body),
     );
-
     if (response.statusCode != 200) {
       throw Exception('GMSS API Error: ${response.statusCode}');
     }
-
     final decoded = jsonDecode(response.body);
     final List list = decoded['data'] ?? [];
     return list.map((e) => GmssStone.fromJson(e)).toList();
