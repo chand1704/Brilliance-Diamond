@@ -97,7 +97,10 @@ class GmssStone {
       shapeStr: cleanShape,
       shapeIcon: shapeItem?['image_link']?.toString() ?? '',
       weight: safeDouble(json['weight']),
-      colorStr: json['color_str_2']?.toString() ?? "",
+      // colorStr: json['color_str_2']?.toString() ?? "",
+      colorStr: (json['color_str_2']?.toString() ?? "").isEmpty
+          ? (json['fancy_color']?.toString() ?? "")
+          : json['color_str_2'].toString(),
       fancy_color: json['fancy_color']?.toString() ?? "",
       clarityStr: json['clarity_str']?.toString() ?? "",
       cut: json['cut']?.toString() ?? '',

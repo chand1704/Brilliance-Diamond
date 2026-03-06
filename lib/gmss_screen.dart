@@ -14,6 +14,7 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
+  int? selectedFancyColorId; // Add this line
   void _hideMegaMenu() {
     // Hide all possible mega menus
     _diamondHoverController.hide();
@@ -38,46 +39,55 @@ class _GmssScreenState extends State<GmssScreen> {
   String? selectedFancyColor;
   final List<Map<String, dynamic>> fancyColors = [
     {
+      'id': 7,
       'name': 'Green',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Green.png',
     },
     {
+      'id': 8,
       'name': 'Orange',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Orange.png',
     },
     {
+      'id': 9,
       'name': 'Pink',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Pink.png',
     },
     {
+      'id': 11,
       'name': 'Purple',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Purple.png',
     },
     {
+      'id': 14,
       'name': 'Yellow',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Yellow.png',
     },
     {
+      'id': 2,
       'name': 'Blue',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Blue.png',
     },
     {
+      'id': 6,
       'name': 'Grey',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Grey.png',
     },
     {
+      'id': 3,
       'name': 'Brown',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_Brown.png',
     },
     {
+      'id': 10,
       'name': 'NZ',
       'url':
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_NZ.png',
@@ -286,43 +296,42 @@ class _GmssScreenState extends State<GmssScreen> {
               bool matchesColor = false;
               bool matchesSaturation = true;
               if (isFancySearch) {
-                if (selectedFancyColor == null) {
+                if (selectedFancyColorId == null) {
                   // Show everything categorized generally as "Fancy" by the API
-                  matchesColor = stone.colorStr.toLowerCase() == "fancy";
+                  matchesColor = stone.colorStr.toLowerCase().contains("fancy");
                 } else {
-                  // DYNAMIC STRING CHECK:
-                  // Match specific color (e.g. PINK) against detailed API variable
-                  // We use .toUpperCase() to match API data like "FANCY VIVID PINK"
-                  String searchColor = selectedFancyColor!.toUpperCase();
-
-                  // This ensures if "PINK" is in the string, it matches the user
-                  matchesColor = stone.fancy_color.toUpperCase().contains(
-                    searchColor,
-                  );
+                  String searchColor = selectedFancyColor?.toUpperCase() ?? "";
+                  matchesColor =
+                      (stone.id == selectedFancyColorId) ||
+                      stone.colorStr.toUpperCase().contains(searchColor) ||
+                      stone.fancy_color.toUpperCase().contains(searchColor);
                 }
                 int stoneSaturationIdx = -1;
                 for (int i = 0; i < saturationLabels.length; i++) {
                   if (stone.fancy_color.toUpperCase().contains(
-                    saturationLabels[i].toUpperCase(),
-                  )) {
+                        saturationLabels[i].toUpperCase(),
+                      ) ||
+                      stone.colorStr.toUpperCase().contains(
+                        saturationLabels[i].toUpperCase(),
+                      )) {
                     stoneSaturationIdx = i;
                     break;
                   }
                 }
+
+                // Allow the stone if it matches the slider range OR if no saturation label was found
                 matchesSaturation =
                     (stoneSaturationIdx == -1) ||
                     (stoneSaturationIdx >= _saturationRange.start.toInt() &&
                         stoneSaturationIdx <= _saturationRange.end.toInt());
               } else {
-                // Logic for Standard White Diamonds (D-L shades)
-                // This ONLY runs if isFancySearch is false
+                // Standard D-L logic
                 int colorIdx = shadeLabels.indexOf(
                   stone.colorStr.trim().toUpperCase(),
                 );
                 matchesColor =
-                    (colorIdx == -1) ||
                     (colorIdx >= _colorRange.start.toInt() &&
-                        colorIdx <= _colorRange.end.toInt());
+                    colorIdx <= _colorRange.end.toInt());
               }
               final bool matchesShape =
                   (selectedShapeId == 0 || selectedShape == "ALL")
@@ -335,22 +344,7 @@ class _GmssScreenState extends State<GmssScreen> {
               final bool matchesPrice =
                   stone.total_price >= _priceRange.start &&
                   stone.total_price <= _priceRange.end;
-              if (isFancySearch && selectedFancyColor != null) {
-                String targetColor = selectedFancyColor!.toLowerCase();
-                String targetSaturation =
-                    saturationLabels[selectedSaturation.toInt()].toLowerCase();
-                matchesColor =
-                    stone.colorStr.toLowerCase().contains(targetColor) &&
-                    stone.colorStr.toLowerCase().contains(targetSaturation);
-              } else {
-                int colorIdx = shadeLabels.indexOf(
-                  stone.colorStr.trim().toUpperCase(),
-                );
-                matchesColor =
-                    (colorIdx == -1) ||
-                    (colorIdx >= _colorRange.start.toInt() &&
-                        colorIdx <= _colorRange.end.toInt());
-              }
+
               int clarityIdx = clarityLabels.indexOf(
                 (stone.clarityStr).trim().toUpperCase(),
               );
@@ -568,18 +562,23 @@ class _GmssScreenState extends State<GmssScreen> {
           spacing: 15,
           runSpacing: 15,
           children: visibleColors.map((item) {
-            bool isSelected = selectedFancyColor == item['name'];
+            bool isSelected = selectedFancyColorId == item['id'];
 
             String colorFileName = item['name'] == "White"
                 ? "NZ"
                 : item['name'];
             String imageUrl =
                 "https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_$colorFileName.png";
+
             return GestureDetector(
               onTap: () => setState(() {
-                selectedFancyColor = (selectedFancyColor == item['name'])
-                    ? null
-                    : item['name'];
+                if (selectedFancyColorId == item['id']) {
+                  selectedFancyColorId = null;
+                  selectedFancyColor = null;
+                } else {
+                  selectedFancyColorId = item['id'];
+                  selectedFancyColor = item['name'];
+                }
               }),
               child: Column(
                 children: [
