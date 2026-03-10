@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 
+import 'diamond_shapes.dart';
 import 'diamonds_details_pages.dart';
 import 'model/gmss_stone_model.dart';
 import 'service/gmss_api_service.dart';
@@ -163,7 +164,7 @@ class _GmssScreenState extends State<GmssScreen> {
     "I1",
   ];
   RangeValues _clarityRange = const RangeValues(0, 8);
-  int selectedOrigin = 1;
+  int selectedOrigin = 1; // 1 = Lab Grown, 2 = Natural
   final String baseAssetUrl = "https://dev2.kodllin.com/";
   static const String shapeBaseUrl =
       "https://demo.kodllin.com/apis/storage/app/shape_images/";
@@ -231,7 +232,8 @@ class _GmssScreenState extends State<GmssScreen> {
   @override
   void initState() {
     super.initState();
-    _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+    // _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+    _future = GmssApiService.fetchLabGrownData();
   }
 
   void _toggleSave(GmssStone stone) {
@@ -334,10 +336,13 @@ class _GmssScreenState extends State<GmssScreen> {
                     colorIdx <= _colorRange.end.toInt());
               }
               final bool matchesShape =
-                  (selectedShapeId == 0 || selectedShape == "ALL")
+                  (selectedShapeId == 0 ||
+                      selectedShape == "ALL" ||
+                      selectedShape == "Other")
                   ? true
-                  : (stone.shapeStr).toLowerCase().trim() ==
-                        selectedShape.toLowerCase().trim();
+                  : (stone.shapeStr).toLowerCase().contains(
+                      selectedShape.toLowerCase().trim(),
+                    );
               final bool matchesCarat =
                   stone.weight >= _caratRange.start &&
                   stone.weight <= _caratRange.end;
@@ -1061,14 +1066,65 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
+  // Widget _buildOriginOption(String label, int value) {
+  //   bool isSelected = selectedOrigin == value;
+  //   final Color activeBtnColor = (value == 1)
+  //       ? Colors.teal
+  //       : Colors.blue.shade700;
+  //   return Expanded(
+  //     child: GestureDetector(
+  //       onTap: () => setState(() => selectedOrigin = value),
+  //       child: AnimatedContainer(
+  //         duration: const Duration(milliseconds: 250),
+  //         decoration: BoxDecoration(
+  //           color: isSelected ? activeBtnColor : Colors.transparent,
+  //           borderRadius: BorderRadius.circular(12),
+  //           boxShadow: isSelected
+  //               ? [
+  //                   BoxShadow(
+  //                     color: Colors.black.withValues(alpha: 0.05),
+  //                     blurRadius: 10,
+  //                     offset: const Offset(0, 4),
+  //                   ),
+  //                 ]
+  //               : [],
+  //         ),
+  //         alignment: Alignment.center,
+  //         child: Text(
+  //           label,
+  //           style: TextStyle(
+  //             color: isSelected ? Colors.white : Colors.black,
+  //             fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
+  //             fontSize: 13,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _buildOriginOption(String label, int value) {
     bool isSelected = selectedOrigin == value;
     final Color activeBtnColor = (value == 1)
         ? Colors.teal
         : Colors.blue.shade700;
+
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => selectedOrigin = value),
+        onTap: () {
+          // 1. Only trigger if the user isn't clicking the already selected button
+          if (selectedOrigin != value) {
+            setState(() {
+              selectedOrigin = value;
+
+              // 2. Logic to switch between APIs
+              if (value == 1) {
+                _future = GmssApiService.fetchLabGrownData();
+              } else {
+                _future = GmssApiService.fetchNaturalData();
+              }
+            });
+          }
+        },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           decoration: BoxDecoration(
@@ -1329,9 +1385,8 @@ class _GmssScreenState extends State<GmssScreen> {
                 setState(() {
                   selectedShapeId = s['id'];
                   selectedShape = s['name'];
-                  _future = GmssApiService.fetchGmssData(
-                    shapeId: selectedShapeId,
-                  );
+                  // Re-run the future to refresh the view
+                  _future = GmssApiService.fetchLabGrownData();
                 });
               }
             },
@@ -1472,7 +1527,7 @@ class _GmssScreenState extends State<GmssScreen> {
         setState(() {
           selectedShapeId = shape['id'];
           selectedShape = shape['name'];
-          _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+          _future = GmssApiService.fetchLabGrownData();
         });
         Navigator.pop(context);
       },
@@ -1703,7 +1758,7 @@ class _GmssScreenState extends State<GmssScreen> {
               leading: SizedBox(
                 width: 40,
                 height: 40,
-                child: SafeImage(url: stone.image_link, size: 40),
+                child: SafeImage(url: stone.image_link, size: 40, stone: stone),
               ),
               title: Row(
                 children: [
@@ -2138,7 +2193,7 @@ class _GmssScreenState extends State<GmssScreen> {
 
           // 2. TRIGGER DYNAMIC FETCH
           // Ensure you use your proxy and dynamic parameters for the API call
-          _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
+          _future = GmssApiService.fetchLabGrownData();
         });
 
         // 3. CLOSE THE MENU
@@ -2548,7 +2603,13 @@ class _GmssScreenState extends State<GmssScreen> {
 class SafeImage extends StatefulWidget {
   final String url;
   final double size;
-  const SafeImage({required this.url, required this.size});
+  final GmssStone stone; // Add this line
+  const SafeImage({
+    required this.url,
+    required this.size,
+    required this.stone, // Add this line
+    super.key,
+  });
   @override
   State<SafeImage> createState() => SafeImageState();
 }
@@ -2625,11 +2686,37 @@ class SafeImageState extends State<SafeImage> {
         ),
       );
     }
-    return Icon(
-      Icons.diamond_outlined,
-      size: widget.size,
-      color: Colors.grey.shade600,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: CustomPaint(
+          size: Size(widget.size * 0.8, widget.size * 0.8),
+          painter: _getShapePainter(widget.stone),
+        ),
+      ),
     );
+
+    //   Icon(
+    //   Icons.diamond_outlined,
+    //   size: widget.size,
+    //   color: Colors.grey.shade600,
+    // );
+  }
+
+  CustomPainter _getShapePainter(GmssStone stone) {
+    String shape = stone.shapeStr.toUpperCase();
+    if (shape.contains("ROUND")) return MinimalRoundPainter();
+    if (shape.contains("PRINCESS")) return MinimalPrincessPainter();
+    if (shape.contains("EMERALD")) return MinimalEmeraldPainter();
+    if (shape.contains("CUSHION")) return MinimalCushionPainter();
+    if (shape.contains("RADIANT")) return MinimalRadiantPainter();
+    if (shape.contains("MARQUISE")) return MinimalMarquisePainter();
+    if (shape.contains("PEAR")) return MinimalPearPainter();
+    if (shape.contains("OVAL")) return MinimalOvalPainter();
+    if (shape.contains("HEART")) return MinimalHeartPainter();
+    if (shape.contains("ASSCHER")) return MinimalAsscherPainter();
+
+    return MinimalRoundPainter();
   }
 }
 
@@ -2698,6 +2785,7 @@ class _DiamondCardState extends State<_DiamondCard> {
                             child: SafeImage(
                               url: widget.stone.image_link,
                               size: 200,
+                              stone: widget.stone,
                             ),
                           ),
                         ),
