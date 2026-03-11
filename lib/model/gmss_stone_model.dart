@@ -102,11 +102,12 @@ class GmssStone {
       clarityStr: json['clarity']?.toString() ?? "",
       cut: json['cut']?.toString() ?? '',
       cut_code: json['cut']?.toString() ?? '',
-      lab: json['lab']?.toString() ?? '',
+      lab: json['lab'] ?? "GIA",
       fl_intensity: json['fluorescenceIntensity']?.toString() ?? '',
       polish: json['polish']?.toString() ?? '',
       image_link: json['imageLink']?.toString() ?? "",
       video_link: json['videoLink']?.toString() ?? "",
+      certi_file: json['certiFile'] ?? json['certi_file'] ?? "",
       // Crucial for your UI filters:
       stoneName: isLab
           ? "LAB GROWN ${json['weight']} CT ${json['shape']}"

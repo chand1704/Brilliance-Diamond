@@ -15,6 +15,8 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
+  List<GmssStone>? _cachedLabGrown;
+  List<GmssStone>? _cachedNatural;
   int? selectedFancyColorId; // Add this line
   void _hideMegaMenu() {
     // Hide all possible mega menus
@@ -229,11 +231,28 @@ class _GmssScreenState extends State<GmssScreen> {
       'icon': '${shapeBaseUrl}50_sf_1737092508.svg',
     },
   ];
+  // ADD THIS METHOD INSIDE _GmssScreenState
+  Future<List<GmssStone>> _getSmartData() async {
+    if (selectedOrigin == 1) {
+      // Check if Lab Grown is already loaded
+      if (_cachedLabGrown != null) return _cachedLabGrown!;
+
+      _cachedLabGrown = await GmssApiService.fetchLabGrownData();
+      return _cachedLabGrown!;
+    } else {
+      // Check if Natural is already loaded
+      if (_cachedNatural != null) return _cachedNatural!;
+
+      _cachedNatural = await GmssApiService.fetchNaturalData();
+      return _cachedNatural!;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     // _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
-    _future = GmssApiService.fetchLabGrownData();
+    _future = _getSmartData();
   }
 
   void _toggleSave(GmssStone stone) {
@@ -1115,13 +1134,13 @@ class _GmssScreenState extends State<GmssScreen> {
           if (selectedOrigin != value) {
             setState(() {
               selectedOrigin = value;
-
+              _future = _getSmartData();
               // 2. Logic to switch between APIs
-              if (value == 1) {
-                _future = GmssApiService.fetchLabGrownData();
-              } else {
-                _future = GmssApiService.fetchNaturalData();
-              }
+              // if (value == 1) {
+              //   _future = GmssApiService.fetchLabGrownData();
+              // } else {
+              //   _future = GmssApiService.fetchNaturalData();
+              // }
             });
           }
         },
@@ -1386,7 +1405,7 @@ class _GmssScreenState extends State<GmssScreen> {
                   selectedShapeId = s['id'];
                   selectedShape = s['name'];
                   // Re-run the future to refresh the view
-                  _future = GmssApiService.fetchLabGrownData();
+                  // _future = GmssApiService.fetchLabGrownData();
                 });
               }
             },
@@ -2159,7 +2178,7 @@ class _GmssScreenState extends State<GmssScreen> {
               ]),
             ),
             _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
+              "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg")}",
               "NEW ARRIVALS",
               "Exquisite Lab Brilliance",
             ),
@@ -2824,7 +2843,7 @@ class _DiamondCardState extends State<_DiamondCard> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "${widget.stone.colorStr.toUpperCase()} | ${widget.stone.clarityStr.toUpperCase()} | IGI Certified",
+                      "${widget.stone.colorStr.toUpperCase()} | ${widget.stone.clarityStr.toUpperCase()} | ${widget.stone.lab.toUpperCase()}",
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 11,

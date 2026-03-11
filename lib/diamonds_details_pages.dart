@@ -1055,25 +1055,50 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             child: Row(
               children: [
                 if (widget.stone.certi_file != null &&
-                    widget.stone.certi_file!.isNotEmpty)
-                  InkWell(
-                    onTap: () => _launchCertificate(widget.stone.certi_file),
-                    borderRadius: BorderRadius.circular(20),
-                    child: _buildBadge(
-                      imageUrl:
-                          "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/IGI_logo.jpg",
-                      "IGI Certified",
+                    widget.stone.certi_file!.isNotEmpty &&
+                    widget.stone.certi_file != "null")
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: InkWell(
+                      onTap: () => _launchCertificate(widget.stone.certi_file),
+                      borderRadius: BorderRadius.circular(20),
+                      child: _buildBadge(
+                        // Using a dynamic label based on the lab (GIA/IGI)
+                        "${widget.stone.lab} Certificate",
+                        imageUrl:
+                            "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/GIA_logo.jpg",
+                        icon: Icons.verified_user_outlined,
+                      ),
                     ),
                   ),
-                const SizedBox(width: 10),
+
+                // --- 360 Video Badge ---
                 InkWell(
                   onTap: () => _showVideoPopup(widget.stone.video_link),
                   borderRadius: BorderRadius.circular(20),
                   child: _buildBadge(
-                    icon: Icons.play_circle_outline,
                     "360 Video",
+                    icon: Icons.play_circle_outline,
                   ),
                 ),
+                //   InkWell(
+                //     onTap: () => _launchCertificate(widget.stone.certi_file),
+                //     borderRadius: BorderRadius.circular(20),
+                //     child: _buildBadge(
+                //       imageUrl:
+                //           "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/IGI_logo.jpg",
+                //       "IGI Certified",
+                //     ),
+                //   ),
+                // const SizedBox(width: 10),
+                // InkWell(
+                //   onTap: () => _showVideoPopup(widget.stone.video_link),
+                //   borderRadius: BorderRadius.circular(20),
+                //   child: _buildBadge(
+                //     icon: Icons.play_circle_outline,
+                //     "360 Video",
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -1285,25 +1310,38 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (imageUrl != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: SafeImage(url: imageUrl, size: 18),
+            Image.network(
+              imageUrl,
+              width: 18,
+              height: 18,
+              errorBuilder: (c, e, s) =>
+                  const Icon(Icons.description, size: 14),
             )
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 6),
+          //   child: SafeImage(url: imageUrl, size: 18),
+          // )
           else if (icon != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: Icon(icon, size: 14),
-            ),
+            Icon(icon, size: 16, color: const Color(0xFF005AAB)),
+
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 6),
+          //   child: Icon(icon, size: 14),
+          // ),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
         ],
       ),
