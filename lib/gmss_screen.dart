@@ -17,9 +17,8 @@ class GmssScreen extends StatefulWidget {
 class _GmssScreenState extends State<GmssScreen> {
   Map<int, List<GmssStone>> _cachedLabGrownMap = {};
   Map<int, List<GmssStone>> _cachedNaturalMap = {};
-  int? selectedFancyColorId; // Add this line
+  int? selectedFancyColorId;
   void _hideMegaMenu() {
-    // Hide all possible mega menus
     _diamondHoverController.hide();
     _engagementHoverController.hide();
     _weddingHoverController.hide();
@@ -98,16 +97,12 @@ class _GmssScreenState extends State<GmssScreen> {
   ];
   final OverlayPortalController _diamondHoverController =
       OverlayPortalController();
-
   final OverlayPortalController _engagementHoverController =
       OverlayPortalController();
-
   final OverlayPortalController _weddingHoverController =
       OverlayPortalController();
-
   final OverlayPortalController _jewelryHoverController =
       OverlayPortalController();
-
   final OverlayPortalController _aboutHoverController =
       OverlayPortalController();
   final ScrollController _scrollController = ScrollController();
@@ -166,7 +161,7 @@ class _GmssScreenState extends State<GmssScreen> {
     "I1",
   ];
   RangeValues _clarityRange = const RangeValues(0, 8);
-  int selectedOrigin = 1; // 1 = Lab Grown, 2 = Natural
+  int selectedOrigin = 1;
   final String baseAssetUrl = "https://dev2.kodllin.com/";
   static const String shapeBaseUrl =
       "https://demo.kodllin.com/apis/storage/app/shape_images/";
@@ -231,24 +226,17 @@ class _GmssScreenState extends State<GmssScreen> {
       'icon': '${shapeBaseUrl}50_sf_1737092508.svg',
     },
   ];
-  // ADD THIS METHOD INSIDE _GmssScreenState
   Future<List<GmssStone>> _getSmartData() async {
     int shapeId = selectedShapeId;
-
     if (selectedOrigin == 1) {
-      // Lab Grown
       if (_cachedLabGrownMap.containsKey(shapeId))
         return _cachedLabGrownMap[shapeId]!;
-
-      // Pass the shapeId to your API service
       final data = await GmssApiService.fetchLabGrownData();
       _cachedLabGrownMap[shapeId] = data;
       return data;
     } else {
-      // Natural
       if (_cachedNaturalMap.containsKey(shapeId))
         return _cachedNaturalMap[shapeId]!;
-
       final data = await GmssApiService.fetchNaturalData();
       _cachedNaturalMap[shapeId] = data;
       return data;
@@ -325,7 +313,6 @@ class _GmssScreenState extends State<GmssScreen> {
               bool matchesSaturation = true;
               if (isFancySearch) {
                 if (selectedFancyColorId == null) {
-                  // Show everything categorized generally as "Fancy" by the API
                   matchesColor = stone.colorStr.toLowerCase().contains("fancy");
                 } else {
                   String searchColor = selectedFancyColor?.toUpperCase() ?? "";
@@ -346,14 +333,11 @@ class _GmssScreenState extends State<GmssScreen> {
                     break;
                   }
                 }
-
-                // Allow the stone if it matches the slider range OR if no saturation label was found
                 matchesSaturation =
                     (stoneSaturationIdx == -1) ||
                     (stoneSaturationIdx >= _saturationRange.start.toInt() &&
                         stoneSaturationIdx <= _saturationRange.end.toInt());
               } else {
-                // Standard D-L logic
                 int colorIdx = shadeLabels.indexOf(
                   stone.colorStr.trim().toUpperCase(),
                 );
@@ -375,7 +359,6 @@ class _GmssScreenState extends State<GmssScreen> {
               final bool matchesPrice =
                   stone.total_price >= _priceRange.start &&
                   stone.total_price <= _priceRange.end;
-
               int clarityIdx = clarityLabels.indexOf(
                 (stone.clarityStr).trim().toUpperCase(),
               );
@@ -522,7 +505,7 @@ class _GmssScreenState extends State<GmssScreen> {
         const SizedBox(height: 10),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
+            trackHeight: 3,
             activeTrackColor: themeColor,
             thumbColor: themeColor,
             inactiveTrackColor: Colors.grey.shade200,
@@ -550,7 +533,6 @@ class _GmssScreenState extends State<GmssScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(saturationLabels.length, (index) {
-              // Null-safe access to start and end
               bool isActive =
                   index >= currentRange.start.toInt() &&
                   index <= currentRange.end.toInt();
@@ -570,7 +552,7 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   Widget _buildFancyColorFilter(Color themeColor) {
-    String shapName = "RD"; // Default Round
+    String shapName = "RD";
     String currentShape = selectedShape.toUpperCase();
     if (currentShape == "PEAR") shapName = "PE";
     if (currentShape == "EMERALD") shapName = "EM";
@@ -594,13 +576,11 @@ class _GmssScreenState extends State<GmssScreen> {
           runSpacing: 15,
           children: visibleColors.map((item) {
             bool isSelected = selectedFancyColorId == item['id'];
-
             String colorFileName = item['name'] == "White"
                 ? "NZ"
                 : item['name'];
             String imageUrl =
                 "https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_$colorFileName.png";
-
             return GestureDetector(
               onTap: () => setState(() {
                 if (selectedFancyColorId == item['id']) {
@@ -616,7 +596,6 @@ class _GmssScreenState extends State<GmssScreen> {
                   Container(
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      // This creates the black square outline when selected
                       border: Border.all(
                         color: isSelected ? Colors.black : Colors.transparent,
                         width: 1,
@@ -729,10 +708,10 @@ class _GmssScreenState extends State<GmssScreen> {
           ),
           const SizedBox(height: 40),
           _buildStaticFilters(themeColor),
-          const Divider(), // Add a divider
+          const Divider(),
           _buildClaritySlider(themeColor),
           const SizedBox(height: 20),
-          _buildAdvancedFilters(themeColor), // <--- Add this here
+          _buildAdvancedFilters(themeColor),
           const SizedBox(height: 40),
         ],
       ),
@@ -848,6 +827,7 @@ class _GmssScreenState extends State<GmssScreen> {
         const SizedBox(height: 8),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
+            trackHeight: 3,
             activeTrackColor: themeColor,
             inactiveTrackColor: Colors.grey.shade200,
             thumbColor: Colors.white,
@@ -869,10 +849,8 @@ class _GmssScreenState extends State<GmssScreen> {
             children: labels.asMap().entries.map((entry) {
               int idx = entry.key;
               String label = entry.value;
-
               bool isActive =
                   idx >= values.start.toInt() && idx <= values.end.toInt();
-
               return Text(
                 label,
                 style: TextStyle(
@@ -914,7 +892,7 @@ class _GmssScreenState extends State<GmssScreen> {
                 const SizedBox(height: 10),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    trackHeight: 2,
+                    trackHeight: 3,
                     activeTrackColor: themeColor,
                     inactiveTrackColor: Colors.grey.shade200,
                     thumbColor: Colors.white,
@@ -1041,13 +1019,12 @@ class _GmssScreenState extends State<GmssScreen> {
         ),
         const SizedBox(height: 7),
         Padding(
-          padding: const EdgeInsets.only(), // Aligns with the checkbox edge
+          padding: const EdgeInsets.only(),
           child: TextButton.icon(
             onPressed: () {
               setState(() {
                 showOnlyWithImages = false;
                 quickShipping = false;
-                // Resetting sliders and origin as well
                 _caratRange = const RangeValues(0.0, 15.0);
                 _priceRange = const RangeValues(0.0, 100000.0);
                 selectedOrigin = 1;
@@ -1092,57 +1069,18 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  // Widget _buildOriginOption(String label, int value) {
-  //   bool isSelected = selectedOrigin == value;
-  //   final Color activeBtnColor = (value == 1)
-  //       ? Colors.teal
-  //       : Colors.blue.shade700;
-  //   return Expanded(
-  //     child: GestureDetector(
-  //       onTap: () => setState(() => selectedOrigin = value),
-  //       child: AnimatedContainer(
-  //         duration: const Duration(milliseconds: 250),
-  //         decoration: BoxDecoration(
-  //           color: isSelected ? activeBtnColor : Colors.transparent,
-  //           borderRadius: BorderRadius.circular(12),
-  //           boxShadow: isSelected
-  //               ? [
-  //                   BoxShadow(
-  //                     color: Colors.black.withValues(alpha: 0.05),
-  //                     blurRadius: 10,
-  //                     offset: const Offset(0, 4),
-  //                   ),
-  //                 ]
-  //               : [],
-  //         ),
-  //         alignment: Alignment.center,
-  //         child: Text(
-  //           label,
-  //           style: TextStyle(
-  //             color: isSelected ? Colors.white : Colors.black,
-  //             fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
-  //             fontSize: 13,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
   Widget _buildOriginOption(String label, int value) {
     bool isSelected = selectedOrigin == value;
     final Color activeBtnColor = (value == 1)
         ? Colors.teal
         : Colors.blue.shade700;
-
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          // 1. Only trigger if the user isn't clicking the already selected button
           if (selectedOrigin != value) {
             setState(() {
               selectedOrigin = value;
               _future = _getSmartData();
-              // 2. Logic to switch between APIs
               // if (value == 1) {
               //   _future = GmssApiService.fetchLabGrownData();
               // } else {
@@ -1286,7 +1224,7 @@ class _GmssScreenState extends State<GmssScreen> {
                 const SizedBox(height: 10),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    trackHeight: 2,
+                    trackHeight: 3,
                     activeTrackColor: themeColor,
                     inactiveTrackColor: Colors.grey.shade200,
                     thumbColor: Colors.white,
@@ -1346,7 +1284,7 @@ class _GmssScreenState extends State<GmssScreen> {
       data: SliderThemeData(
         activeTrackColor: themeColor,
         inactiveTrackColor: Colors.grey.shade100,
-        trackHeight: 6,
+        trackHeight: 3,
         thumbColor: Colors.white,
         rangeThumbShape: const RoundRangeSliderThumbShape(
           enabledThumbRadius: 11,
@@ -1411,8 +1349,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 setState(() {
                   selectedShapeId = s['id'];
                   selectedShape = s['name'];
-                  // Re-run the future to refresh the view
-                  // _future = GmssApiService.fetchLabGrownData();
                   _future = _getSmartData();
                 });
               }
@@ -1554,7 +1490,6 @@ class _GmssScreenState extends State<GmssScreen> {
         setState(() {
           selectedShapeId = shape['id'];
           selectedShape = shape['name'];
-          // _future = GmssApiService.fetchLabGrownData();
           _future = _getSmartData();
         });
         Navigator.pop(context);
@@ -2214,21 +2149,12 @@ class _GmssScreenState extends State<GmssScreen> {
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
     return InkWell(
       onTap: () {
-        // 1. UPDATE THE STATE
         setState(() {
           selectedShapeId = shape['id'];
           selectedShape = shape['name'];
-
-          // 2. TRIGGER DYNAMIC FETCH
-          // Ensure you use your proxy and dynamic parameters for the API call
           _future = GmssApiService.fetchLabGrownData();
         });
-
-        // 3. CLOSE THE MENU
         _hideMegaMenu();
-
-        // 4. OPTIONAL: SCROLL TO TOP
-        // If the user is far down the page, scroll back to show the new results
         _scrollController.animateTo(
           0,
           duration: const Duration(milliseconds: 500),
@@ -2630,12 +2556,13 @@ class _GmssScreenState extends State<GmssScreen> {
 
 class SafeImage extends StatefulWidget {
   final String url;
+
   final double size;
-  final GmssStone stone; // Add this line
+  final GmssStone stone;
   const SafeImage({
     required this.url,
     required this.size,
-    required this.stone, // Add this line
+    required this.stone,
     super.key,
   });
   @override
@@ -2723,12 +2650,6 @@ class SafeImageState extends State<SafeImage> {
         ),
       ),
     );
-
-    //   Icon(
-    //   Icons.diamond_outlined,
-    //   size: widget.size,
-    //   color: Colors.grey.shade600,
-    // );
   }
 
   CustomPainter _getShapePainter(GmssStone stone) {
@@ -2743,7 +2664,6 @@ class SafeImageState extends State<SafeImage> {
     if (shape.contains("OVAL")) return MinimalOvalPainter();
     if (shape.contains("HEART")) return MinimalHeartPainter();
     if (shape.contains("ASSCHER")) return MinimalAsscherPainter();
-
     return MinimalRoundPainter();
   }
 }
@@ -2781,8 +2701,8 @@ class _DiamondCardState extends State<_DiamondCard> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: _isHoverd
-                  ? widget.themeColor.withValues(alpha: 0.5)
+              color: (widget.isFavorite || _isHoverd)
+                  ? widget.themeColor
                   : Colors.transparent,
               width: 1,
             ),
@@ -2843,29 +2763,29 @@ class _DiamondCardState extends State<_DiamondCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${widget.stone.weight} CT ${widget.stone.shapeStr.toUpperCase()}",
+                      "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
-                        fontSize: 13,
+                        fontSize: 18,
                         letterSpacing: 0.5,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "${widget.stone.colorStr.toUpperCase()} | ${widget.stone.clarityStr.toUpperCase()} | ${widget.stone.lab.toUpperCase()}",
+                      "${widget.stone.colorStr.toUpperCase()} • ${widget.stone.clarityStr.toUpperCase()} • ${widget.stone.lab.toUpperCase()} CERTIFIED",
                       style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "\$${widget.stone.total_price.toStringAsFixed(0)}",
+                      "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.black,
-                        fontSize: 18,
+                        fontSize: 13,
                       ),
                     ),
                   ],
