@@ -15,8 +15,8 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
-  List<GmssStone>? _cachedLabGrown;
-  List<GmssStone>? _cachedNatural;
+  Map<int, List<GmssStone>> _cachedLabGrownMap = {};
+  Map<int, List<GmssStone>> _cachedNaturalMap = {};
   int? selectedFancyColorId; // Add this line
   void _hideMegaMenu() {
     // Hide all possible mega menus
@@ -233,18 +233,25 @@ class _GmssScreenState extends State<GmssScreen> {
   ];
   // ADD THIS METHOD INSIDE _GmssScreenState
   Future<List<GmssStone>> _getSmartData() async {
+    int shapeId = selectedShapeId;
+
     if (selectedOrigin == 1) {
-      // Check if Lab Grown is already loaded
-      if (_cachedLabGrown != null) return _cachedLabGrown!;
+      // Lab Grown
+      if (_cachedLabGrownMap.containsKey(shapeId))
+        return _cachedLabGrownMap[shapeId]!;
 
-      _cachedLabGrown = await GmssApiService.fetchLabGrownData();
-      return _cachedLabGrown!;
+      // Pass the shapeId to your API service
+      final data = await GmssApiService.fetchLabGrownData();
+      _cachedLabGrownMap[shapeId] = data;
+      return data;
     } else {
-      // Check if Natural is already loaded
-      if (_cachedNatural != null) return _cachedNatural!;
+      // Natural
+      if (_cachedNaturalMap.containsKey(shapeId))
+        return _cachedNaturalMap[shapeId]!;
 
-      _cachedNatural = await GmssApiService.fetchNaturalData();
-      return _cachedNatural!;
+      final data = await GmssApiService.fetchNaturalData();
+      _cachedNaturalMap[shapeId] = data;
+      return data;
     }
   }
 
@@ -1406,6 +1413,7 @@ class _GmssScreenState extends State<GmssScreen> {
                   selectedShape = s['name'];
                   // Re-run the future to refresh the view
                   // _future = GmssApiService.fetchLabGrownData();
+                  _future = _getSmartData();
                 });
               }
             },
@@ -1546,7 +1554,8 @@ class _GmssScreenState extends State<GmssScreen> {
         setState(() {
           selectedShapeId = shape['id'];
           selectedShape = shape['name'];
-          _future = GmssApiService.fetchLabGrownData();
+          // _future = GmssApiService.fetchLabGrownData();
+          _future = _getSmartData();
         });
         Navigator.pop(context);
       },
