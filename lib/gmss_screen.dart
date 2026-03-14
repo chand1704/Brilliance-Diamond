@@ -2669,11 +2669,8 @@ class SafeImageState extends State<SafeImage> {
       return;
     }
     try {
-      final res = await http.get(
-        Uri.parse("https://corsproxy.io/?${Uri.encodeComponent(widget.url)}"),
-      );
-      if (res.statusCode == 200 &&
-          (res.headers['content-type'] ?? "").contains('image')) {
+      final res = await http.get(Uri.parse(widget.url));
+      if (res.statusCode == 200) {
         if (mounted) {
           setState(() {
             _bytes = res.bodyBytes;
@@ -2683,7 +2680,8 @@ class SafeImageState extends State<SafeImage> {
       } else {
         if (mounted) setState(() => _isLoading = false);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint("Image Load Error: $e");
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -2772,25 +2770,27 @@ class _DiamondCardState extends State<_DiamondCard> {
       onExit: (_) => setState(() => _isHoverd = false),
       child: GestureDetector(
         onTap: widget.onCardTap,
-        child: AnimatedContainer(
+        child: AnimatedScale(
+          scale: _isHoverd ? 1.10 : 1.0,
           duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: (widget.isFavorite || _isHoverd)
-                  ? widget.themeColor
-                  : Colors.transparent,
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(_isHoverd ? 0.08 : 0.03),
-                blurRadius: _isHoverd ? 20 : 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+          // decoration: BoxDecoration(
+          //   color: Colors.white,
+          //   borderRadius: BorderRadius.circular(12),
+          //   border: Border.all(
+          //     color: (widget.isFavorite || _isHoverd)
+          //         ? widget.themeColor
+          //         : Colors.transparent,
+          //     width: 1,
+          //   ),
+          //   boxShadow: [
+          //     BoxShadow(
+          //       color: Colors.black.withOpacity(_isHoverd ? 0.08 : 0.03),
+          //       blurRadius: _isHoverd ? 20 : 15,
+          //       offset: const Offset(0, 8),
+          //     ),
+          //   ],
+          // ),
+          curve: Curves.easeOut,
           child: Column(
             children: [
               Expanded(
