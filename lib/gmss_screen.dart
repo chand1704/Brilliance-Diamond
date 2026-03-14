@@ -492,10 +492,10 @@ class _GmssScreenState extends State<GmssScreen> {
                             ? SliverGrid(
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      childAspectRatio: 0.60,
-                                      crossAxisSpacing: 20,
-                                      mainAxisSpacing: 20,
+                                      crossAxisCount: 4,
+                                      childAspectRatio: 0.65,
+                                      crossAxisSpacing: 15,
+                                      mainAxisSpacing: 15,
                                     ),
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) => _DiamondCard(
@@ -2803,10 +2803,10 @@ class _DiamondCardState extends State<_DiamondCard> {
                       Center(
                         child: AnimatedScale(
                           scale: _isHoverd ? 1.15 : 1.0,
-                          duration: const Duration(milliseconds: 400),
+                          duration: const Duration(milliseconds: 5),
                           curve: Curves.easeOutCubic,
                           child: Padding(
-                            padding: const EdgeInsets.all(20.0),
+                            padding: const EdgeInsets.all(12.0),
                             child: SafeImage(
                               url: widget.stone.image_link,
                               size: 200,
