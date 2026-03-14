@@ -2761,57 +2761,54 @@ class _DiamondCard extends StatefulWidget {
 }
 
 class _DiamondCardState extends State<_DiamondCard> {
-  bool _isHoverd = false;
+  bool _isHovered = false; // Fixed spelling from _isHoverd
+
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHoverd = true),
-      onExit: (_) => setState(() => _isHoverd = false),
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: widget.onCardTap,
-        child: AnimatedScale(
-          scale: _isHoverd ? 1.10 : 1.0,
-          duration: const Duration(milliseconds: 300),
-          // decoration: BoxDecoration(
-          //   color: Colors.white,
-          //   borderRadius: BorderRadius.circular(12),
-          //   border: Border.all(
-          //     color: (widget.isFavorite || _isHoverd)
-          //         ? widget.themeColor
-          //         : Colors.transparent,
-          //     width: 1,
-          //   ),
-          //   boxShadow: [
-          //     BoxShadow(
-          //       color: Colors.black.withOpacity(_isHoverd ? 0.08 : 0.03),
-          //       blurRadius: _isHoverd ? 20 : 15,
-          //       offset: const Offset(0, 8),
-          //     ),
-          //   ],
-          // ),
-          curve: Curves.easeOut,
-          child: Column(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+        child: AnimatedContainer(
+          // Use AnimatedContainer for smooth border transition
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            // ✅ This line adds the border logic
+            border: Border.all(
+              color: (_isHovered || widget.isFavorite)
+                  ? widget.themeColor
+                  : Colors.transparent,
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: _isHovered ? 0.08 : 0.03),
+                blurRadius: _isHovered ? 20 : 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: AnimatedScale(
+            scale: _isHovered ? 1.02 : 1.0, // Reduced scale for a cleaner look
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
                   child: Stack(
                     children: [
                       Center(
-                        child: AnimatedScale(
-                          scale: _isHoverd ? 1.15 : 1.0,
-                          duration: const Duration(milliseconds: 5),
-                          curve: Curves.easeOutCubic,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: SafeImage(
-                              url: widget.stone.image_link,
-                              size: 200,
-                              stone: widget.stone,
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: SafeImage(
+                            url: widget.stone.image_link,
+                            size: 200,
+                            stone: widget.stone,
                           ),
                         ),
                       ),
@@ -2833,42 +2830,39 @@ class _DiamondCardState extends State<_DiamondCard> {
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        letterSpacing: 0.5,
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16, // Slightly smaller for better fit
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "${widget.stone.colorStr.toUpperCase()} • ${widget.stone.clarityStr.toUpperCase()} • ${widget.stone.lab.toUpperCase()} CERTIFIED",
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                      const SizedBox(height: 4),
+                      Text(
+                        "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                        fontSize: 13,
+                      const SizedBox(height: 10),
+                      Text(
+                        "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
