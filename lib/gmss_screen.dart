@@ -8,8 +8,6 @@ import 'diamonds_details_pages.dart';
 import 'model/gmss_stone_model.dart';
 import 'service/gmss_api_service.dart';
 
-
-
 class GmssScreen extends StatefulWidget {
   const GmssScreen({super.key});
   @override
@@ -444,48 +442,124 @@ class _GmssScreenState extends State<GmssScreen> {
           } else {
             displayStones = filteredMain;
           }
-          return Scrollbar(
-            controller: _scrollController,
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
-                SliverToBoxAdapter(child: _buildHeader()),
-                SliverToBoxAdapter(child: _buildShapeSelector()),
-                SliverToBoxAdapter(
-                  child: _buildUnifiedInventoryToolbar(
-                    mainCount: filteredMain.length,
-                    historyCount: filteredHistory.length,
-                    compareCount: filteredCompare.length,
-                    themeColor: themeColor,
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. FIXED SIDEBAR
+              Container(
+                width: 370,
+                height: MediaQuery.of(context).size.height,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    right: BorderSide(color: Colors.grey.shade100),
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSidebarFilters(themeColor),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 20,
-                          ),
-                          child: displayStones.isEmpty
-                              ? _buildEmptyState()
-                              : isGridView
-                              ? _buildGridView(displayStones, themeColor)
-                              : _buildListView(displayStones, themeColor),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: _buildSidebarFilters(themeColor),
+                ),
+              ),
+
+              // 2. SCROLLABLE CONTENT
+              Expanded(
+                child: Scrollbar(
+                  controller: _scrollController,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
+                      SliverToBoxAdapter(child: _buildHeader()),
+                      SliverToBoxAdapter(child: _buildShapeSelector()),
+                      SliverToBoxAdapter(
+                        child: _buildUnifiedInventoryToolbar(
+                          mainCount: filteredMain.length,
+                          historyCount: filteredHistory.length,
+                          compareCount: filteredCompare.length,
+                          themeColor: themeColor,
                         ),
                       ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
+                        ),
+                        sliver: displayStones.isEmpty
+                            ? const SliverToBoxAdapter(
+                                child: Center(child: Text("No data found")),
+                              )
+                            : isGridView
+                            ? SliverGrid(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      childAspectRatio: 0.60,
+                                      crossAxisSpacing: 20,
+                                      mainAxisSpacing: 20,
+                                    ),
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) => _DiamondCard(
+                                    stone: displayStones[index],
+                                    isFavorite: _savedStones.any(
+                                      (s) => s.id == displayStones[index].id,
+                                    ),
+                                    onFavoriteTap: () =>
+                                        _toggleSave(displayStones[index]),
+                                    onCardTap: () =>
+                                        _handleCardTap(displayStones[index]),
+                                    themeColor: themeColor,
+                                  ),
+                                  childCount: displayStones.length,
+                                ),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) => _buildListViewItem(
+                                    displayStones[index],
+                                    themeColor,
+                                  ),
+                                  childCount: displayStones.length,
+                                ),
+                              ),
+                      ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
                     ],
                   ),
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
-              ],
-            ),
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildListViewItem(GmssStone stone, Color themeColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade100),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        onTap: () => _handleCardTap(stone),
+        leading: SizedBox(
+          width: 50,
+          height: 50,
+          child: SafeImage(url: stone.image_link, size: 50, stone: stone),
+        ),
+        title: Text(
+          "${stone.weight} CT ${stone.shapeStr.toUpperCase()}",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          "${stone.colorStr} • ${stone.clarityStr} • ${stone.lab} CERTIFIED",
+        ),
+        trailing: Text(
+          "\$${stone.total_price.toStringAsFixed(2)}",
+          style: TextStyle(color: themeColor, fontWeight: FontWeight.w900),
+        ),
       ),
     );
   }
@@ -638,13 +712,14 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   Widget _buildSidebarFilters(Color themeColor) {
-    return Container(
-      width: 370,
+    return Padding(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(right: BorderSide(color: Colors.grey.shade100)),
-      ),
+      // width: 370,
+      // padding: const EdgeInsets.all(24),
+      // decoration: BoxDecoration(
+      //   color: Colors.white,
+      //   border: Border(right: BorderSide(color: Colors.grey.shade100)),
+      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
