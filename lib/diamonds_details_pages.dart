@@ -1110,6 +1110,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   Widget _buildHandComparisonCard() {
     const String handImageUrl =
         "https://www.brilliance.com/front/img/src/assets/images/diamond4c/hand..png";
+
     return ValueListenableBuilder<double>(
       valueListenable: _caratNotifier,
       builder: (context, caratValue, child) {
@@ -1404,11 +1405,8 @@ class _SafeImageState extends State<SafeImage> {
       return;
     }
     try {
-      final res = await http.get(
-        Uri.parse("https://corsproxy.io/?${Uri.encodeComponent(widget.url)}"),
-      );
-      if (res.statusCode == 200 &&
-          (res.headers['content-type'] ?? "").contains('image')) {
+      final res = await http.get(Uri.parse((widget.url)));
+      if (res.statusCode == 200) {
         if (mounted) {
           setState(() {
             _bytes = res.bodyBytes;

@@ -493,7 +493,7 @@ class _GmssScreenState extends State<GmssScreen> {
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 4,
-                                      childAspectRatio: 0.65,
+                                      childAspectRatio: 0.95,
                                       crossAxisSpacing: 15,
                                       mainAxisSpacing: 15,
                                     ),
@@ -2798,13 +2798,21 @@ class _DiamondCardState extends State<_DiamondCard> {
             curve: Curves.easeOut,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
+                Container(
+                  height: 200,
+                  width: double.infinity,
                   child: Stack(
                     children: [
-                      Center(
+                      Align(
+                        alignment: Alignment.topCenter,
                         child: Padding(
-                          padding: const EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.only(
+                            top: 12.0,
+                            left: 12,
+                            right: 12,
+                          ),
                           child: SafeImage(
                             url: widget.stone.image_link,
                             size: 200,
@@ -2831,15 +2839,17 @@ class _DiamondCardState extends State<_DiamondCard> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
-                          fontSize: 16, // Slightly smaller for better fit
+                          fontSize: 15, // Slightly smaller for better fit
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -2847,10 +2857,10 @@ class _DiamondCardState extends State<_DiamondCard> {
                         "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
                         style: TextStyle(
                           color: Colors.grey.shade600,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Text(
                         "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
                         style: const TextStyle(
