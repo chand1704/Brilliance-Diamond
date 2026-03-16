@@ -288,248 +288,415 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
+  List<GmssStone> _applyFiltering(List<GmssStone> allStones) {
+    // Use the stones provided by the snapshot
+    final List<GmssStone> filtered = allStones.where((stone) {
+      // 1. Color Logic
+      bool matchesColor = false;
+      if (isFancySearch) {
+        if (selectedFancyColorId == null) {
+          matchesColor = stone.colorStr.toLowerCase().contains("fancy");
+        } else {
+          String searchColor = selectedFancyColor?.toUpperCase() ?? "";
+          matchesColor =
+              (stone.id == selectedFancyColorId) ||
+              stone.colorStr.toUpperCase().contains(searchColor) ||
+              stone.fancy_color.toUpperCase().contains(searchColor);
+        }
+      } else {
+        int colorIdx = shadeLabels.indexOf(stone.colorStr.trim().toUpperCase());
+        matchesColor =
+            (colorIdx >= _colorRange.start.toInt() &&
+            colorIdx <= _colorRange.end.toInt());
+      }
+
+      // 2. Shape, Carat, and Price
+      final bool matchesShape =
+          (selectedShapeId == 0 ||
+              selectedShape == "ALL" ||
+              selectedShape == "Other")
+          ? true
+          : (stone.shapeStr).toLowerCase().contains(
+              selectedShape.toLowerCase().trim(),
+            );
+      final bool matchesCarat =
+          stone.weight >= _caratRange.start && stone.weight <= _caratRange.end;
+      final bool matchesPrice =
+          stone.total_price >= _priceRange.start &&
+          stone.total_price <= _priceRange.end;
+
+      // 3. Origin Logic (Lab vs Natural)
+      final String stoneName = (stone.stoneName).toUpperCase();
+      final bool matchesOrigin = (selectedOrigin == 1)
+          ? (stoneName.contains("LAB") || stoneName.contains("LGD"))
+          : (stoneName.contains("NATURAL") || stoneName.contains("NAT"));
+
+      return matchesShape &&
+          matchesCarat &&
+          matchesPrice &&
+          matchesColor &&
+          matchesOrigin;
+    }).toList();
+
+    // Handle Tabs (Main list vs History vs Favorites)
+    if (_currentTab == 1) return _recentlyViewed;
+    if (_currentTab == 2) return _savedStones;
+    return filtered;
+  }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   final Color themeColor = (selectedOrigin == 1)
+  //       ? Colors.teal
+  //       : Colors.blue.shade700;
+  //   return Scaffold(
+  //     backgroundColor: const Color(0xFFF8FAFB),
+  //     body: FutureBuilder<List<GmssStone>>(
+  //       future: _future,
+  //       builder: (context, snapshot) {
+  //         if (snapshot.connectionState == ConnectionState.waiting) {
+  //           return const Center(
+  //             child: CircularProgressIndicator(color: Colors.teal),
+  //           );
+  //         }
+  //         if (snapshot.hasError) {
+  //           return Center(child: Text('Error: ${snapshot.error}'));
+  //         }
+  //         final allStones = snapshot.data ?? [];
+  //         final Color themeColor = (selectedOrigin == 1)
+  //             ? Colors.teal
+  //             : Colors.blue.shade700;
+  //         List<GmssStone> applyFilters(List<GmssStone> list) {
+  //           return list.where((stone) {
+  //             bool matchesColor = false;
+  //             bool matchesSaturation = true;
+  //             if (isFancySearch) {
+  //               if (selectedFancyColorId == null) {
+  //                 matchesColor = stone.colorStr.toLowerCase().contains("fancy");
+  //               } else {
+  //                 String searchColor = selectedFancyColor?.toUpperCase() ?? "";
+  //                 matchesColor =
+  //                     (stone.id == selectedFancyColorId) ||
+  //                     stone.colorStr.toUpperCase().contains(searchColor) ||
+  //                     stone.fancy_color.toUpperCase().contains(searchColor);
+  //               }
+  //               int stoneSaturationIdx = -1;
+  //               for (int i = 0; i < saturationLabels.length; i++) {
+  //                 if (stone.fancy_color.toUpperCase().contains(
+  //                       saturationLabels[i].toUpperCase(),
+  //                     ) ||
+  //                     stone.colorStr.toUpperCase().contains(
+  //                       saturationLabels[i].toUpperCase(),
+  //                     )) {
+  //                   stoneSaturationIdx = i;
+  //                   break;
+  //                 }
+  //               }
+  //               matchesSaturation =
+  //                   (stoneSaturationIdx == -1) ||
+  //                   (stoneSaturationIdx >= _saturationRange.start.toInt() &&
+  //                       stoneSaturationIdx <= _saturationRange.end.toInt());
+  //             } else {
+  //               int colorIdx = shadeLabels.indexOf(
+  //                 stone.colorStr.trim().toUpperCase(),
+  //               );
+  //               matchesColor =
+  //                   (colorIdx >= _colorRange.start.toInt() &&
+  //                   colorIdx <= _colorRange.end.toInt());
+  //             }
+  //             final bool matchesShape =
+  //                 (selectedShapeId == 0 ||
+  //                     selectedShape == "ALL" ||
+  //                     selectedShape == "Other")
+  //                 ? true
+  //                 : (stone.shapeStr).toLowerCase().contains(
+  //                     selectedShape.toLowerCase().trim(),
+  //                   );
+  //             final bool matchesCarat =
+  //                 stone.weight >= _caratRange.start &&
+  //                 stone.weight <= _caratRange.end;
+  //             final bool matchesPrice =
+  //                 stone.total_price >= _priceRange.start &&
+  //                 stone.total_price <= _priceRange.end;
+  //             int clarityIdx = clarityLabels.indexOf(
+  //               (stone.clarityStr).trim().toUpperCase(),
+  //             );
+  //             bool matchesClarity =
+  //                 (clarityIdx == -1) ||
+  //                 (clarityIdx >= _clarityRange.start.toInt() &&
+  //                     clarityIdx <= _clarityRange.end.toInt());
+  //             int cutIdx = cutLabels.indexOf((stone.cut).trim().toUpperCase());
+  //             bool matchesCut =
+  //                 (cutIdx == -1) ||
+  //                 (cutIdx >= _cutRange.start.toInt() &&
+  //                     cutIdx <= _cutRange.end.toInt());
+  //             int polishIdx = polishLabels.indexOf(
+  //               (stone.polish).trim().toUpperCase(),
+  //             );
+  //             bool matchesPolish =
+  //                 (polishIdx == -1) ||
+  //                 (polishIdx >= _polishRange.start.toInt() &&
+  //                     polishIdx <= _polishRange.end.toInt());
+  //             int flIdx = flLabels.indexOf(
+  //               (stone.fl_intensity).trim().toUpperCase(),
+  //             );
+  //             bool matchesFl =
+  //                 (flIdx == -1) ||
+  //                 (flIdx >= _flRange.start.toInt() &&
+  //                     flIdx <= _flRange.end.toInt());
+  //             int symIdx = symLabels.indexOf(
+  //               (stone.symmetry).trim().toUpperCase(),
+  //             );
+  //             bool matchesSym =
+  //                 (symIdx == -1) ||
+  //                 (symIdx >= _symRange.start.toInt() &&
+  //                     symIdx <= _symRange.end.toInt());
+  //             bool matchesDepth =
+  //                 stone.depth >= _depthRange.start &&
+  //                 stone.depth <= _depthRange.end;
+  //             bool matchesTable =
+  //                 stone.table >= _tableRange.start &&
+  //                 stone.table <= _tableRange.end;
+  //             int certIdx = certLabels.indexOf(
+  //               (stone.lab).trim().toUpperCase(),
+  //             );
+  //             bool matchesCert =
+  //                 (certIdx == -1) ||
+  //                 (certIdx >= _certRange.start.toInt() &&
+  //                     certIdx <= _certRange.end.toInt());
+  //             bool matchesImage = showOnlyWithImages
+  //                 ? ((stone.image_link).isNotEmpty)
+  //                 : true;
+  //             final String stoneName = (stone.stoneName).toUpperCase();
+  //             final bool matchesOrigin = (selectedOrigin == 1)
+  //                 ? (stoneName.contains("LAB") || stoneName.contains("LGD"))
+  //                 : (stoneName.contains("NATURAL") ||
+  //                       stoneName.contains("NAT"));
+  //             return matchesShape &&
+  //                 matchesCarat &&
+  //                 matchesPrice &&
+  //                 matchesColor &&
+  //                 matchesClarity &&
+  //                 matchesCut &&
+  //                 matchesPolish &&
+  //                 matchesFl &&
+  //                 matchesSym &&
+  //                 matchesDepth &&
+  //                 matchesTable &&
+  //                 matchesCert &&
+  //                 matchesImage &&
+  //                 matchesSaturation &&
+  //                 matchesOrigin;
+  //           }).toList();
+  //         }
+  //
+  //         final filteredMain = applyFilters(allStones);
+  //         final filteredHistory = applyFilters(_recentlyViewed);
+  //         final filteredCompare = applyFilters(_savedStones);
+  //         List<GmssStone> displayStones;
+  //         if (_currentTab == 1) {
+  //           displayStones = filteredHistory;
+  //         } else if (_currentTab == 2) {
+  //           displayStones = filteredCompare;
+  //         } else {
+  //           displayStones = filteredMain;
+  //         }
+  //         return Scaffold(
+  //           backgroundColor: const Color(0xFFF8FAFB),
+  //           body: Row(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               // 1. FIXED SIDEBAR
+  //               Container(
+  //                 width: 370,
+  //                 height: MediaQuery.of(context).size.height,
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.white,
+  //                   border: Border(
+  //                     right: BorderSide(color: Colors.grey.shade100),
+  //                   ),
+  //                 ),
+  //                 child: SingleChildScrollView(
+  //                   padding: const EdgeInsets.only(bottom: 40),
+  //                   child: _buildSidebarFilters(themeColor),
+  //                 ),
+  //               ),
+  //
+  //               // 2. SCROLLABLE CONTENT
+  //               // 2. MAIN CONTENT AREA
+  //               Expanded(
+  //                 child: CustomScrollView(
+  //                   controller: _scrollController,
+  //                   slivers: [
+  //                     SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
+  //                     SliverToBoxAdapter(child: _buildHeader()),
+  //                     SliverToBoxAdapter(child: _buildShapeSelector()),
+  //
+  //                     // ✅ THE FIX: Wrap ONLY the data part in FutureBuilder
+  //                     FutureBuilder<List<GmssStone>>(
+  //                       future: _future,
+  //                       builder: (context, snapshot) {
+  //                         if (snapshot.connectionState ==
+  //                             ConnectionState.waiting) {
+  //                           return const SliverFillRemaining(
+  //                             child: Center(
+  //                               child: CircularProgressIndicator(
+  //                                 color: Colors.teal,
+  //                               ),
+  //                             ),
+  //                           );
+  //                         }
+  //                         if (snapshot.hasError) {
+  //                           return SliverToBoxAdapter(
+  //                             child: Center(
+  //                               child: Text('Error: ${snapshot.error}'),
+  //                             ),
+  //                           );
+  //                         }
+  //
+  //                         final allStones = snapshot.data ?? [];
+  //
+  //                         // Keep your filtering logic here
+  //                         final filteredMain = applyFilters(allStones);
+  //                         // (Note: Make sure applyFilters is accessible here)
+  //
+  //                         return SliverPadding(
+  //                           padding: const EdgeInsets.symmetric(
+  //                             horizontal: 24,
+  //                             vertical: 20,
+  //                           ),
+  //                           sliver: filteredMain.isEmpty
+  //                               ? const SliverToBoxAdapter(
+  //                                   child: Center(child: Text("No data found")),
+  //                                 )
+  //                               : SliverGrid(
+  //                                   gridDelegate:
+  //                                       const SliverGridDelegateWithFixedCrossAxisCount(
+  //                                         crossAxisCount: 4,
+  //                                         childAspectRatio: 0.85,
+  //                                         crossAxisSpacing: 15,
+  //                                         mainAxisSpacing: 15,
+  //                                       ),
+  //                                   delegate: SliverChildBuilderDelegate(
+  //                                     (context, index) => _DiamondCard(
+  //                                       stone: filteredMain[index],
+  //                                       isFavorite: _savedStones.any(
+  //                                         (s) => s.id == filteredMain[index].id,
+  //                                       ),
+  //                                       onFavoriteTap: () =>
+  //                                           _toggleSave(filteredMain[index]),
+  //                                       onCardTap: () =>
+  //                                           _handleCardTap(filteredMain[index]),
+  //                                       themeColor: themeColor,
+  //                                     ),
+  //                                     childCount: filteredMain.length,
+  //                                   ),
+  //                                 ),
+  //                         );
+  //                       },
+  //                     ),
+  //                     const SliverToBoxAdapter(child: SizedBox(height: 100)),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
+    final Color themeColor = (selectedOrigin == 1)
+        ? Colors.teal
+        : Colors.blue.shade700;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
-      body: FutureBuilder<List<GmssStone>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.teal),
-            );
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final allStones = snapshot.data ?? [];
-          final Color themeColor = (selectedOrigin == 1)
-              ? Colors.teal
-              : Colors.blue.shade700;
-          List<GmssStone> applyFilters(List<GmssStone> list) {
-            return list.where((stone) {
-              bool matchesColor = false;
-              bool matchesSaturation = true;
-              if (isFancySearch) {
-                if (selectedFancyColorId == null) {
-                  matchesColor = stone.colorStr.toLowerCase().contains("fancy");
-                } else {
-                  String searchColor = selectedFancyColor?.toUpperCase() ?? "";
-                  matchesColor =
-                      (stone.id == selectedFancyColorId) ||
-                      stone.colorStr.toUpperCase().contains(searchColor) ||
-                      stone.fancy_color.toUpperCase().contains(searchColor);
-                }
-                int stoneSaturationIdx = -1;
-                for (int i = 0; i < saturationLabels.length; i++) {
-                  if (stone.fancy_color.toUpperCase().contains(
-                        saturationLabels[i].toUpperCase(),
-                      ) ||
-                      stone.colorStr.toUpperCase().contains(
-                        saturationLabels[i].toUpperCase(),
-                      )) {
-                    stoneSaturationIdx = i;
-                    break;
-                  }
-                }
-                matchesSaturation =
-                    (stoneSaturationIdx == -1) ||
-                    (stoneSaturationIdx >= _saturationRange.start.toInt() &&
-                        stoneSaturationIdx <= _saturationRange.end.toInt());
-              } else {
-                int colorIdx = shadeLabels.indexOf(
-                  stone.colorStr.trim().toUpperCase(),
-                );
-                matchesColor =
-                    (colorIdx >= _colorRange.start.toInt() &&
-                    colorIdx <= _colorRange.end.toInt());
-              }
-              final bool matchesShape =
-                  (selectedShapeId == 0 ||
-                      selectedShape == "ALL" ||
-                      selectedShape == "Other")
-                  ? true
-                  : (stone.shapeStr).toLowerCase().contains(
-                      selectedShape.toLowerCase().trim(),
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ✅ SIDEBAR (Stays static, never flashes/reloads)
+          Container(
+            width: 370,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(right: BorderSide(color: Colors.grey.shade100)),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: _buildSidebarFilters(themeColor),
+            ),
+          ),
+
+          // ✅ MAIN SCROLLABLE AREA
+          Expanded(
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
+                SliverToBoxAdapter(child: _buildHeader()),
+                SliverToBoxAdapter(child: _buildShapeSelector()),
+
+                // ✅ THE FIX: Wrap ONLY the Grid in the FutureBuilder
+                FutureBuilder<List<GmssStone>>(
+                  future: _future,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SliverFillRemaining(
+                        child: Center(
+                          child: CircularProgressIndicator(color: Colors.teal),
+                        ),
+                      );
+                    }
+
+                    // Use our helper method to get the stones
+                    final List<GmssStone> displayStones = _applyFiltering(
+                      snapshot.data ?? [],
                     );
-              final bool matchesCarat =
-                  stone.weight >= _caratRange.start &&
-                  stone.weight <= _caratRange.end;
-              final bool matchesPrice =
-                  stone.total_price >= _priceRange.start &&
-                  stone.total_price <= _priceRange.end;
-              int clarityIdx = clarityLabels.indexOf(
-                (stone.clarityStr).trim().toUpperCase(),
-              );
-              bool matchesClarity =
-                  (clarityIdx == -1) ||
-                  (clarityIdx >= _clarityRange.start.toInt() &&
-                      clarityIdx <= _clarityRange.end.toInt());
-              int cutIdx = cutLabels.indexOf((stone.cut).trim().toUpperCase());
-              bool matchesCut =
-                  (cutIdx == -1) ||
-                  (cutIdx >= _cutRange.start.toInt() &&
-                      cutIdx <= _cutRange.end.toInt());
-              int polishIdx = polishLabels.indexOf(
-                (stone.polish).trim().toUpperCase(),
-              );
-              bool matchesPolish =
-                  (polishIdx == -1) ||
-                  (polishIdx >= _polishRange.start.toInt() &&
-                      polishIdx <= _polishRange.end.toInt());
-              int flIdx = flLabels.indexOf(
-                (stone.fl_intensity).trim().toUpperCase(),
-              );
-              bool matchesFl =
-                  (flIdx == -1) ||
-                  (flIdx >= _flRange.start.toInt() &&
-                      flIdx <= _flRange.end.toInt());
-              int symIdx = symLabels.indexOf(
-                (stone.symmetry).trim().toUpperCase(),
-              );
-              bool matchesSym =
-                  (symIdx == -1) ||
-                  (symIdx >= _symRange.start.toInt() &&
-                      symIdx <= _symRange.end.toInt());
-              bool matchesDepth =
-                  stone.depth >= _depthRange.start &&
-                  stone.depth <= _depthRange.end;
-              bool matchesTable =
-                  stone.table >= _tableRange.start &&
-                  stone.table <= _tableRange.end;
-              int certIdx = certLabels.indexOf(
-                (stone.lab).trim().toUpperCase(),
-              );
-              bool matchesCert =
-                  (certIdx == -1) ||
-                  (certIdx >= _certRange.start.toInt() &&
-                      certIdx <= _certRange.end.toInt());
-              bool matchesImage = showOnlyWithImages
-                  ? ((stone.image_link).isNotEmpty)
-                  : true;
-              final String stoneName = (stone.stoneName).toUpperCase();
-              final bool matchesOrigin = (selectedOrigin == 1)
-                  ? (stoneName.contains("LAB") || stoneName.contains("LGD"))
-                  : (stoneName.contains("NATURAL") ||
-                        stoneName.contains("NAT"));
-              return matchesShape &&
-                  matchesCarat &&
-                  matchesPrice &&
-                  matchesColor &&
-                  matchesClarity &&
-                  matchesCut &&
-                  matchesPolish &&
-                  matchesFl &&
-                  matchesSym &&
-                  matchesDepth &&
-                  matchesTable &&
-                  matchesCert &&
-                  matchesImage &&
-                  matchesSaturation &&
-                  matchesOrigin;
-            }).toList();
-          }
 
-          final filteredMain = applyFilters(allStones);
-          final filteredHistory = applyFilters(_recentlyViewed);
-          final filteredCompare = applyFilters(_savedStones);
-          List<GmssStone> displayStones;
-          if (_currentTab == 1) {
-            displayStones = filteredHistory;
-          } else if (_currentTab == 2) {
-            displayStones = filteredCompare;
-          } else {
-            displayStones = filteredMain;
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. FIXED SIDEBAR
-              Container(
-                width: 370,
-                height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    right: BorderSide(color: Colors.grey.shade100),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 40),
-                  child: _buildSidebarFilters(themeColor),
-                ),
-              ),
-
-              // 2. SCROLLABLE CONTENT
-              Expanded(
-                child: Scrollbar(
-                  controller: _scrollController,
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
-                      SliverToBoxAdapter(child: _buildHeader()),
-                      SliverToBoxAdapter(child: _buildShapeSelector()),
-                      SliverToBoxAdapter(
-                        child: _buildUnifiedInventoryToolbar(
-                          mainCount: filteredMain.length,
-                          historyCount: filteredHistory.length,
-                          compareCount: filteredCompare.length,
-                          themeColor: themeColor,
-                        ),
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 20,
                       ),
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 20,
-                        ),
-                        sliver: displayStones.isEmpty
-                            ? const SliverToBoxAdapter(
-                                child: Center(child: Text("No data found")),
-                              )
-                            : isGridView
-                            ? SliverGrid(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      childAspectRatio: 0.85,
-                                      crossAxisSpacing: 15,
-                                      mainAxisSpacing: 15,
-                                    ),
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) => _DiamondCard(
-                                    stone: displayStones[index],
-                                    isFavorite: _savedStones.any(
-                                      (s) => s.id == displayStones[index].id,
-                                    ),
-                                    onFavoriteTap: () =>
-                                        _toggleSave(displayStones[index]),
-                                    onCardTap: () =>
-                                        _handleCardTap(displayStones[index]),
-                                    themeColor: themeColor,
+                      sliver: displayStones.isEmpty
+                          ? const SliverToBoxAdapter(
+                              child: Center(child: Text("No data found")),
+                            )
+                          : SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    childAspectRatio: 0.85,
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
                                   ),
-                                  childCount: displayStones.length,
-                                ),
-                              )
-                            : SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) => _buildListViewItem(
-                                    displayStones[index],
-                                    themeColor,
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) => _DiamondCard(
+                                  stone: displayStones[index],
+                                  isFavorite: _savedStones.any(
+                                    (s) => s.id == displayStones[index].id,
                                   ),
-                                  childCount: displayStones.length,
+                                  onFavoriteTap: () =>
+                                      _toggleSave(displayStones[index]),
+                                  onCardTap: () =>
+                                      _handleCardTap(displayStones[index]),
+                                  themeColor: themeColor,
                                 ),
+                                childCount: displayStones.length,
                               ),
-                      ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                    ],
-                  ),
+                            ),
+                    );
+                  },
                 ),
-              ),
-            ],
-          );
-        },
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2237,11 +2404,11 @@ class _GmssScreenState extends State<GmssScreen> {
           _future = GmssApiService.fetchLabGrownData();
         });
         _hideMegaMenu();
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 10),
-          curve: Curves.easeInOut,
-        );
+        // _scrollController.animateTo(
+        //   0,
+        //   duration: const Duration(milliseconds: 10),
+        //   curve: Curves.easeInOut,
+        // );
       },
       borderRadius: BorderRadius.circular(8),
       hoverColor: Colors.teal.withOpacity(0.05),
@@ -2250,7 +2417,7 @@ class _GmssScreenState extends State<GmssScreen> {
         child: Column(
           children: [
             SvgPicture.network(
-              "https://corsproxy.io/?${shape['icon']}",
+              "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
               height: 35,
               colorFilter: const ColorFilter.mode(
                 Color(0xFF008080),
