@@ -651,12 +651,20 @@ class _GmssScreenState extends State<GmssScreen> {
                         ),
                       );
                     }
-
-                    // Use our helper method to get the stones
+                    // 11111
+                    if (snapshot.hasError) {
+                      return SliverToBoxAdapter(
+                        child: Center(child: Text('Error: ${snapshot.error}')),
+                      );
+                    }
+                    // // Use our helper method to get the stones
+                    // final List<GmssStone> displayStones = _applyFiltering(
+                    //   snapshot.data ?? [],
+                    // );
+                    final allStones = snapshot.data ?? [];
                     final List<GmssStone> displayStones = _applyFiltering(
-                      snapshot.data ?? [],
+                      allStones,
                     );
-
                     return SliverPadding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -1623,7 +1631,7 @@ class _GmssScreenState extends State<GmssScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.network(
-                    "https://corsproxy.io/?${s['icon']}",
+                    "https://corsproxy.io/?${Uri.encodeComponent(s['icon'])}",
                     height: 30,
                     width: 30,
                     colorFilter: ColorFilter.mode(
