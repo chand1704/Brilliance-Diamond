@@ -644,59 +644,78 @@ class _GmssScreenState extends State<GmssScreen> {
                 FutureBuilder<List<GmssStone>>(
                   future: _future,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    // ✅ FIX: Check if we already have data from a previous load
+                    // If snapshot hasData, we show it even if the connectionState is waiting
+                    if (!snapshot.hasData &&
+                        snapshot.connectionState == ConnectionState.waiting) {
                       return const SliverFillRemaining(
                         child: Center(
                           child: CircularProgressIndicator(color: Colors.teal),
                         ),
                       );
                     }
-                    // 11111
-                    if (snapshot.hasError) {
+
+                    if (snapshot.hasError && !snapshot.hasData) {
                       return SliverToBoxAdapter(
                         child: Center(child: Text('Error: ${snapshot.error}')),
                       );
                     }
-                    // // Use our helper method to get the stones
-                    // final List<GmssStone> displayStones = _applyFiltering(
-                    //   snapshot.data ?? [],
-                    // );
+
+                    // ✅ Get the data (either the new data or the previous data)
                     final allStones = snapshot.data ?? [];
                     final List<GmssStone> displayStones = _applyFiltering(
                       allStones,
                     );
-                    return SliverPadding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 20,
-                      ),
-                      sliver: displayStones.isEmpty
-                          ? const SliverToBoxAdapter(
-                              child: Center(child: Text("No data found")),
-                            )
-                          : SliverGrid(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: 0.85,
-                                    crossAxisSpacing: 15,
-                                    mainAxisSpacing: 15,
-                                  ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) => _DiamondCard(
-                                  stone: displayStones[index],
-                                  isFavorite: _savedStones.any(
-                                    (s) => s.id == displayStones[index].id,
-                                  ),
-                                  onFavoriteTap: () =>
-                                      _toggleSave(displayStones[index]),
-                                  onCardTap: () =>
-                                      _handleCardTap(displayStones[index]),
-                                  themeColor: themeColor,
-                                ),
-                                childCount: displayStones.length,
-                              ),
+
+                    return SliverMainAxisGroup(
+                      slivers: [
+                        // ✅ Add a small loading indicator at the top if updating in background
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          const SliverToBoxAdapter(
+                            child: LinearProgressIndicator(
+                              backgroundColor: Colors.transparent,
+                              color: Colors.teal,
+                              minHeight: 2,
                             ),
+                          ),
+
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 20,
+                          ),
+                          sliver: displayStones.isEmpty
+                              ? const SliverToBoxAdapter(
+                                  child: Center(child: Text("No data found")),
+                                )
+                              : SliverGrid(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4,
+                                        childAspectRatio: 0.85,
+                                        crossAxisSpacing: 15,
+                                        mainAxisSpacing: 15,
+                                      ),
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) => _DiamondCard(
+                                      key: ValueKey(
+                                        displayStones[index].id,
+                                      ), // ✅ Prevent flickering
+                                      stone: displayStones[index],
+                                      isFavorite: _savedStones.any(
+                                        (s) => s.id == displayStones[index].id,
+                                      ),
+                                      onFavoriteTap: () =>
+                                          _toggleSave(displayStones[index]),
+                                      onCardTap: () =>
+                                          _handleCardTap(displayStones[index]),
+                                      themeColor: themeColor,
+                                    ),
+                                    childCount: displayStones.length,
+                                  ),
+                                ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -2930,6 +2949,7 @@ class _DiamondCard extends StatefulWidget {
   final VoidCallback onCardTap;
   final Color themeColor;
   const _DiamondCard({
+    super.key,
     required this.stone,
     required this.isFavorite,
     required this.onFavoriteTap,
