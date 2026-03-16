@@ -493,7 +493,7 @@ class _GmssScreenState extends State<GmssScreen> {
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 4,
-                                      childAspectRatio: 0.95,
+                                      childAspectRatio: 0.85,
                                       crossAxisSpacing: 15,
                                       mainAxisSpacing: 15,
                                     ),
@@ -2838,37 +2838,40 @@ class _DiamondCardState extends State<_DiamondCard> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15, // Slightly smaller for better fit
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15, // Slightly smaller for better fit
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 11,
+                        const SizedBox(height: 4),
+                        Text(
+                          "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 11,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 14,
+                        const SizedBox(height: 4),
+                        Text(
+                          "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
