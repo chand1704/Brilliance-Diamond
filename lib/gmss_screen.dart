@@ -1167,7 +1167,7 @@ class _GmssScreenState extends State<GmssScreen> {
           }
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
+          duration: const Duration(milliseconds: 10),
           decoration: BoxDecoration(
             color: isSelected ? activeBtnColor : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
@@ -1431,7 +1431,7 @@ class _GmssScreenState extends State<GmssScreen> {
               }
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 10),
               width: 90,
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(4),
@@ -1456,12 +1456,17 @@ class _GmssScreenState extends State<GmssScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.network(
-                    "https://corsproxy.io/?${Uri.encodeComponent(s['icon'])}",
+                    "https://corsproxy.io/?${s['icon']}",
                     height: 30,
                     width: 30,
                     colorFilter: ColorFilter.mode(
                       active ? Colors.teal : Colors.grey,
                       BlendMode.srcIn,
+                    ),
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      Icons.diamond_outlined,
+                      size: 24,
+                      color: active ? Colors.teal : Colors.grey,
                     ),
                     placeholderBuilder: (context) => const SizedBox(
                       height: 30,
@@ -1492,7 +1497,7 @@ class _GmssScreenState extends State<GmssScreen> {
       context: context,
       barrierDismissible: true,
       barrierLabel: "OtherShapes",
-      transitionDuration: const Duration(milliseconds: 300),
+      transitionDuration: const Duration(milliseconds: 10),
       pageBuilder: (context, anim1, anim2) => const SizedBox(),
       transitionBuilder: (context, anim1, anim2, child) {
         return Transform.scale(
@@ -1573,7 +1578,7 @@ class _GmssScreenState extends State<GmssScreen> {
       },
       borderRadius: BorderRadius.circular(15),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 10),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.teal.withValues(alpha: 0.05)
@@ -2234,7 +2239,7 @@ class _GmssScreenState extends State<GmssScreen> {
         _hideMegaMenu();
         _scrollController.animateTo(
           0,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 10),
           curve: Curves.easeInOut,
         );
       },
@@ -2245,19 +2250,19 @@ class _GmssScreenState extends State<GmssScreen> {
         child: Column(
           children: [
             SvgPicture.network(
-              "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
+              "https://corsproxy.io/?${shape['icon']}",
               height: 35,
               colorFilter: const ColorFilter.mode(
                 Color(0xFF008080),
                 BlendMode.srcIn,
               ),
+              errorBuilder: (c, e, s) =>
+                  const Icon(Icons.diamond_outlined, color: Colors.teal),
               placeholderBuilder: (context) => const SizedBox(
                 height: 35,
                 width: 35,
                 child: CircularProgressIndicator(strokeWidth: 1),
               ),
-              errorBuilder: (c, e, s) =>
-                  const Icon(Icons.diamond_outlined, color: Colors.teal),
             ),
             const SizedBox(height: 12),
             Text(
@@ -2773,7 +2778,7 @@ class _DiamondCardState extends State<_DiamondCard> {
         onTap: widget.onCardTap,
         child: AnimatedContainer(
           // Use AnimatedContainer for smooth border transition
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -2794,7 +2799,7 @@ class _DiamondCardState extends State<_DiamondCard> {
           ),
           child: AnimatedScale(
             scale: _isHovered ? 1.02 : 1.0, // Reduced scale for a cleaner look
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 10),
             curve: Curves.easeOut,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
