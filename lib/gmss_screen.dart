@@ -2016,23 +2016,31 @@ class _GmssScreenState extends State<GmssScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.network(
-                    "https://corsproxy.io/?${Uri.encodeComponent(s['icon'])}",
+                  // SvgPicture.network(
+                  //   "https://corsproxy.io/?${Uri.encodeComponent(s['icon'])}",
+                  //   height: 30,
+                  //   width: 30,
+                  //   colorFilter: ColorFilter.mode(
+                  //     active ? Colors.teal : Colors.grey,
+                  //     BlendMode.srcIn,
+                  //   ),
+                  //   errorBuilder: (context, error, stackTrace) => Icon(
+                  //     Icons.diamond_outlined,
+                  //     size: 24,
+                  //     color: active ? Colors.teal : Colors.grey,
+                  //   ),
+                  //   placeholderBuilder: (context) => const SizedBox(
+                  //     height: 30,
+                  //     width: 30,
+                  //     child: CircularProgressIndicator(strokeWidth: 1),
+                  //   ),
+                  // ),
+                  SizedBox(
                     height: 30,
                     width: 30,
-                    colorFilter: ColorFilter.mode(
-                      active ? Colors.teal : Colors.grey,
-                      BlendMode.srcIn,
-                    ),
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.diamond_outlined,
-                      size: 24,
-                      color: active ? Colors.teal : Colors.grey,
-                    ),
-                    placeholderBuilder: (context) => const SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: CircularProgressIndicator(strokeWidth: 1),
+                    child: CustomPaint(
+                      // ✅ Pass the shape name and active state to get the design class
+                      painter: _getPainterForShapeName(s['name'], active),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -2153,30 +2161,37 @@ class _GmssScreenState extends State<GmssScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // SizedBox(
+            //   height: 45,
+            //   width: 45,
+            //   child: SvgPicture.network(
+            //     "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
+            //     colorFilter: ColorFilter.mode(
+            //       isSelected ? Colors.teal : Colors.black87,
+            //       BlendMode.srcIn,
+            //     ),
+            //     errorBuilder: (context, error, stackTrace) => Icon(
+            //       Icons.diamond_outlined,
+            //       size: 30,
+            //       color: isSelected ? Colors.teal : Colors.black54,
+            //     ),
+            //     placeholderBuilder: (context) => const Center(
+            //       child: SizedBox(
+            //         width: 20,
+            //         height: 20,
+            //         child: CircularProgressIndicator(
+            //           strokeWidth: 2,
+            //           color: Colors.teal,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             SizedBox(
               height: 45,
               width: 45,
-              child: SvgPicture.network(
-                "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
-                colorFilter: ColorFilter.mode(
-                  isSelected ? Colors.teal : Colors.black87,
-                  BlendMode.srcIn,
-                ),
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.diamond_outlined,
-                  size: 30,
-                  color: isSelected ? Colors.teal : Colors.black54,
-                ),
-                placeholderBuilder: (context) => const Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.teal,
-                    ),
-                  ),
-                ),
+              child: CustomPaint(
+                painter: _getPainterForShapeName(shape['name'], isSelected),
               ),
             ),
             const SizedBox(height: 10),
@@ -2193,6 +2208,34 @@ class _GmssScreenState extends State<GmssScreen> {
         ),
       ),
     );
+  }
+
+  CustomPainter _getPainterForShapeName(String name, bool isActive) {
+    final Color shapeColor = isActive ? Colors.teal : const Color(0xFF616161);
+    final String upperName = (name ?? "").toUpperCase();
+    if (upperName.contains("ROUND"))
+      return MinimalRoundPainter(color: shapeColor);
+    if (upperName.contains("PRINCESS"))
+      return MinimalPrincessPainter(color: shapeColor);
+    if (upperName.contains("EMERALD"))
+      return MinimalEmeraldPainter(color: shapeColor);
+    if (upperName.contains("CUSHION"))
+      return MinimalCushionPainter(color: shapeColor);
+    if (upperName.contains("RADIANT"))
+      return MinimalRadiantPainter(color: shapeColor);
+    if (upperName.contains("MARQUISE"))
+      return MinimalMarquisePainter(color: shapeColor);
+    if (upperName.contains("PEAR"))
+      return MinimalPearPainter(color: shapeColor);
+    if (upperName.contains("OVAL"))
+      return MinimalOvalPainter(color: shapeColor);
+    if (upperName.contains("HEART"))
+      return MinimalHeartPainter(color: shapeColor);
+    if (upperName.contains("ASSCHER"))
+      return MinimalAsscherPainter(color: shapeColor);
+
+    // ✅ FALLBACK: If name doesn't match (like "Baguette" or "Rose"), return Round
+    return MinimalRoundPainter(color: shapeColor);
   }
 
   Widget _buildUnifiedInventoryToolbar({
