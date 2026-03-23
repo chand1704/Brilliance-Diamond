@@ -2162,6 +2162,11 @@ class _GmssScreenState extends State<GmssScreen> {
                   isSelected ? Colors.teal : Colors.black87,
                   BlendMode.srcIn,
                 ),
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Icons.diamond_outlined,
+                  size: 30,
+                  color: isSelected ? Colors.teal : Colors.black54,
+                ),
                 placeholderBuilder: (context) => const Center(
                   child: SizedBox(
                     width: 20,
