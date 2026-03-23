@@ -226,17 +226,37 @@ class _GmssScreenState extends State<GmssScreen> {
       'icon': '${shapeBaseUrl}50_sf_1737092508.svg',
     },
   ];
+  // Future<List<GmssStone>> _getSmartData() async {
+  //   int shapeId = selectedShapeId;
+  //   if (selectedOrigin == 1) {
+  //     if (_cachedLabGrownMap.containsKey(shapeId))
+  //       return _cachedLabGrownMap[shapeId]!;
+  //     final data = await GmssApiService.fetchLabGrownData();
+  //     _cachedLabGrownMap[shapeId] = data;
+  //     return data;
+  //   } else {
+  //     if (_cachedNaturalMap.containsKey(shapeId))
+  //       return _cachedNaturalMap[shapeId]!;
+  //     final data = await GmssApiService.fetchNaturalData();
+  //     _cachedNaturalMap[shapeId] = data;
+  //     return data;
+  //   }
+  // }
   Future<List<GmssStone>> _getSmartData() async {
     int shapeId = selectedShapeId;
+
+    // ✅ Check the cache first!
     if (selectedOrigin == 1) {
-      if (_cachedLabGrownMap.containsKey(shapeId))
+      if (_cachedLabGrownMap.containsKey(shapeId)) {
         return _cachedLabGrownMap[shapeId]!;
+      }
       final data = await GmssApiService.fetchLabGrownData();
       _cachedLabGrownMap[shapeId] = data;
       return data;
     } else {
-      if (_cachedNaturalMap.containsKey(shapeId))
+      if (_cachedNaturalMap.containsKey(shapeId)) {
         return _cachedNaturalMap[shapeId]!;
+      }
       final data = await GmssApiService.fetchNaturalData();
       _cachedNaturalMap[shapeId] = data;
       return data;
@@ -640,12 +660,30 @@ class _GmssScreenState extends State<GmssScreen> {
                 SliverToBoxAdapter(child: _buildHeader()),
                 SliverToBoxAdapter(child: _buildShapeSelector()),
 
+                // ✅ THE NEW TOOLBAR
+                FutureBuilder<List<GmssStone>>(
+                  future: _future,
+                  builder: (context, snapshot) {
+                    final allStones = snapshot.data ?? [];
+
+                    // Calculate counts for the toolbar
+                    final filteredMain = _applyFiltering(allStones);
+
+                    return SliverToBoxAdapter(
+                      child: _buildUnifiedInventoryToolbar(
+                        mainCount: filteredMain.length,
+                        historyCount: _recentlyViewed.length,
+                        compareCount: _savedStones.length,
+                        themeColor: themeColor,
+                      ),
+                    );
+                  },
+                ),
                 // ✅ THE FIX: Wrap ONLY the Grid in the FutureBuilder
                 FutureBuilder<List<GmssStone>>(
                   future: _future,
                   builder: (context, snapshot) {
-                    // ✅ FIX: Check if we already have data from a previous load
-                    // If snapshot hasData, we show it even if the connectionState is waiting
+                    // ✅ Keep showing previous data if we are just "refreshing" in the background
                     if (!snapshot.hasData &&
                         snapshot.connectionState == ConnectionState.waiting) {
                       return const SliverFillRemaining(
@@ -655,67 +693,103 @@ class _GmssScreenState extends State<GmssScreen> {
                       );
                     }
 
-                    if (snapshot.hasError && !snapshot.hasData) {
-                      return SliverToBoxAdapter(
-                        child: Center(child: Text('Error: ${snapshot.error}')),
-                      );
+                    // Determine which list to show based on the active tab
+                    List<GmssStone> displayStones;
+                    if (_currentTab == 1) {
+                      displayStones = _recentlyViewed;
+                    } else if (_currentTab == 2) {
+                      displayStones = _savedStones;
+                    } else {
+                      displayStones = _applyFiltering(snapshot.data ?? []);
                     }
 
-                    // ✅ Get the data (either the new data or the previous data)
-                    final allStones = snapshot.data ?? [];
-                    final List<GmssStone> displayStones = _applyFiltering(
-                      allStones,
-                    );
-
-                    return SliverMainAxisGroup(
-                      slivers: [
-                        // ✅ Add a small loading indicator at the top if updating in background
-                        if (snapshot.connectionState == ConnectionState.waiting)
-                          const SliverToBoxAdapter(
-                            child: LinearProgressIndicator(
-                              backgroundColor: Colors.transparent,
-                              color: Colors.teal,
-                              minHeight: 2,
-                            ),
-                          ),
-
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 20,
-                          ),
-                          sliver: displayStones.isEmpty
-                              ? const SliverToBoxAdapter(
-                                  child: Center(child: Text("No data found")),
-                                )
-                              : SliverGrid(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4,
-                                        childAspectRatio: 0.85,
-                                        crossAxisSpacing: 15,
-                                        mainAxisSpacing: 15,
-                                      ),
+                    // return SliverPadding(
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 24,
+                    //     vertical: 20,
+                    //   ),
+                    //   sliver: displayStones.isEmpty
+                    //       ? const SliverToBoxAdapter(
+                    //           child: Center(child: Text("No data found")),
+                    //         )
+                    //       : SliverGrid(
+                    //           gridDelegate:
+                    //               const SliverGridDelegateWithFixedCrossAxisCount(
+                    //                 crossAxisCount: 4,
+                    //                 childAspectRatio: 0.85,
+                    //                 crossAxisSpacing: 15,
+                    //                 mainAxisSpacing: 15,
+                    //               ),
+                    //           delegate: SliverChildBuilderDelegate(
+                    //             (context, index) => _DiamondCard(
+                    //               key: ValueKey(
+                    //                 displayStones[index].id,
+                    //               ), // ✅ Keeps the item stable
+                    //               stone: displayStones[index],
+                    //               isFavorite: _savedStones.any(
+                    //                 (s) => s.id == displayStones[index].id,
+                    //               ),
+                    //               onFavoriteTap: () =>
+                    //                   _toggleSave(displayStones[index]),
+                    //               onCardTap: () =>
+                    //                   _handleCardTap(displayStones[index]),
+                    //               themeColor: themeColor,
+                    //             ),
+                    //             childCount: displayStones.length,
+                    //           ),
+                    //         ),
+                    // );
+                    // Inside your FutureBuilder -> builder logic
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 20,
+                      ),
+                      sliver: displayStones.isEmpty
+                          ? const SliverToBoxAdapter(
+                              child: Center(child: Text("No data found")),
+                            )
+                          : isGridView
+                          ? SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    childAspectRatio: 0.85,
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
+                                  ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) => _DiamondCard(
+                                  key: ValueKey(displayStones[index].id),
+                                  stone: displayStones[index],
+                                  isFavorite: _savedStones.any(
+                                    (s) => s.id == displayStones[index].id,
+                                  ),
+                                  onFavoriteTap: () =>
+                                      _toggleSave(displayStones[index]),
+                                  onCardTap: () =>
+                                      _handleCardTap(displayStones[index]),
+                                  themeColor: themeColor,
+                                ),
+                                childCount: displayStones.length,
+                              ),
+                            )
+                          : SliverMainAxisGroup(
+                              slivers: [
+                                // ✅ TABLE HEADER
+                                SliverToBoxAdapter(child: _buildListHeader()),
+                                // ✅ TABLE ROWS
+                                SliverList(
                                   delegate: SliverChildBuilderDelegate(
-                                    (context, index) => _DiamondCard(
-                                      key: ValueKey(
-                                        displayStones[index].id,
-                                      ), // ✅ Prevent flickering
-                                      stone: displayStones[index],
-                                      isFavorite: _savedStones.any(
-                                        (s) => s.id == displayStones[index].id,
-                                      ),
-                                      onFavoriteTap: () =>
-                                          _toggleSave(displayStones[index]),
-                                      onCardTap: () =>
-                                          _handleCardTap(displayStones[index]),
-                                      themeColor: themeColor,
+                                    (context, index) => _buildDiamondRow(
+                                      displayStones[index],
+                                      themeColor,
                                     ),
                                     childCount: displayStones.length,
                                   ),
                                 ),
-                        ),
-                      ],
+                              ],
+                            ),
                     );
                   },
                 ),
@@ -728,35 +802,246 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  Widget _buildListViewItem(GmssStone stone, Color themeColor) {
+  Widget _buildListHeader() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade100),
-        borderRadius: BorderRadius.circular(8),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
-      child: ListTile(
-        onTap: () => _handleCardTap(stone),
-        leading: SizedBox(
-          width: 50,
-          height: 50,
-          child: SafeImage(url: stone.image_link, size: 50, stone: stone),
-        ),
-        title: Text(
-          "${stone.weight} CT ${stone.shapeStr.toUpperCase()}",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          "${stone.colorStr} • ${stone.clarityStr} • ${stone.lab} CERTIFIED",
-        ),
-        trailing: Text(
-          "\$${stone.total_price.toStringAsFixed(2)}",
-          style: TextStyle(color: themeColor, fontWeight: FontWeight.w900),
-        ),
+      child: Row(
+        children: const [
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Compare",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              "Shape",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Carat",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Cut",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Color",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Clarity",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Report",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Price",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              "Actions",
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _buildDiamondRow(GmssStone stone, Color themeColor) {
+    bool isFavorite = _savedStones.any((s) => s.id == stone.id);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        color: Colors.white,
+      ),
+      child: Row(
+        children: [
+          // Compare (Heart)
+          Expanded(
+            flex: 1,
+            child: InkWell(
+              onTap: () => _toggleSave(stone),
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? themeColor : Colors.grey,
+                size: 20,
+              ),
+            ),
+          ),
+
+          // Shape with Small Icon
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.diamond_outlined,
+                  size: 18,
+                  color: Colors.black87,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  stone.shapeStr.toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Carat
+          Expanded(flex: 1, child: Text(stone.weight.toStringAsFixed(2))),
+
+          Expanded(
+            flex: 1,
+            child: Text(stone.cut.substring(0, 2).toUpperCase()),
+          ), // e.g., "ID" or "EX"
+          // Color & Clarity
+          Expanded(flex: 1, child: Text(stone.colorStr)),
+          Expanded(flex: 1, child: Text(stone.clarityStr)),
+
+          // Lab/Report
+          Expanded(
+            flex: 1,
+            child: Text(
+              stone.lab,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          // Price
+          Expanded(
+            flex: 1,
+            child: Text(
+              "\$${stone.total_price.toInt()}",
+              style: const TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+
+          // Details Action
+          Expanded(
+            flex: 1,
+            child: InkWell(
+              onTap: () => _handleCardTap(stone),
+              child: Text(
+                "Details",
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  color: themeColor,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildListViewItem(GmssStone stone, Color themeColor) {
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 10),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border.all(color: Colors.grey.shade100),
+  //       borderRadius: BorderRadius.circular(8),
+  //     ),
+  //     child: ListTile(
+  //       onTap: () => _handleCardTap(stone),
+  //       leading: SizedBox(
+  //         width: 50,
+  //         height: 50,
+  //         child: SafeImage(url: stone.image_link, size: 50, stone: stone),
+  //       ),
+  //       title: Text(
+  //         "${stone.weight} CT ${stone.shapeStr.toUpperCase()}",
+  //         style: const TextStyle(fontWeight: FontWeight.bold),
+  //       ),
+  //       subtitle: Text(
+  //         "${stone.colorStr} • ${stone.clarityStr} • ${stone.lab} CERTIFIED",
+  //       ),
+  //       trailing: Text(
+  //         "\$${stone.total_price.toStringAsFixed(2)}",
+  //         style: TextStyle(color: themeColor, fontWeight: FontWeight.w900),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildSaturationSlider(Color themeColor) {
     final RangeValues currentRange =
@@ -1870,6 +2155,38 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
+  Widget _inventoryTabItem(
+    String label,
+    int index,
+    int count,
+    Color themeColor,
+  ) {
+    bool isActive = _currentTab == index;
+    return InkWell(
+      onTap: () => setState(() => _currentTab = index),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            count > 0 ? "$label ($count)" : label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: isActive ? FontWeight.w900 : FontWeight.w500,
+              color: isActive ? Colors.black : Colors.grey.shade600,
+            ),
+          ),
+          if (isActive)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              height: 2,
+              width: 20,
+              color: themeColor,
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _tabItem(String label, int index, int count, Color themeColor) {
     bool active = _currentTab == index;
     return InkWell(
@@ -2885,6 +3202,39 @@ class SafeImageState extends State<SafeImage> {
     }
   }
 
+  // Future<void> _fetch() async {
+  //   if (widget.url.isEmpty || widget.url == "null") {
+  //     if (mounted) setState(() => _isLoading = false);
+  //     return;
+  //   }
+  //   try {
+  //     // ✅ Wrap URL in proxy and encode properly
+  //     final String proxiedUrl = "https://corsproxy.io/?${Uri.encodeComponent(widget.url)}";
+  //     final res = await http.get(Uri.parse(proxiedUrl));
+  //
+  //     if (res.statusCode == 200) {
+  //       // ✅ CHECK: If the response starts with HTML, it's an error page, not an image
+  //       String bodyStart = String.fromCharCodes(res.bodyBytes.take(10));
+  //       if (bodyStart.contains("<!DOCT") || bodyStart.contains("<html")) {
+  //         debugPrint("SafeImage: URL returned HTML instead of Image");
+  //         if (mounted) setState(() => _isLoading = false);
+  //         return;
+  //       }
+  //
+  //       if (mounted) {
+  //         setState(() {
+  //           _bytes = res.bodyBytes;
+  //           _isLoading = false;
+  //         });
+  //       }
+  //     } else {
+  //       if (mounted) setState(() => _isLoading = false);
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Image Load Error: $e");
+  //     if (mounted) setState(() => _isLoading = false);
+  //   }
+  // }
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
