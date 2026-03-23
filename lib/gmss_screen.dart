@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 
 import 'diamond_shapes.dart';
@@ -2916,11 +2915,16 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-    return InkWell(
+    final String shapeName = shape['name']?.toString() ?? "";
+    final bool isActive = selectedShapeId == shape['id'];
+
+    // ✅ FIX: Pass the boolean isActive, NOT a color casted as bool
+    final painter = _getPainterForShapeName(shapeName, isActive);
+    return GestureDetector(
       onTap: () {
         setState(() {
           selectedShapeId = shape['id'];
-          selectedShape = shape['name'];
+          selectedShape = shapeName;
           _future = GmssApiService.fetchLabGrownData();
         });
         _hideMegaMenu();
@@ -2930,26 +2934,57 @@ class _GmssScreenState extends State<GmssScreen> {
         //   curve: Curves.easeInOut,
         // );
       },
-      borderRadius: BorderRadius.circular(8),
-      hoverColor: Colors.teal.withOpacity(0.05),
-      child: SizedBox(
-        width: 80,
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 90, // Consistent width with the main selector
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isActive ? Colors.teal : Colors.grey.shade200,
+            width: isActive ? 1.5 : 1,
+          ),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.network(
-              "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
+            // SvgPicture.network(
+            //   "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
+            //   height: 35,
+            //   colorFilter: const ColorFilter.mode(
+            //     Color(0xFF008080),
+            //     BlendMode.srcIn,
+            //   ),
+            //   errorBuilder: (c, e, s) =>
+            //       const Icon(Icons.diamond_outlined, color: Colors.teal),
+            //   placeholderBuilder: (context) => const SizedBox(
+            //     height: 35,
+            //     width: 35,
+            //     child: CircularProgressIndicator(strokeWidth: 1),
+            //   ),
+            // ),
+            SizedBox(
               height: 35,
-              colorFilter: const ColorFilter.mode(
-                Color(0xFF008080),
-                BlendMode.srcIn,
-              ),
-              errorBuilder: (c, e, s) =>
-                  const Icon(Icons.diamond_outlined, color: Colors.teal),
-              placeholderBuilder: (context) => const SizedBox(
-                height: 35,
-                width: 35,
-                child: CircularProgressIndicator(strokeWidth: 1),
-              ),
+              width: 35,
+              child: painter != null
+                  ? CustomPaint(painter: painter)
+                  : Icon(
+                      Icons.diamond_outlined,
+                      size: 24,
+                      color: isActive ? Colors.teal : Colors.grey,
+                    ),
             ),
             const SizedBox(height: 12),
             Text(
