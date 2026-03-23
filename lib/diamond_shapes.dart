@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // BASE CLASS FOR MINIMAL SHAPES
 abstract class MinimalShapePainter extends CustomPainter {
   final Color color;
-  MinimalShapePainter({this.color = const Color(0xFF616161)});
+  MinimalShapePainter({this.color = const Color(0xFF2D3142)});
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
@@ -53,43 +53,108 @@ class MinimalRoundPainter extends MinimalShapePainter {
   }
 }
 
-// 2. EMERALD
+// // 2. EMERALD
+// class MinimalEmeraldPainter extends MinimalShapePainter {
+//   MinimalEmeraldPainter({super.color});
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()
+//       ..color = color
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 1.2;
+//     final center = Offset(size.width / 2, size.height / 2);
+//     final w = size.width * 0.6;
+//     final h = size.height * 0.8;
+//     Rect rect = Rect.fromCenter(center: center, width: w, height: h);
+//     for (double i in [0.0, 8.0, 16.0, 28.0]) {
+//       canvas.drawRRect(
+//         RRect.fromRectAndRadius(rect.deflate(i), Radius.circular(15 - (i / 2))),
+//         paint,
+//       );
+//     }
+//     canvas.drawLine(
+//       Offset(rect.left + 15, rect.top),
+//       Offset(rect.left + 38, rect.top + 28),
+//       paint,
+//     );
+//     canvas.drawLine(
+//       Offset(rect.right - 15, rect.top),
+//       Offset(rect.right - 38, rect.top + 28),
+//       paint,
+//     );
+//     canvas.drawLine(
+//       Offset(rect.left + 15, rect.bottom),
+//       Offset(rect.left + 38, rect.bottom - 28),
+//       paint,
+//     );
+//     canvas.drawLine(
+//       Offset(rect.right - 15, rect.bottom),
+//       Offset(rect.right - 38, rect.bottom - 28),
+//       paint,
+//     );
+//   }
+// }
 class MinimalEmeraldPainter extends MinimalShapePainter {
   MinimalEmeraldPainter({super.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
+      ..strokeWidth = 1.0; // Thinner lines look more elegant
+
     final center = Offset(size.width / 2, size.height / 2);
-    final w = size.width * 0.6;
-    final h = size.height * 0.8;
-    Rect rect = Rect.fromCenter(center: center, width: w, height: h);
-    for (double i in [0.0, 8.0, 16.0, 28.0]) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect.deflate(i), Radius.circular(15 - (i / 2))),
-        paint,
+
+    // Emeralds are rectangular. We define the outer dimensions.
+    final double outerW = size.width * 0.65;
+    final double outerH = size.height * 0.85;
+
+    // 1. Draw the 3 or 4 nested layers (The "Step Cut" effect)
+    List<double> scales = [1.0, 0.82, 0.65, 0.4];
+    List<RRect> rects = [];
+
+    for (var scale in scales) {
+      double w = outerW * scale;
+      double h = outerH * scale;
+      // We reduce the corner radius for inner rectangles
+      double radius = 6.0 * scale;
+
+      RRect rrect = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: center, width: w, height: h),
+        Radius.circular(radius),
       );
+      rects.add(rrect);
+      canvas.drawRRect(rrect, paint);
     }
+
+    // 2. Connect the corners (This removes the "X" and creates the facets)
+    // We connect the outermost rectangle corners to the table (innermost)
+    final outer = rects.first;
+    final inner = rects.last;
+
+    // Top Left
     canvas.drawLine(
-      Offset(rect.left + 15, rect.top),
-      Offset(rect.left + 38, rect.top + 28),
+      Offset(outer.left, outer.top + 5),
+      Offset(inner.left, inner.top),
       paint,
     );
+    // Top Right
     canvas.drawLine(
-      Offset(rect.right - 15, rect.top),
-      Offset(rect.right - 38, rect.top + 28),
+      Offset(outer.right, outer.top + 5),
+      Offset(inner.right, inner.top),
       paint,
     );
+    // Bottom Left
     canvas.drawLine(
-      Offset(rect.left + 15, rect.bottom),
-      Offset(rect.left + 38, rect.bottom - 28),
+      Offset(outer.left, outer.bottom - 5),
+      Offset(inner.left, inner.bottom),
       paint,
     );
+    // Bottom Right
     canvas.drawLine(
-      Offset(rect.right - 15, rect.bottom),
-      Offset(rect.right - 38, rect.bottom - 28),
+      Offset(outer.right, outer.bottom - 5),
+      Offset(inner.right, inner.bottom),
       paint,
     );
   }
@@ -202,94 +267,149 @@ class MinimalCushionPainter extends MinimalShapePainter {
 }
 
 // 5. RADIANT
+// class MinimalRadiantPainter extends MinimalShapePainter {
+//   MinimalRadiantPainter({super.color});
+//
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()
+//       ..color = color
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 1.2;
+//
+//     final center = Offset(size.width / 2, size.height / 2);
+//
+//     // Radiant cuts are typically rectangular (Ratio ~1.3 to 1.4)
+//     final double h = size.height * 0.75;
+//     final double w = h / 1.35;
+//     final double crop = 12.0; // The size of the clipped corners
+//
+//     // 1. Outer Girdle (Rectangular with Cropped Corners)
+//     final Path outerPath = _getRadiantPath(center, w, h, crop);
+//     canvas.drawPath(outerPath, paint);
+//
+//     // 2. Table Facet (Inner Cropped Rectangle)
+//     final double tw = w * 0.5;
+//     final double th = h * 0.5;
+//     final double tCrop = crop * 0.5;
+//     final Path tablePath = _getRadiantPath(center, tw, th, tCrop);
+//     canvas.drawPath(tablePath, paint);
+//
+//     // 3. Facet Lines (Connecting table corners to girdle corners)
+//     // Top-Left Corner
+//     canvas.drawLine(
+//       Offset(center.dx - tw / 2 + tCrop, center.dy - th / 2),
+//       Offset(center.dx - w / 2 + crop, center.dy - h / 2),
+//       paint,
+//     );
+//     // Top-Right Corner
+//     canvas.drawLine(
+//       Offset(center.dx + tw / 2 - tCrop, center.dy - th / 2),
+//       Offset(center.dx + w / 2 - crop, center.dy - h / 2),
+//       paint,
+//     );
+//     // Bottom-Left Corner
+//     canvas.drawLine(
+//       Offset(center.dx - tw / 2 + tCrop, center.dy + th / 2),
+//       Offset(center.dx - w / 2 + crop, center.dy + h / 2),
+//       paint,
+//     );
+//     // Bottom-Right Corner
+//     canvas.drawLine(
+//       Offset(center.dx + tw / 2 - tCrop, center.dy + th / 2),
+//       Offset(center.dx + w / 2 - crop, center.dy + h / 2),
+//       paint,
+//     );
+//
+//     // Side Midpoints (Cross-hair effect)
+//     canvas.drawLine(
+//       Offset(center.dx, center.dy - th / 2),
+//       Offset(center.dx, center.dy - h / 2),
+//       paint,
+//     );
+//     canvas.drawLine(
+//       Offset(center.dx, center.dy + th / 2),
+//       Offset(center.dx, center.dy + h / 2),
+//       paint,
+//     );
+//     canvas.drawLine(
+//       Offset(center.dx - tw / 2, center.dy),
+//       Offset(center.dx - w / 2, center.dy),
+//       paint,
+//     );
+//     canvas.drawLine(
+//       Offset(center.dx + tw / 2, center.dy),
+//       Offset(center.dx + w / 2, center.dy),
+//       paint,
+//     );
+//   }
+//
+//   Path _getRadiantPath(Offset center, double w, double h, double crop) {
+//     return Path()
+//       ..moveTo(center.dx - w / 2 + crop, center.dy - h / 2)
+//       ..lineTo(center.dx + w / 2 - crop, center.dy - h / 2)
+//       ..lineTo(center.dx + w / 2, center.dy - h / 2 + crop)
+//       ..lineTo(center.dx + w / 2, center.dy + h / 2 - crop)
+//       ..lineTo(center.dx + w / 2 - crop, center.dy + h / 2)
+//       ..lineTo(center.dx - w / 2 + crop, center.dy + h / 2)
+//       ..lineTo(center.dx - w / 2, center.dy + h / 2 - crop)
+//       ..lineTo(center.dx - w / 2, center.dy - h / 2 + crop)
+//       ..close();
+//   }
+// }
 class MinimalRadiantPainter extends MinimalShapePainter {
   MinimalRadiantPainter({super.color});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
-
+      ..strokeWidth = 1.0;
     final center = Offset(size.width / 2, size.height / 2);
+    final w = size.width * 0.65;
+    final h = size.height * 0.85;
+    final c = 6.0; // crop size
 
-    // Radiant cuts are typically rectangular (Ratio ~1.3 to 1.4)
-    final double h = size.height * 0.75;
-    final double w = h / 1.35;
-    final double crop = 12.0; // The size of the clipped corners
+    Path getRadiantPath(double width, double height, double crop) {
+      return Path()
+        ..moveTo(center.dx - width / 2 + crop, center.dy - height / 2)
+        ..lineTo(center.dx + width / 2 - crop, center.dy - height / 2)
+        ..lineTo(center.dx + width / 2, center.dy - height / 2 + crop)
+        ..lineTo(center.dx + width / 2, center.dy + height / 2 - crop)
+        ..lineTo(center.dx + width / 2 - crop, center.dy + height / 2)
+        ..lineTo(center.dx - width / 2 + crop, center.dy + height / 2)
+        ..lineTo(center.dx - width / 2, center.dy + height / 2 - crop)
+        ..lineTo(center.dx - width / 2, center.dy - height / 2 + crop)
+        ..close();
+    }
 
-    // 1. Outer Girdle (Rectangular with Cropped Corners)
-    final Path outerPath = _getRadiantPath(center, w, h, crop);
-    canvas.drawPath(outerPath, paint);
-
-    // 2. Table Facet (Inner Cropped Rectangle)
-    final double tw = w * 0.5;
-    final double th = h * 0.5;
-    final double tCrop = crop * 0.5;
-    final Path tablePath = _getRadiantPath(center, tw, th, tCrop);
-    canvas.drawPath(tablePath, paint);
-
-    // 3. Facet Lines (Connecting table corners to girdle corners)
-    // Top-Left Corner
-    canvas.drawLine(
-      Offset(center.dx - tw / 2 + tCrop, center.dy - th / 2),
-      Offset(center.dx - w / 2 + crop, center.dy - h / 2),
+    canvas.drawPath(getRadiantPath(w, h, c), paint); // Outer
+    canvas.drawRect(
+      Rect.fromCenter(center: center, width: w * 0.4, height: h * 0.4),
       paint,
-    );
-    // Top-Right Corner
-    canvas.drawLine(
-      Offset(center.dx + tw / 2 - tCrop, center.dy - th / 2),
-      Offset(center.dx + w / 2 - crop, center.dy - h / 2),
-      paint,
-    );
-    // Bottom-Left Corner
-    canvas.drawLine(
-      Offset(center.dx - tw / 2 + tCrop, center.dy + th / 2),
-      Offset(center.dx - w / 2 + crop, center.dy + h / 2),
-      paint,
-    );
-    // Bottom-Right Corner
-    canvas.drawLine(
-      Offset(center.dx + tw / 2 - tCrop, center.dy + th / 2),
-      Offset(center.dx + w / 2 - crop, center.dy + h / 2),
-      paint,
-    );
+    ); // Table
 
-    // Side Midpoints (Cross-hair effect)
+    // Midpoint facet lines
     canvas.drawLine(
-      Offset(center.dx, center.dy - th / 2),
       Offset(center.dx, center.dy - h / 2),
+      Offset(center.dx, center.dy - h * 0.2),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx, center.dy + th / 2),
       Offset(center.dx, center.dy + h / 2),
+      Offset(center.dx, center.dy + h * 0.2),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx - tw / 2, center.dy),
       Offset(center.dx - w / 2, center.dy),
+      Offset(center.dx - w * 0.2, center.dy),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx + tw / 2, center.dy),
       Offset(center.dx + w / 2, center.dy),
+      Offset(center.dx + w * 0.2, center.dy),
       paint,
     );
-  }
-
-  Path _getRadiantPath(Offset center, double w, double h, double crop) {
-    return Path()
-      ..moveTo(center.dx - w / 2 + crop, center.dy - h / 2)
-      ..lineTo(center.dx + w / 2 - crop, center.dy - h / 2)
-      ..lineTo(center.dx + w / 2, center.dy - h / 2 + crop)
-      ..lineTo(center.dx + w / 2, center.dy + h / 2 - crop)
-      ..lineTo(center.dx + w / 2 - crop, center.dy + h / 2)
-      ..lineTo(center.dx - w / 2 + crop, center.dy + h / 2)
-      ..lineTo(center.dx - w / 2, center.dy + h / 2 - crop)
-      ..lineTo(center.dx - w / 2, center.dy - h / 2 + crop)
-      ..close();
   }
 }
 

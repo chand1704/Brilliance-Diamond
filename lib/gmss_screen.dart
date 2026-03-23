@@ -244,23 +244,35 @@ class _GmssScreenState extends State<GmssScreen> {
   // }
   Future<List<GmssStone>> _getSmartData() async {
     int shapeId = selectedShapeId;
-
-    // ✅ Check the cache first!
-    if (selectedOrigin == 1) {
-      if (_cachedLabGrownMap.containsKey(shapeId)) {
-        return _cachedLabGrownMap[shapeId]!;
-      }
-      final data = await GmssApiService.fetchLabGrownData();
-      _cachedLabGrownMap[shapeId] = data;
-      return data;
-    } else {
-      if (_cachedNaturalMap.containsKey(shapeId)) {
-        return _cachedNaturalMap[shapeId]!;
-      }
-      final data = await GmssApiService.fetchNaturalData();
-      _cachedNaturalMap[shapeId] = data;
-      return data;
+    Map<int, List<GmssStone>> targetCache = (selectedOrigin == 1)
+        ? _cachedLabGrownMap
+        : _cachedNaturalMap;
+    // ✅ If shape is already in memory, return it instantly (0.0ms delay)
+    if (targetCache.containsKey(shapeId)) {
+      return targetCache[shapeId]!;
     }
+    // // ✅ Check the cache first!
+    // if (selectedOrigin == 1) {
+    //   if (_cachedLabGrownMap.containsKey(shapeId)) {
+    //     return _cachedLabGrownMap[shapeId]!;
+    //   }
+    //   final data = await GmssApiService.fetchLabGrownData();
+    //   _cachedLabGrownMap[shapeId] = data;
+    //   return data;
+    // } else {
+    //   if (_cachedNaturalMap.containsKey(shapeId)) {
+    //     return _cachedNaturalMap[shapeId]!;
+    //   }
+    //   final data = await GmssApiService.fetchNaturalData();
+    //   _cachedNaturalMap[shapeId] = data;
+    //   return data;
+    // }
+    final data = (selectedOrigin == 1)
+        ? await GmssApiService.fetchLabGrownData()
+        : await GmssApiService.fetchNaturalData();
+
+    targetCache[shapeId] = data;
+    return data;
   }
 
   @override
@@ -692,16 +704,20 @@ class _GmssScreenState extends State<GmssScreen> {
                         ),
                       );
                     }
-
+                    // ✅ If we have data (even if we are currently fetching new data in the background),
+                    // show the current display stones immediately.
+                    final List<GmssStone> displayStones = _applyFiltering(
+                      snapshot.data ?? [],
+                    );
                     // Determine which list to show based on the active tab
-                    List<GmssStone> displayStones;
-                    if (_currentTab == 1) {
-                      displayStones = _recentlyViewed;
-                    } else if (_currentTab == 2) {
-                      displayStones = _savedStones;
-                    } else {
-                      displayStones = _applyFiltering(snapshot.data ?? []);
-                    }
+                    // List<GmssStone> displayStones;
+                    // if (_currentTab == 1) {
+                    //   displayStones = _recentlyViewed;
+                    // } else if (_currentTab == 2) {
+                    //   displayStones = _savedStones;
+                    // } else {
+                    //   displayStones = _applyFiltering(snapshot.data ?? []);
+                    // }
 
                     // return SliverPadding(
                     //   padding: const EdgeInsets.symmetric(
@@ -776,17 +792,46 @@ class _GmssScreenState extends State<GmssScreen> {
                             )
                           : SliverMainAxisGroup(
                               slivers: [
+                                // ✅ Add a slim progress bar at the top to indicate background loading
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting)
+                                  const SliverToBoxAdapter(
+                                    child: LinearProgressIndicator(
+                                      minHeight: 2,
+                                      color: Colors.teal,
+                                      backgroundColor: Colors.transparent,
+                                    ),
+                                  ),
                                 // ✅ TABLE HEADER
                                 SliverToBoxAdapter(child: _buildListHeader()),
                                 // ✅ TABLE ROWS
                                 SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                    (context, index) => _buildDiamondRow(
-                                      displayStones[index],
-                                      themeColor,
-                                    ),
-                                    childCount: displayStones.length,
-                                  ),
+                                  delegate: SliverChildBuilderDelegate((
+                                    context,
+                                    index,
+                                  ) {
+                                    final stone = displayStones[index];
+
+                                    // ✅ Logic to show Category Header (e.g., MARQUISE)
+                                    bool showCategoryHeader = false;
+                                    if (index == 0) {
+                                      showCategoryHeader = true;
+                                    } else {
+                                      // Compare current shape with the previous one in the list
+                                      if (stone.shapeStr !=
+                                          displayStones[index - 1].shapeStr) {
+                                        showCategoryHeader = true;
+                                      }
+                                    }
+
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _buildDiamondRow(stone, themeColor),
+                                      ],
+                                    );
+                                  }, childCount: displayStones.length),
                                 ),
                               ],
                             ),
@@ -934,7 +979,7 @@ class _GmssScreenState extends State<GmssScreen> {
               onTap: () => _toggleSave(stone),
               child: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? themeColor : Colors.grey,
+                color: isFavorite ? themeColor : Colors.grey.shade400,
                 size: 20,
               ),
             ),
@@ -945,17 +990,25 @@ class _GmssScreenState extends State<GmssScreen> {
             flex: 2,
             child: Row(
               children: [
-                const Icon(
-                  Icons.diamond_outlined,
-                  size: 18,
-                  color: Colors.black87,
+                // This draws the specific diamond shape based on the stone
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CustomPaint(
+                    painter: _getShapePainter(
+                      stone,
+                    ), // Uses your existing logic
+                  ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
+
+                // const SizedBox(width: 10),
                 Text(
                   stone.shapeStr.toUpperCase(),
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: Color(0xFF2D3142),
                   ),
                 ),
               ],
@@ -965,10 +1018,16 @@ class _GmssScreenState extends State<GmssScreen> {
           // Carat
           Expanded(flex: 1, child: Text(stone.weight.toStringAsFixed(2))),
 
+          // Cut
           Expanded(
             flex: 1,
-            child: Text(stone.cut.substring(0, 2).toUpperCase()),
-          ), // e.g., "ID" or "EX"
+            child: Text(
+              stone.cut.length >= 2
+                  ? stone.cut.substring(0, 2).toUpperCase()
+                  : (stone.cut.isEmpty ? "-" : stone.cut.toUpperCase()),
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
           // Color & Clarity
           Expanded(flex: 1, child: Text(stone.colorStr)),
           Expanded(flex: 1, child: Text(stone.clarityStr)),
@@ -1013,6 +1072,29 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
+  CustomPainter _getShapePainter(GmssStone stone) {
+    String shape = stone.shapeStr.toUpperCase();
+    // Pass a specific color if you want it to look like the image (dark blue/black)
+    final Color shapeColor = const Color(0xFF2D3142);
+
+    if (shape.contains("ROUND")) return MinimalRoundPainter(color: shapeColor);
+    if (shape.contains("PRINCESS"))
+      return MinimalPrincessPainter(color: shapeColor);
+    if (shape.contains("EMERALD"))
+      return MinimalEmeraldPainter(color: shapeColor);
+    if (shape.contains("CUSHION"))
+      return MinimalCushionPainter(color: shapeColor);
+    if (shape.contains("RADIANT"))
+      return MinimalRadiantPainter(color: shapeColor);
+    if (shape.contains("MARQUISE"))
+      return MinimalMarquisePainter(color: shapeColor);
+    if (shape.contains("PEAR")) return MinimalPearPainter(color: shapeColor);
+    if (shape.contains("OVAL")) return MinimalOvalPainter(color: shapeColor);
+    if (shape.contains("HEART")) return MinimalHeartPainter(color: shapeColor);
+    if (shape.contains("ASSCHER"))
+      return MinimalAsscherPainter(color: shapeColor);
+    return MinimalRoundPainter(color: shapeColor);
+  }
   // Widget _buildListViewItem(GmssStone stone, Color themeColor) {
   //   return Container(
   //     margin: const EdgeInsets.only(bottom: 10),
