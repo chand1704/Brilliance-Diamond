@@ -1979,6 +1979,8 @@ class _GmssScreenState extends State<GmssScreen> {
         itemBuilder: (context, index) {
           final s = shapeCategories[index];
           bool active = selectedShapeId == s['id'];
+          // ✅ 1. ADD THIS LINE: Call the helper to check if a painter design exists
+          final painter = _getPainterForShapeName(s['name'], active);
           return GestureDetector(
             onTap: () {
               if (s['name'] == 'Other') {
@@ -2038,10 +2040,13 @@ class _GmssScreenState extends State<GmssScreen> {
                   SizedBox(
                     height: 30,
                     width: 30,
-                    child: CustomPaint(
-                      // ✅ Pass the shape name and active state to get the design class
-                      painter: _getPainterForShapeName(s['name'], active),
-                    ),
+                    child: painter != null
+                        ? CustomPaint(painter: painter)
+                        : Icon(
+                            Icons.diamond_outlined,
+                            size: 24,
+                            color: active ? Colors.teal : Colors.grey,
+                          ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -2136,6 +2141,8 @@ class _GmssScreenState extends State<GmssScreen> {
 
   Widget _buildShapeGridItem(Map<String, dynamic> shape) {
     bool isSelected = selectedShapeId == shape['id'];
+    // ✅ Attempt to get the painter
+    final painter = _getPainterForShapeName(shape['name'], isSelected);
     return InkWell(
       onTap: () {
         setState(() {
@@ -2147,7 +2154,7 @@ class _GmssScreenState extends State<GmssScreen> {
       },
       borderRadius: BorderRadius.circular(15),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 10),
+        duration: const Duration(milliseconds: 5),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.teal.withValues(alpha: 0.05)
@@ -2190,10 +2197,15 @@ class _GmssScreenState extends State<GmssScreen> {
             SizedBox(
               height: 45,
               width: 45,
-              child: CustomPaint(
-                painter: _getPainterForShapeName(shape['name'], isSelected),
-              ),
+              child: painter != null
+                  ? CustomPaint(painter: painter)
+                  : Icon(
+                      Icons.diamond_outlined,
+                      size: 32,
+                      color: isSelected ? Colors.teal : Colors.grey,
+                    ),
             ),
+
             const SizedBox(height: 10),
             Text(
               shape['name'].toString().toUpperCase(),
@@ -2210,9 +2222,10 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  CustomPainter _getPainterForShapeName(String name, bool isActive) {
+  CustomPainter? _getPainterForShapeName(String name, bool isActive) {
+    if (name == null || name.isEmpty) return null;
     final Color shapeColor = isActive ? Colors.teal : const Color(0xFF616161);
-    final String upperName = (name ?? "").toUpperCase();
+    final String upperName = name.toUpperCase();
     if (upperName.contains("ROUND"))
       return MinimalRoundPainter(color: shapeColor);
     if (upperName.contains("PRINCESS"))
@@ -2233,9 +2246,42 @@ class _GmssScreenState extends State<GmssScreen> {
       return MinimalHeartPainter(color: shapeColor);
     if (upperName.contains("ASSCHER"))
       return MinimalAsscherPainter(color: shapeColor);
+    if (upperName.contains("ROSE"))
+      return MinimalRosePainter(color: shapeColor);
+    if (upperName.contains("BAGUETTE"))
+      return MinimalBaguettePainter(color: shapeColor);
+    if (upperName.contains("HALF MOON"))
+      return MinimalHalfMoonPainter(color: shapeColor);
+    if (upperName.contains("TRAPEZOID")) {
+      return MinimalTrapezoidPainter(color: shapeColor);
+    }
+    if (upperName.contains("PENTAGONAL")) {
+      return MinimalPentagonalPainter(color: shapeColor);
+    }
+    if (upperName.contains("HEXAGON")) {
+      return MinimalHexagonalPainter(color: shapeColor);
+    }
+    if (upperName.contains("TRIANGULAR")) {
+      return MinimalTriangularPainter(color: shapeColor);
+    }
+    if (upperName.contains("TRILLIANT") || upperName.contains("TRILLION")) {
+      return MinimalTrilliantPainter(color: shapeColor);
+    }
+    if (upperName.contains("SHIELD")) {
+      return MinimalShieldPainter(color: shapeColor);
+    }
+    if (upperName.contains("LOZENGE")) {
+      return MinimalLozengePainter(color: shapeColor);
+    }
+    if (upperName.contains("KITE")) {
+      return MinimalKitePainter(color: shapeColor);
+    }
+    if (upperName.contains("PORTUGUESE")) {
+      return MinimalPortuguesePainter(color: shapeColor);
+    }
 
     // ✅ FALLBACK: If name doesn't match (like "Baguette" or "Rose"), return Round
-    return MinimalRoundPainter(color: shapeColor);
+    return null;
   }
 
   Widget _buildUnifiedInventoryToolbar({
