@@ -1,8 +1,7 @@
+import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
+import 'package:brilliance_diamond/widgets/diamond_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 
-import 'diamond_shapes.dart';
 import 'diamonds_details_pages.dart';
 import 'model/gmss_stone_model.dart';
 import 'service/gmss_api_service.dart';
@@ -14,8 +13,8 @@ class GmssScreen extends StatefulWidget {
 }
 
 class _GmssScreenState extends State<GmssScreen> {
-  Map<int, List<GmssStone>> _cachedLabGrownMap = {};
-  Map<int, List<GmssStone>> _cachedNaturalMap = {};
+  final Map<int, List<GmssStone>> _cachedLabGrownMap = {};
+  final Map<int, List<GmssStone>> _cachedNaturalMap = {};
   int? selectedFancyColorId;
   void _hideMegaMenu() {
     _diamondHoverController.hide();
@@ -225,48 +224,14 @@ class _GmssScreenState extends State<GmssScreen> {
       'icon': '${shapeBaseUrl}50_sf_1737092508.svg',
     },
   ];
-  // Future<List<GmssStone>> _getSmartData() async {
-  //   int shapeId = selectedShapeId;
-  //   if (selectedOrigin == 1) {
-  //     if (_cachedLabGrownMap.containsKey(shapeId))
-  //       return _cachedLabGrownMap[shapeId]!;
-  //     final data = await GmssApiService.fetchLabGrownData();
-  //     _cachedLabGrownMap[shapeId] = data;
-  //     return data;
-  //   } else {
-  //     if (_cachedNaturalMap.containsKey(shapeId))
-  //       return _cachedNaturalMap[shapeId]!;
-  //     final data = await GmssApiService.fetchNaturalData();
-  //     _cachedNaturalMap[shapeId] = data;
-  //     return data;
-  //   }
-  // }
-
   Future<List<GmssStone>> _getSmartData() async {
     int shapeId = selectedShapeId;
     Map<int, List<GmssStone>> targetCache = (selectedOrigin == 1)
         ? _cachedLabGrownMap
         : _cachedNaturalMap;
-    // ✅ If shape is already in memory, return it instantly (0.0ms delay)
     if (targetCache.containsKey(shapeId)) {
       return targetCache[shapeId]!;
     }
-    // // ✅ Check the cache first!
-    // if (selectedOrigin == 1) {
-    //   if (_cachedLabGrownMap.containsKey(shapeId)) {
-    //     return _cachedLabGrownMap[shapeId]!;
-    //   }
-    //   final data = await GmssApiService.fetchLabGrownData();
-    //   _cachedLabGrownMap[shapeId] = data;
-    //   return data;
-    // } else {
-    //   if (_cachedNaturalMap.containsKey(shapeId)) {
-    //     return _cachedNaturalMap[shapeId]!;
-    //   }
-    //   final data = await GmssApiService.fetchNaturalData();
-    //   _cachedNaturalMap[shapeId] = data;
-    //   return data;
-    // }
     final data = (selectedOrigin == 1)
         ? await GmssApiService.fetchLabGrownData()
         : await GmssApiService.fetchNaturalData();
@@ -278,7 +243,6 @@ class _GmssScreenState extends State<GmssScreen> {
   @override
   void initState() {
     super.initState();
-    // _future = GmssApiService.fetchGmssData(shapeId: selectedShapeId);
     _future = _getSmartData();
   }
 
@@ -296,7 +260,6 @@ class _GmssScreenState extends State<GmssScreen> {
     setState(() {
       _recentlyViewed.removeWhere((s) => s.id == stone.id);
       _recentlyViewed.insert(0, stone);
-      // if (_recentlyViewed.length > 20) _recentlyViewed.removeLast();
     });
     Navigator.push(
       context,
@@ -321,9 +284,7 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   List<GmssStone> _applyFiltering(List<GmssStone> allStones) {
-    // Use the stones provided by the snapshot
     final List<GmssStone> filtered = allStones.where((stone) {
-      // 1. Color Logic
       bool matchesColor = false;
       if (isFancySearch) {
         if (selectedFancyColorId == null) {
@@ -341,8 +302,6 @@ class _GmssScreenState extends State<GmssScreen> {
             (colorIdx >= _colorRange.start.toInt() &&
             colorIdx <= _colorRange.end.toInt());
       }
-
-      // 2. Shape, Carat, and Price
       final bool matchesShape =
           (selectedShapeId == 0 ||
               selectedShape == "ALL" ||
@@ -356,300 +315,31 @@ class _GmssScreenState extends State<GmssScreen> {
       final bool matchesPrice =
           stone.total_price >= _priceRange.start &&
           stone.total_price <= _priceRange.end;
-
-      // 3. Origin Logic (Lab vs Natural)
       final String stoneName = (stone.stoneName).toUpperCase();
       final bool matchesOrigin = (selectedOrigin == 1)
           ? (stoneName.contains("LAB") || stoneName.contains("LGD"))
           : (stoneName.contains("NATURAL") || stoneName.contains("NAT"));
-
       return matchesShape &&
           matchesCarat &&
           matchesPrice &&
           matchesColor &&
           matchesOrigin;
     }).toList();
-
-    // Handle Tabs (Main list vs History vs Favorites)
     if (_currentTab == 1) return _recentlyViewed;
     if (_currentTab == 2) return _savedStones;
     return filtered;
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   final Color themeColor = (selectedOrigin == 1)
-  //       ? Colors.teal
-  //       : Colors.blue.shade700;
-  //   return Scaffold(
-  //     backgroundColor: const Color(0xFFF8FAFB),
-  //     body: FutureBuilder<List<GmssStone>>(
-  //       future: _future,
-  //       builder: (context, snapshot) {
-  //         if (snapshot.connectionState == ConnectionState.waiting) {
-  //           return const Center(
-  //             child: CircularProgressIndicator(color: Colors.teal),
-  //           );
-  //         }
-  //         if (snapshot.hasError) {
-  //           return Center(child: Text('Error: ${snapshot.error}'));
-  //         }
-  //         final allStones = snapshot.data ?? [];
-  //         final Color themeColor = (selectedOrigin == 1)
-  //             ? Colors.teal
-  //             : Colors.blue.shade700;
-  //         List<GmssStone> applyFilters(List<GmssStone> list) {
-  //           return list.where((stone) {
-  //             bool matchesColor = false;
-  //             bool matchesSaturation = true;
-  //             if (isFancySearch) {
-  //               if (selectedFancyColorId == null) {
-  //                 matchesColor = stone.colorStr.toLowerCase().contains("fancy");
-  //               } else {
-  //                 String searchColor = selectedFancyColor?.toUpperCase() ?? "";
-  //                 matchesColor =
-  //                     (stone.id == selectedFancyColorId) ||
-  //                     stone.colorStr.toUpperCase().contains(searchColor) ||
-  //                     stone.fancy_color.toUpperCase().contains(searchColor);
-  //               }
-  //               int stoneSaturationIdx = -1;
-  //               for (int i = 0; i < saturationLabels.length; i++) {
-  //                 if (stone.fancy_color.toUpperCase().contains(
-  //                       saturationLabels[i].toUpperCase(),
-  //                     ) ||
-  //                     stone.colorStr.toUpperCase().contains(
-  //                       saturationLabels[i].toUpperCase(),
-  //                     )) {
-  //                   stoneSaturationIdx = i;
-  //                   break;
-  //                 }
-  //               }
-  //               matchesSaturation =
-  //                   (stoneSaturationIdx == -1) ||
-  //                   (stoneSaturationIdx >= _saturationRange.start.toInt() &&
-  //                       stoneSaturationIdx <= _saturationRange.end.toInt());
-  //             } else {
-  //               int colorIdx = shadeLabels.indexOf(
-  //                 stone.colorStr.trim().toUpperCase(),
-  //               );
-  //               matchesColor =
-  //                   (colorIdx >= _colorRange.start.toInt() &&
-  //                   colorIdx <= _colorRange.end.toInt());
-  //             }
-  //             final bool matchesShape =
-  //                 (selectedShapeId == 0 ||
-  //                     selectedShape == "ALL" ||
-  //                     selectedShape == "Other")
-  //                 ? true
-  //                 : (stone.shapeStr).toLowerCase().contains(
-  //                     selectedShape.toLowerCase().trim(),
-  //                   );
-  //             final bool matchesCarat =
-  //                 stone.weight >= _caratRange.start &&
-  //                 stone.weight <= _caratRange.end;
-  //             final bool matchesPrice =
-  //                 stone.total_price >= _priceRange.start &&
-  //                 stone.total_price <= _priceRange.end;
-  //             int clarityIdx = clarityLabels.indexOf(
-  //               (stone.clarityStr).trim().toUpperCase(),
-  //             );
-  //             bool matchesClarity =
-  //                 (clarityIdx == -1) ||
-  //                 (clarityIdx >= _clarityRange.start.toInt() &&
-  //                     clarityIdx <= _clarityRange.end.toInt());
-  //             int cutIdx = cutLabels.indexOf((stone.cut).trim().toUpperCase());
-  //             bool matchesCut =
-  //                 (cutIdx == -1) ||
-  //                 (cutIdx >= _cutRange.start.toInt() &&
-  //                     cutIdx <= _cutRange.end.toInt());
-  //             int polishIdx = polishLabels.indexOf(
-  //               (stone.polish).trim().toUpperCase(),
-  //             );
-  //             bool matchesPolish =
-  //                 (polishIdx == -1) ||
-  //                 (polishIdx >= _polishRange.start.toInt() &&
-  //                     polishIdx <= _polishRange.end.toInt());
-  //             int flIdx = flLabels.indexOf(
-  //               (stone.fl_intensity).trim().toUpperCase(),
-  //             );
-  //             bool matchesFl =
-  //                 (flIdx == -1) ||
-  //                 (flIdx >= _flRange.start.toInt() &&
-  //                     flIdx <= _flRange.end.toInt());
-  //             int symIdx = symLabels.indexOf(
-  //               (stone.symmetry).trim().toUpperCase(),
-  //             );
-  //             bool matchesSym =
-  //                 (symIdx == -1) ||
-  //                 (symIdx >= _symRange.start.toInt() &&
-  //                     symIdx <= _symRange.end.toInt());
-  //             bool matchesDepth =
-  //                 stone.depth >= _depthRange.start &&
-  //                 stone.depth <= _depthRange.end;
-  //             bool matchesTable =
-  //                 stone.table >= _tableRange.start &&
-  //                 stone.table <= _tableRange.end;
-  //             int certIdx = certLabels.indexOf(
-  //               (stone.lab).trim().toUpperCase(),
-  //             );
-  //             bool matchesCert =
-  //                 (certIdx == -1) ||
-  //                 (certIdx >= _certRange.start.toInt() &&
-  //                     certIdx <= _certRange.end.toInt());
-  //             bool matchesImage = showOnlyWithImages
-  //                 ? ((stone.image_link).isNotEmpty)
-  //                 : true;
-  //             final String stoneName = (stone.stoneName).toUpperCase();
-  //             final bool matchesOrigin = (selectedOrigin == 1)
-  //                 ? (stoneName.contains("LAB") || stoneName.contains("LGD"))
-  //                 : (stoneName.contains("NATURAL") ||
-  //                       stoneName.contains("NAT"));
-  //             return matchesShape &&
-  //                 matchesCarat &&
-  //                 matchesPrice &&
-  //                 matchesColor &&
-  //                 matchesClarity &&
-  //                 matchesCut &&
-  //                 matchesPolish &&
-  //                 matchesFl &&
-  //                 matchesSym &&
-  //                 matchesDepth &&
-  //                 matchesTable &&
-  //                 matchesCert &&
-  //                 matchesImage &&
-  //                 matchesSaturation &&
-  //                 matchesOrigin;
-  //           }).toList();
-  //         }
-  //
-  //         final filteredMain = applyFilters(allStones);
-  //         final filteredHistory = applyFilters(_recentlyViewed);
-  //         final filteredCompare = applyFilters(_savedStones);
-  //         List<GmssStone> displayStones;
-  //         if (_currentTab == 1) {
-  //           displayStones = filteredHistory;
-  //         } else if (_currentTab == 2) {
-  //           displayStones = filteredCompare;
-  //         } else {
-  //           displayStones = filteredMain;
-  //         }
-  //         return Scaffold(
-  //           backgroundColor: const Color(0xFFF8FAFB),
-  //           body: Row(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               // 1. FIXED SIDEBAR
-  //               Container(
-  //                 width: 370,
-  //                 height: MediaQuery.of(context).size.height,
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.white,
-  //                   border: Border(
-  //                     right: BorderSide(color: Colors.grey.shade100),
-  //                   ),
-  //                 ),
-  //                 child: SingleChildScrollView(
-  //                   padding: const EdgeInsets.only(bottom: 40),
-  //                   child: _buildSidebarFilters(themeColor),
-  //                 ),
-  //               ),
-  //
-  //               // 2. SCROLLABLE CONTENT
-  //               // 2. MAIN CONTENT AREA
-  //               Expanded(
-  //                 child: CustomScrollView(
-  //                   controller: _scrollController,
-  //                   slivers: [
-  //                     SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
-  //                     SliverToBoxAdapter(child: _buildHeader()),
-  //                     SliverToBoxAdapter(child: _buildShapeSelector()),
-  //
-  //                     // ✅ THE FIX: Wrap ONLY the data part in FutureBuilder
-  //                     FutureBuilder<List<GmssStone>>(
-  //                       future: _future,
-  //                       builder: (context, snapshot) {
-  //                         if (snapshot.connectionState ==
-  //                             ConnectionState.waiting) {
-  //                           return const SliverFillRemaining(
-  //                             child: Center(
-  //                               child: CircularProgressIndicator(
-  //                                 color: Colors.teal,
-  //                               ),
-  //                             ),
-  //                           );
-  //                         }
-  //                         if (snapshot.hasError) {
-  //                           return SliverToBoxAdapter(
-  //                             child: Center(
-  //                               child: Text('Error: ${snapshot.error}'),
-  //                             ),
-  //                           );
-  //                         }
-  //
-  //                         final allStones = snapshot.data ?? [];
-  //
-  //                         // Keep your filtering logic here
-  //                         final filteredMain = applyFilters(allStones);
-  //                         // (Note: Make sure applyFilters is accessible here)
-  //
-  //                         return SliverPadding(
-  //                           padding: const EdgeInsets.symmetric(
-  //                             horizontal: 24,
-  //                             vertical: 20,
-  //                           ),
-  //                           sliver: filteredMain.isEmpty
-  //                               ? const SliverToBoxAdapter(
-  //                                   child: Center(child: Text("No data found")),
-  //                                 )
-  //                               : SliverGrid(
-  //                                   gridDelegate:
-  //                                       const SliverGridDelegateWithFixedCrossAxisCount(
-  //                                         crossAxisCount: 4,
-  //                                         childAspectRatio: 0.85,
-  //                                         crossAxisSpacing: 15,
-  //                                         mainAxisSpacing: 15,
-  //                                       ),
-  //                                   delegate: SliverChildBuilderDelegate(
-  //                                     (context, index) => _DiamondCard(
-  //                                       stone: filteredMain[index],
-  //                                       isFavorite: _savedStones.any(
-  //                                         (s) => s.id == filteredMain[index].id,
-  //                                       ),
-  //                                       onFavoriteTap: () =>
-  //                                           _toggleSave(filteredMain[index]),
-  //                                       onCardTap: () =>
-  //                                           _handleCardTap(filteredMain[index]),
-  //                                       themeColor: themeColor,
-  //                                     ),
-  //                                     childCount: filteredMain.length,
-  //                                   ),
-  //                                 ),
-  //                         );
-  //                       },
-  //                     ),
-  //                     const SliverToBoxAdapter(child: SizedBox(height: 100)),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     final Color themeColor = (selectedOrigin == 1)
         ? Colors.teal
         : Colors.blue.shade700;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ SIDEBAR (Stays static, never flashes/reloads)
           Container(
             width: 370,
             height: MediaQuery.of(context).size.height,
@@ -662,8 +352,6 @@ class _GmssScreenState extends State<GmssScreen> {
               child: _buildSidebarFilters(themeColor),
             ),
           ),
-
-          // ✅ MAIN SCROLLABLE AREA
           Expanded(
             child: CustomScrollView(
               controller: _scrollController,
@@ -671,16 +359,11 @@ class _GmssScreenState extends State<GmssScreen> {
                 SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
                 SliverToBoxAdapter(child: _buildHeader()),
                 SliverToBoxAdapter(child: _buildShapeSelector()),
-
-                // ✅ THE NEW TOOLBAR
                 FutureBuilder<List<GmssStone>>(
                   future: _future,
                   builder: (context, snapshot) {
                     final allStones = snapshot.data ?? [];
-
-                    // Calculate counts for the toolbar
                     final filteredMain = _applyFiltering(allStones);
-
                     return SliverToBoxAdapter(
                       child: _buildUnifiedInventoryToolbar(
                         mainCount: filteredMain.length,
@@ -691,11 +374,9 @@ class _GmssScreenState extends State<GmssScreen> {
                     );
                   },
                 ),
-                // ✅ THE FIX: Wrap ONLY the Grid in the FutureBuilder
                 FutureBuilder<List<GmssStone>>(
                   future: _future,
                   builder: (context, snapshot) {
-                    // ✅ Keep showing previous data if we are just "refreshing" in the background
                     if (!snapshot.hasData &&
                         snapshot.connectionState == ConnectionState.waiting) {
                       return const SliverFillRemaining(
@@ -704,58 +385,9 @@ class _GmssScreenState extends State<GmssScreen> {
                         ),
                       );
                     }
-                    // ✅ If we have data (even if we are currently fetching new data in the background),
-                    // show the current display stones immediately.
                     final List<GmssStone> displayStones = _applyFiltering(
                       snapshot.data ?? [],
                     );
-                    // Determine which list to show based on the active tab
-                    // List<GmssStone> displayStones;
-                    // if (_currentTab == 1) {
-                    //   displayStones = _recentlyViewed;
-                    // } else if (_currentTab == 2) {
-                    //   displayStones = _savedStones;
-                    // } else {
-                    //   displayStones = _applyFiltering(snapshot.data ?? []);
-                    // }
-
-                    // return SliverPadding(
-                    //   padding: const EdgeInsets.symmetric(
-                    //     horizontal: 24,
-                    //     vertical: 20,
-                    //   ),
-                    //   sliver: displayStones.isEmpty
-                    //       ? const SliverToBoxAdapter(
-                    //           child: Center(child: Text("No data found")),
-                    //         )
-                    //       : SliverGrid(
-                    //           gridDelegate:
-                    //               const SliverGridDelegateWithFixedCrossAxisCount(
-                    //                 crossAxisCount: 4,
-                    //                 childAspectRatio: 0.85,
-                    //                 crossAxisSpacing: 15,
-                    //                 mainAxisSpacing: 15,
-                    //               ),
-                    //           delegate: SliverChildBuilderDelegate(
-                    //             (context, index) => _DiamondCard(
-                    //               key: ValueKey(
-                    //                 displayStones[index].id,
-                    //               ), // ✅ Keeps the item stable
-                    //               stone: displayStones[index],
-                    //               isFavorite: _savedStones.any(
-                    //                 (s) => s.id == displayStones[index].id,
-                    //               ),
-                    //               onFavoriteTap: () =>
-                    //                   _toggleSave(displayStones[index]),
-                    //               onCardTap: () =>
-                    //                   _handleCardTap(displayStones[index]),
-                    //               themeColor: themeColor,
-                    //             ),
-                    //             childCount: displayStones.length,
-                    //           ),
-                    //         ),
-                    // );
-                    // Inside your FutureBuilder -> builder logic
                     return SliverPadding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -775,7 +407,7 @@ class _GmssScreenState extends State<GmssScreen> {
                                     mainAxisSpacing: 15,
                                   ),
                               delegate: SliverChildBuilderDelegate(
-                                (context, index) => _DiamondCard(
+                                (context, index) => DiamondCard(
                                   key: ValueKey(displayStones[index].id),
                                   stone: displayStones[index],
                                   isFavorite: _savedStones.any(
@@ -792,7 +424,6 @@ class _GmssScreenState extends State<GmssScreen> {
                             )
                           : SliverMainAxisGroup(
                               slivers: [
-                                // ✅ Add a slim progress bar at the top to indicate background loading
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting)
                                   const SliverToBoxAdapter(
@@ -802,28 +433,22 @@ class _GmssScreenState extends State<GmssScreen> {
                                       backgroundColor: Colors.transparent,
                                     ),
                                   ),
-                                // ✅ TABLE HEADER
                                 SliverToBoxAdapter(child: _buildListHeader()),
-                                // ✅ TABLE ROWS
                                 SliverList(
                                   delegate: SliverChildBuilderDelegate((
                                     context,
                                     index,
                                   ) {
                                     final stone = displayStones[index];
-
-                                    // ✅ Logic to show Category Header (e.g., MARQUISE)
                                     bool showCategoryHeader = false;
                                     if (index == 0) {
                                       showCategoryHeader = true;
                                     } else {
-                                      // Compare current shape with the previous one in the list
                                       if (stone.shapeStr !=
                                           displayStones[index - 1].shapeStr) {
                                         showCategoryHeader = true;
                                       }
                                     }
-
                                     return Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -963,7 +588,6 @@ class _GmssScreenState extends State<GmssScreen> {
 
   Widget _buildDiamondRow(GmssStone stone, Color themeColor) {
     bool isFavorite = _savedStones.any((s) => s.id == stone.id);
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
       decoration: BoxDecoration(
@@ -972,7 +596,6 @@ class _GmssScreenState extends State<GmssScreen> {
       ),
       child: Row(
         children: [
-          // Compare (Heart)
           Expanded(
             flex: 1,
             child: InkWell(
@@ -984,25 +607,21 @@ class _GmssScreenState extends State<GmssScreen> {
               ),
             ),
           ),
-
-          // Shape with Small Icon
           Expanded(
             flex: 2,
             child: Row(
               children: [
-                // This draws the specific diamond shape based on the stone
                 SizedBox(
                   width: 24,
                   height: 24,
                   child: CustomPaint(
-                    painter: _getShapePainter(
-                      stone,
-                    ), // Uses your existing logic
+                    painter: DiamondPainterUtils.getPainterForShapeName(
+                      stone.shapeStr,
+                      false,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
-
-                // const SizedBox(width: 10),
                 Text(
                   stone.shapeStr.toUpperCase(),
                   style: const TextStyle(
@@ -1014,11 +633,7 @@ class _GmssScreenState extends State<GmssScreen> {
               ],
             ),
           ),
-
-          // Carat
           Expanded(flex: 1, child: Text(stone.weight.toStringAsFixed(2))),
-
-          // Cut
           Expanded(
             flex: 1,
             child: Text(
@@ -1028,11 +643,8 @@ class _GmssScreenState extends State<GmssScreen> {
               style: const TextStyle(fontSize: 13),
             ),
           ),
-          // Color & Clarity
           Expanded(flex: 1, child: Text(stone.colorStr)),
           Expanded(flex: 1, child: Text(stone.clarityStr)),
-
-          // Lab/Report
           Expanded(
             flex: 1,
             child: Text(
@@ -1040,8 +652,6 @@ class _GmssScreenState extends State<GmssScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-
-          // Price
           Expanded(
             flex: 1,
             child: Text(
@@ -1049,8 +659,6 @@ class _GmssScreenState extends State<GmssScreen> {
               style: const TextStyle(fontWeight: FontWeight.w900),
             ),
           ),
-
-          // Details Action
           Expanded(
             flex: 1,
             child: InkWell(
@@ -1071,59 +679,6 @@ class _GmssScreenState extends State<GmssScreen> {
       ),
     );
   }
-
-  CustomPainter _getShapePainter(GmssStone stone) {
-    String shape = stone.shapeStr.toUpperCase();
-    // Pass a specific color if you want it to look like the image (dark blue/black)
-    final Color shapeColor = const Color(0xFF2D3142);
-
-    if (shape.contains("ROUND")) return MinimalRoundPainter(color: shapeColor);
-    if (shape.contains("PRINCESS"))
-      return MinimalPrincessPainter(color: shapeColor);
-    if (shape.contains("EMERALD"))
-      return MinimalEmeraldPainter(color: shapeColor);
-    if (shape.contains("CUSHION"))
-      return MinimalCushionPainter(color: shapeColor);
-    if (shape.contains("RADIANT"))
-      return MinimalRadiantPainter(color: shapeColor);
-    if (shape.contains("MARQUISE"))
-      return MinimalMarquisePainter(color: shapeColor);
-    if (shape.contains("PEAR")) return MinimalPearPainter(color: shapeColor);
-    if (shape.contains("OVAL")) return MinimalOvalPainter(color: shapeColor);
-    if (shape.contains("HEART")) return MinimalHeartPainter(color: shapeColor);
-    if (shape.contains("ASSCHER"))
-      return MinimalAsscherPainter(color: shapeColor);
-    return MinimalRoundPainter(color: shapeColor);
-  }
-  // Widget _buildListViewItem(GmssStone stone, Color themeColor) {
-  //   return Container(
-  //     margin: const EdgeInsets.only(bottom: 10),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       border: Border.all(color: Colors.grey.shade100),
-  //       borderRadius: BorderRadius.circular(8),
-  //     ),
-  //     child: ListTile(
-  //       onTap: () => _handleCardTap(stone),
-  //       leading: SizedBox(
-  //         width: 50,
-  //         height: 50,
-  //         child: SafeImage(url: stone.image_link, size: 50, stone: stone),
-  //       ),
-  //       title: Text(
-  //         "${stone.weight} CT ${stone.shapeStr.toUpperCase()}",
-  //         style: const TextStyle(fontWeight: FontWeight.bold),
-  //       ),
-  //       subtitle: Text(
-  //         "${stone.colorStr} • ${stone.clarityStr} • ${stone.lab} CERTIFIED",
-  //       ),
-  //       trailing: Text(
-  //         "\$${stone.total_price.toStringAsFixed(2)}",
-  //         style: TextStyle(color: themeColor, fontWeight: FontWeight.w900),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildSaturationSlider(Color themeColor) {
     final RangeValues currentRange =
@@ -1275,12 +830,6 @@ class _GmssScreenState extends State<GmssScreen> {
   Widget _buildSidebarFilters(Color themeColor) {
     return Padding(
       padding: const EdgeInsets.all(24),
-      // width: 370,
-      // padding: const EdgeInsets.all(24),
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      //   border: Border(right: BorderSide(color: Colors.grey.shade100)),
-      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1719,11 +1268,6 @@ class _GmssScreenState extends State<GmssScreen> {
             setState(() {
               selectedOrigin = value;
               _future = _getSmartData();
-              // if (value == 1) {
-              //   _future = GmssApiService.fetchLabGrownData();
-              // } else {
-              //   _future = GmssApiService.fetchNaturalData();
-              // }
             });
           }
         },
@@ -1979,8 +1523,10 @@ class _GmssScreenState extends State<GmssScreen> {
         itemBuilder: (context, index) {
           final s = shapeCategories[index];
           bool active = selectedShapeId == s['id'];
-          // ✅ 1. ADD THIS LINE: Call the helper to check if a painter design exists
-          final painter = _getPainterForShapeName(s['name'], active);
+          final painter = DiamondPainterUtils.getPainterForShapeName(
+            s['name'],
+            active,
+          );
           return GestureDetector(
             onTap: () {
               if (s['name'] == 'Other') {
@@ -2018,25 +1564,6 @@ class _GmssScreenState extends State<GmssScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // SvgPicture.network(
-                  //   "https://corsproxy.io/?${Uri.encodeComponent(s['icon'])}",
-                  //   height: 30,
-                  //   width: 30,
-                  //   colorFilter: ColorFilter.mode(
-                  //     active ? Colors.teal : Colors.grey,
-                  //     BlendMode.srcIn,
-                  //   ),
-                  //   errorBuilder: (context, error, stackTrace) => Icon(
-                  //     Icons.diamond_outlined,
-                  //     size: 24,
-                  //     color: active ? Colors.teal : Colors.grey,
-                  //   ),
-                  //   placeholderBuilder: (context) => const SizedBox(
-                  //     height: 30,
-                  //     width: 30,
-                  //     child: CircularProgressIndicator(strokeWidth: 1),
-                  //   ),
-                  // ),
                   SizedBox(
                     height: 30,
                     width: 30,
@@ -2141,8 +1668,10 @@ class _GmssScreenState extends State<GmssScreen> {
 
   Widget _buildShapeGridItem(Map<String, dynamic> shape) {
     bool isSelected = selectedShapeId == shape['id'];
-    // ✅ Attempt to get the painter
-    final painter = _getPainterForShapeName(shape['name'], isSelected);
+    final painter = DiamondPainterUtils.getPainterForShapeName(
+      shape['name'],
+      isSelected,
+    );
     return InkWell(
       onTap: () {
         setState(() {
@@ -2168,32 +1697,6 @@ class _GmssScreenState extends State<GmssScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // SizedBox(
-            //   height: 45,
-            //   width: 45,
-            //   child: SvgPicture.network(
-            //     "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
-            //     colorFilter: ColorFilter.mode(
-            //       isSelected ? Colors.teal : Colors.black87,
-            //       BlendMode.srcIn,
-            //     ),
-            //     errorBuilder: (context, error, stackTrace) => Icon(
-            //       Icons.diamond_outlined,
-            //       size: 30,
-            //       color: isSelected ? Colors.teal : Colors.black54,
-            //     ),
-            //     placeholderBuilder: (context) => const Center(
-            //       child: SizedBox(
-            //         width: 20,
-            //         height: 20,
-            //         child: CircularProgressIndicator(
-            //           strokeWidth: 2,
-            //           color: Colors.teal,
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
             SizedBox(
               height: 45,
               width: 45,
@@ -2220,68 +1723,6 @@ class _GmssScreenState extends State<GmssScreen> {
         ),
       ),
     );
-  }
-
-  CustomPainter? _getPainterForShapeName(String name, bool isActive) {
-    if (name == null || name.isEmpty) return null;
-    final Color shapeColor = isActive ? Colors.teal : const Color(0xFF616161);
-    final String upperName = name.toUpperCase();
-    if (upperName.contains("ROUND"))
-      return MinimalRoundPainter(color: shapeColor);
-    if (upperName.contains("PRINCESS"))
-      return MinimalPrincessPainter(color: shapeColor);
-    if (upperName.contains("EMERALD"))
-      return MinimalEmeraldPainter(color: shapeColor);
-    if (upperName.contains("CUSHION"))
-      return MinimalCushionPainter(color: shapeColor);
-    if (upperName.contains("RADIANT"))
-      return MinimalRadiantPainter(color: shapeColor);
-    if (upperName.contains("MARQUISE"))
-      return MinimalMarquisePainter(color: shapeColor);
-    if (upperName.contains("PEAR"))
-      return MinimalPearPainter(color: shapeColor);
-    if (upperName.contains("OVAL"))
-      return MinimalOvalPainter(color: shapeColor);
-    if (upperName.contains("HEART"))
-      return MinimalHeartPainter(color: shapeColor);
-    if (upperName.contains("ASSCHER"))
-      return MinimalAsscherPainter(color: shapeColor);
-    if (upperName.contains("ROSE"))
-      return MinimalRosePainter(color: shapeColor);
-    if (upperName.contains("BAGUETTE"))
-      return MinimalBaguettePainter(color: shapeColor);
-    if (upperName.contains("HALF MOON"))
-      return MinimalHalfMoonPainter(color: shapeColor);
-    if (upperName.contains("TRAPEZOID")) {
-      return MinimalTrapezoidPainter(color: shapeColor);
-    }
-    if (upperName.contains("PENTAGONAL")) {
-      return MinimalPentagonalPainter(color: shapeColor);
-    }
-    if (upperName.contains("HEXAGON")) {
-      return MinimalHexagonalPainter(color: shapeColor);
-    }
-    if (upperName.contains("TRIANGULAR")) {
-      return MinimalTriangularPainter(color: shapeColor);
-    }
-    if (upperName.contains("TRILLIANT") || upperName.contains("TRILLION")) {
-      return MinimalTrilliantPainter(color: shapeColor);
-    }
-    if (upperName.contains("SHIELD")) {
-      return MinimalShieldPainter(color: shapeColor);
-    }
-    if (upperName.contains("LOZENGE")) {
-      return MinimalLozengePainter(color: shapeColor);
-    }
-    if (upperName.contains("KITE")) {
-      return MinimalKitePainter(color: shapeColor);
-    }
-    if (upperName.contains("PORTUGUESE")) {
-      return MinimalPortuguesePainter(color: shapeColor);
-    }
-
-    // ✅ FALLBACK: If name doesn't match (like "Baguette" or "Rose"), return Round
-    return null;
   }
 
   Widget _buildUnifiedInventoryToolbar({
@@ -2331,38 +1772,6 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  Widget _inventoryTabItem(
-    String label,
-    int index,
-    int count,
-    Color themeColor,
-  ) {
-    bool isActive = _currentTab == index;
-    return InkWell(
-      onTap: () => setState(() => _currentTab = index),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            count > 0 ? "$label ($count)" : label,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isActive ? FontWeight.w900 : FontWeight.w500,
-              color: isActive ? Colors.black : Colors.grey.shade600,
-            ),
-          ),
-          if (isActive)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              height: 2,
-              width: 20,
-              color: themeColor,
-            ),
-        ],
-      ),
-    );
-  }
-
   Widget _tabItem(String label, int index, int count, Color themeColor) {
     bool active = _currentTab == index;
     return InkWell(
@@ -2393,191 +1802,6 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  Widget _buildGridView(List<GmssStone> stones, Color themeColor) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.60,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-      ),
-      itemCount: stones.length,
-      itemBuilder: (context, index) => _DiamondCard(
-        stone: stones[index],
-        isFavorite: _savedStones.any((s) => s.id == stones[index].id),
-        onFavoriteTap: () => _toggleSave(stones[index]),
-        onCardTap: () => _handleCardTap(stones[index]),
-        themeColor: themeColor,
-      ),
-    );
-  }
-
-  Widget _buildListView(List<GmssStone> stones, Color themeColor) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              bottom: BorderSide(color: Colors.grey.shade200, width: 2),
-            ),
-          ),
-          child: const Row(
-            children: [
-              SizedBox(width: 50),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  "Shape",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  "Carat",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  "Color",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  "Clarity",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  "Price",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  "Action",
-                  textAlign: TextAlign.right,
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                ),
-              ),
-            ],
-          ),
-        ),
-        ...stones.map((stone) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-            ),
-            child: ListTile(
-              mouseCursor: SystemMouseCursors.click,
-              onTap: () => _handleCardTap(stone),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 8,
-              ),
-              leading: SizedBox(
-                width: 40,
-                height: 40,
-                child: SafeImage(url: stone.image_link, size: 40, stone: stone),
-              ),
-              title: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      (stone.shapeStr).toUpperCase(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      "${stone.weight.toStringAsFixed(2)} ct",
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      stone.colorStr,
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      stone.clarityStr,
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      "\$${stone.total_price.toInt()}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: themeColor.withValues(alpha: 0.3),
-                          ),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          "DETAILS",
-                          style: TextStyle(
-                            color: themeColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() => const Center(
-    child: Text(
-      "No diamonds found matching these filters.",
-      style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
-    ),
-  );
   Widget _buildMainHeader(Color themeColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -2918,9 +2142,10 @@ class _GmssScreenState extends State<GmssScreen> {
   Widget _buildShapeIconItem(Map<String, dynamic> shape) {
     final String shapeName = shape['name']?.toString() ?? "";
     final bool isActive = selectedShapeId == shape['id'];
-
-    // ✅ FIX: Pass the boolean isActive, NOT a color casted as bool
-    final painter = _getPainterForShapeName(shapeName, isActive);
+    final painter = DiamondPainterUtils.getPainterForShapeName(
+      shapeName,
+      isActive,
+    );
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -2929,16 +2154,10 @@ class _GmssScreenState extends State<GmssScreen> {
           _future = GmssApiService.fetchLabGrownData();
         });
         _hideMegaMenu();
-        // _scrollController.animateTo(
-        //   0,
-        //   duration: const Duration(milliseconds: 10),
-        //   curve: Curves.easeInOut,
-        // );
       },
-
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 90, // Consistent width with the main selector
+        width: 90,
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -2961,21 +2180,6 @@ class _GmssScreenState extends State<GmssScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // SvgPicture.network(
-            //   "https://corsproxy.io/?${Uri.encodeComponent(shape['icon'])}",
-            //   height: 35,
-            //   colorFilter: const ColorFilter.mode(
-            //     Color(0xFF008080),
-            //     BlendMode.srcIn,
-            //   ),
-            //   errorBuilder: (c, e, s) =>
-            //       const Icon(Icons.diamond_outlined, color: Colors.teal),
-            //   placeholderBuilder: (context) => const SizedBox(
-            //     height: 35,
-            //     width: 35,
-            //     child: CircularProgressIndicator(strokeWidth: 1),
-            //   ),
-            // ),
             SizedBox(
               height: 35,
               width: 35,
@@ -3352,292 +2556,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 "Learn About Our Process",
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class SafeImage extends StatefulWidget {
-  final String url;
-
-  final double size;
-  final GmssStone stone;
-  const SafeImage({
-    required this.url,
-    required this.size,
-    required this.stone,
-    super.key,
-  });
-  @override
-  State<SafeImage> createState() => SafeImageState();
-}
-
-class SafeImageState extends State<SafeImage> {
-  Uint8List? _bytes;
-  bool _isLoading = true;
-  @override
-  void initState() {
-    super.initState();
-    _fetch();
-  }
-
-  @override
-  void didUpdateWidget(SafeImage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.url != widget.url) {
-      _fetch();
-    }
-  }
-
-  Future<void> _fetch() async {
-    if (widget.url.isEmpty || widget.url == "null") {
-      if (mounted) setState(() => _isLoading = false);
-      return;
-    }
-    try {
-      final res = await http.get(Uri.parse(widget.url));
-      if (res.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _bytes = res.bodyBytes;
-            _isLoading = false;
-          });
-        }
-      } else {
-        if (mounted) setState(() => _isLoading = false);
-      }
-    } catch (e) {
-      debugPrint("Image Load Error: $e");
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  // Future<void> _fetch() async {
-  //   if (widget.url.isEmpty || widget.url == "null") {
-  //     if (mounted) setState(() => _isLoading = false);
-  //     return;
-  //   }
-  //   try {
-  //     // ✅ Wrap URL in proxy and encode properly
-  //     final String proxiedUrl = "https://corsproxy.io/?${Uri.encodeComponent(widget.url)}";
-  //     final res = await http.get(Uri.parse(proxiedUrl));
-  //
-  //     if (res.statusCode == 200) {
-  //       // ✅ CHECK: If the response starts with HTML, it's an error page, not an image
-  //       String bodyStart = String.fromCharCodes(res.bodyBytes.take(10));
-  //       if (bodyStart.contains("<!DOCT") || bodyStart.contains("<html")) {
-  //         debugPrint("SafeImage: URL returned HTML instead of Image");
-  //         if (mounted) setState(() => _isLoading = false);
-  //         return;
-  //       }
-  //
-  //       if (mounted) {
-  //         setState(() {
-  //           _bytes = res.bodyBytes;
-  //           _isLoading = false;
-  //         });
-  //       }
-  //     } else {
-  //       if (mounted) setState(() => _isLoading = false);
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Image Load Error: $e");
-  //     if (mounted) setState(() => _isLoading = false);
-  //   }
-  // }
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: _buildContent(),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    if (_bytes != null) {
-      return Image.memory(
-        _bytes!,
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.medium,
-      );
-    }
-    if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            Colors.teal.withValues(alpha: 0.2),
-          ),
-        ),
-      );
-    }
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: CustomPaint(
-          size: Size(widget.size * 0.8, widget.size * 0.8),
-          painter: _getShapePainter(widget.stone),
-        ),
-      ),
-    );
-  }
-
-  CustomPainter _getShapePainter(GmssStone stone) {
-    String shape = stone.shapeStr.toUpperCase();
-    if (shape.contains("ROUND")) return MinimalRoundPainter();
-    if (shape.contains("PRINCESS")) return MinimalPrincessPainter();
-    if (shape.contains("EMERALD")) return MinimalEmeraldPainter();
-    if (shape.contains("CUSHION")) return MinimalCushionPainter();
-    if (shape.contains("RADIANT")) return MinimalRadiantPainter();
-    if (shape.contains("MARQUISE")) return MinimalMarquisePainter();
-    if (shape.contains("PEAR")) return MinimalPearPainter();
-    if (shape.contains("OVAL")) return MinimalOvalPainter();
-    if (shape.contains("HEART")) return MinimalHeartPainter();
-    if (shape.contains("ASSCHER")) return MinimalAsscherPainter();
-    return MinimalRoundPainter();
-  }
-}
-
-class _DiamondCard extends StatefulWidget {
-  final GmssStone stone;
-  final bool isFavorite;
-  final VoidCallback onFavoriteTap;
-  final VoidCallback onCardTap;
-  final Color themeColor;
-  const _DiamondCard({
-    super.key,
-    required this.stone,
-    required this.isFavorite,
-    required this.onFavoriteTap,
-    required this.onCardTap,
-    required this.themeColor,
-  });
-  @override
-  State<_DiamondCard> createState() => _DiamondCardState();
-}
-
-class _DiamondCardState extends State<_DiamondCard> {
-  bool _isHovered = false; // Fixed spelling from _isHoverd
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onCardTap,
-        child: AnimatedContainer(
-          // Use AnimatedContainer for smooth border transition
-          duration: const Duration(milliseconds: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            // ✅ This line adds the border logic
-            border: Border.all(
-              color: (_isHovered || widget.isFavorite)
-                  ? widget.themeColor
-                  : Colors.transparent,
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: _isHovered ? 0.08 : 0.03),
-                blurRadius: _isHovered ? 20 : 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: AnimatedScale(
-            scale: _isHovered ? 1.02 : 1.0, // Reduced scale for a cleaner look
-            duration: const Duration(milliseconds: 10),
-            curve: Curves.easeOut,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            top: 12.0,
-                            left: 12,
-                            right: 12,
-                          ),
-                          child: SafeImage(
-                            url: widget.stone.image_link,
-                            size: 200,
-                            stone: widget.stone,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: IconButton(
-                          icon: Icon(
-                            widget.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: widget.isFavorite
-                                ? widget.themeColor
-                                : Colors.grey.shade300,
-                          ),
-                          onPressed: widget.onFavoriteTap,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15, // Slightly smaller for better fit
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 11,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

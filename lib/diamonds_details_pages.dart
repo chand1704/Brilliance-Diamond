@@ -1,14 +1,13 @@
 import 'dart:html' as html;
-import 'dart:typed_data';
 import 'dart:ui_web' as ui;
 
+import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
+import 'package:brilliance_diamond/widgets/safe_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'DiamondDesign.dart';
-import 'diamond_shapes.dart';
 import 'model/gmss_stone_model.dart';
 
 class DiamondDetailScreen extends StatefulWidget {
@@ -1154,7 +1153,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                       width: 45,
                       height: 45,
                       child: CustomPaint(
-                        painter: _getPainterForShapeName(
+                        painter: DiamondPainterUtils.getPainterForShapeName(
                           widget.stone.shapeStr,
                           false,
                         ),
@@ -1235,38 +1234,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         );
       },
     );
-  }
-
-  CustomPainter? _getPainterForShapeName(String name, bool isActive) {
-    if (name.isEmpty) return null;
-
-    final Color shapeColor = isActive ? Colors.teal : const Color(0xFF2D3142);
-    final String upperName = name.toUpperCase();
-
-    // Mapping API names to your Custom Painters
-    if (upperName.contains("ROUND"))
-      return MinimalRoundPainter(color: shapeColor);
-    if (upperName.contains("PRINCESS"))
-      return MinimalPrincessPainter(color: shapeColor);
-    if (upperName.contains("EMERALD"))
-      return MinimalEmeraldPainter(color: shapeColor);
-    if (upperName.contains("CUSHION"))
-      return MinimalCushionPainter(color: shapeColor);
-    if (upperName.contains("OVAL"))
-      return MinimalOvalPainter(color: shapeColor);
-    if (upperName.contains("PEAR"))
-      return MinimalPearPainter(color: shapeColor);
-    if (upperName.contains("HEART"))
-      return MinimalHeartPainter(color: shapeColor);
-    if (upperName.contains("MARQUISE"))
-      return MinimalMarquisePainter(color: shapeColor);
-    if (upperName.contains("RADIANT"))
-      return MinimalRadiantPainter(color: shapeColor);
-    if (upperName.contains("ASSCHER"))
-      return MinimalAsscherPainter(color: shapeColor);
-
-    // Default fallback if shape is not found
-    return MinimalRoundPainter(color: shapeColor);
   }
 
   Widget _buildProductInfoPanel() {
@@ -1439,122 +1406,5 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
       ],
     );
-  }
-}
-
-class SafeImage extends StatefulWidget {
-  final String url;
-  final double size;
-  final GmssStone stone; // Ensure the stone model is passed here
-
-  const SafeImage({
-    super.key,
-    required this.url,
-    required this.size,
-    required this.stone,
-  });
-  @override
-  State<SafeImage> createState() => _SafeImageState();
-}
-
-class _SafeImageState extends State<SafeImage> {
-  Uint8List? _bytes;
-  bool _isLoading = true;
-  @override
-  void initState() {
-    super.initState();
-    _fetch();
-  }
-
-  Future<void> _fetch() async {
-    if (widget.url.isEmpty || widget.url == "null") {
-      if (mounted) setState(() => _isLoading = false);
-      return;
-    }
-    try {
-      // We use the URL as provided (which now includes the proxy)
-      final res = await http.get(Uri.parse(widget.url));
-
-      if (res.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _bytes = res.bodyBytes;
-            _isLoading = false;
-          });
-        }
-      } else {
-        debugPrint("Image fetch failed with status: ${res.statusCode}");
-        if (mounted) setState(() => _isLoading = false);
-      }
-    } catch (e) {
-      debugPrint("SafeImage Error: $e");
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_bytes != null) {
-      return ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          Colors.white.withValues(alpha: 0.9),
-          BlendMode.modulate,
-        ),
-        child: Image.memory(
-          _bytes!,
-          width: widget.size,
-          height: widget.size,
-          fit: BoxFit.contain,
-        ),
-      );
-    }
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal),
-      );
-    }
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SizedBox(
-          width: widget.size * 0.7,
-          height: widget.size * 0.7,
-          child: CustomPaint(
-            painter: _getFallbackShapePainter(widget.stone.shapeStr),
-          ),
-        ),
-      ),
-    );
-  }
-
-  CustomPainter? _getFallbackShapePainter(String shapeName) {
-    final String name = shapeName.toUpperCase();
-    final Color shapeColor = Colors.grey.shade400;
-
-    if (name.contains("ROUND")) return MinimalRoundPainter(color: shapeColor);
-    if (name.contains("PRINCESS"))
-      return MinimalPrincessPainter(color: shapeColor);
-    if (name.contains("EMERALD"))
-      return MinimalEmeraldPainter(color: shapeColor);
-    if (name.contains("CUSHION"))
-      return MinimalCushionPainter(color: shapeColor);
-    if (name.contains("OVAL")) return MinimalOvalPainter(color: shapeColor);
-    if (name.contains("PEAR")) return MinimalPearPainter(color: shapeColor);
-    if (name.contains("HEART")) return MinimalHeartPainter(color: shapeColor);
-    if (name.contains("MARQUISE"))
-      return MinimalMarquisePainter(color: shapeColor);
-    if (name.contains("RADIANT"))
-      return MinimalRadiantPainter(color: shapeColor);
-    if (name.contains("ASSCHER"))
-      return MinimalAsscherPainter(color: shapeColor);
-    if (name.contains("TRIANGLE") || name.contains("TRILLION"))
-      return MinimalTrilliantPainter(color: shapeColor);
-    if (name.contains("HEXAGON"))
-      return MinimalHexagonalPainter(color: shapeColor);
-    if (name.contains("PENTAGON"))
-      return MinimalPentagonalPainter(color: shapeColor);
-    if (name.contains("KITE")) return MinimalKitePainter(color: shapeColor);
-    if (name.contains("SHIELD")) return MinimalShieldPainter(color: shapeColor);
-    return null;
   }
 }
