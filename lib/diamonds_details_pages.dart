@@ -39,43 +39,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     {'id': 9, 'name': 'Heart', 'icon': '${shapeBaseUrl}Heart.svg'},
     {'id': 27, 'name': 'Asscher', 'icon': '${shapeBaseUrl}1_sf_1734065506.svg'},
   ];
-  String _getStaticShapeUrl(String shape) {
-    final s = shape.toLowerCase().trim();
-    String rawUrl = "";
-    if (s.contains('round')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
-    } else if (s.contains('cushion')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Cushion..png";
-    } else if (s.contains('princess')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Princess..png";
-    } else if (s.contains('emerald')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Emerald..png";
-    } else if (s.contains('radiant')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Radiant..png";
-    } else if (s.contains('marquise')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Marquise..png";
-    } else if (s.contains('pear')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Pear..png";
-    } else if (s.contains('oval')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Oval..png";
-    } else if (s.contains('heart')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Heart..png";
-    } else if (s.contains('asscher')) {
-      rawUrl =
-          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Asscher..png";
-    }
-    return "https://corsproxy.io/?${Uri.encodeComponent(rawUrl)}";
-  }
-
   double _getRotationAngle(String shape) {
     final s = shape.toUpperCase();
     if (s.contains('MARQUISE')) return 2.48;
@@ -1071,7 +1034,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                       onTap: () => _launchCertificate(widget.stone.certi_file),
                       borderRadius: BorderRadius.circular(20),
                       child: _buildBadge(
-                        // Using a dynamic label based on the lab (GIA/IGI)
                         "${widget.stone.lab} Certificate",
                         imageUrl:
                             "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/GIA_logo.jpg",
@@ -1079,8 +1041,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                       ),
                     ),
                   ),
-
-                // --- 360 Video Badge ---
                 InkWell(
                   onTap: () => _showVideoPopup(widget.stone.video_link),
                   borderRadius: BorderRadius.circular(20),
@@ -1089,24 +1049,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     icon: Icons.play_circle_outline,
                   ),
                 ),
-                //   InkWell(
-                //     onTap: () => _launchCertificate(widget.stone.certi_file),
-                //     borderRadius: BorderRadius.circular(20),
-                //     child: _buildBadge(
-                //       imageUrl:
-                //           "https://www.brilliance.com/images.brilliance.com/images/product/diamonds/IGI_logo.jpg",
-                //       "IGI Certified",
-                //     ),
-                //   ),
-                // const SizedBox(width: 10),
-                // InkWell(
-                //   onTap: () => _showVideoPopup(widget.stone.video_link),
-                //   borderRadius: BorderRadius.circular(20),
-                //   child: _buildBadge(
-                //     icon: Icons.play_circle_outline,
-                //     "360 Video",
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -1116,9 +1058,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildHandComparisonCard() {
-    final String handImageUrl =
-        // "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/front/img/src/assets/images/diamond4c/hand..png")}";
-        "assets/images/img.png";
+    final String handImageUrl = "assets/images/img.png";
     return ValueListenableBuilder<double>(
       valueListenable: _caratNotifier,
       builder: (context, caratValue, child) {
@@ -1135,7 +1075,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 child: Image.asset(
                   handImageUrl,
                   fit: BoxFit.contain,
-                  // Fallback in case the file is missing
                   errorBuilder: (context, error, stackTrace) => const Center(
                     child: Text("Hand image not found in assets"),
                   ),
@@ -1159,10 +1098,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                         ),
                       ),
                     ),
-                    // SafeImage(
-                    //   url: _getStaticShapeUrl(widget.stone.shapeStr),
-                    //   size: 45,
-                    // ),
                   ),
                 ),
               ),
@@ -1188,7 +1123,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                   child: Row(
                     children: [
                       Text(
-                        "Your diamond: ${caratValue.toStringAsFixed(2)} ct.", // ✅ Use caratValue from the builder
+                        "Your diamond: ${caratValue.toStringAsFixed(2)} ct.",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -1351,17 +1286,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               errorBuilder: (c, e, s) =>
                   const Icon(Icons.description, size: 14),
             )
-          // Padding(
-          //   padding: const EdgeInsets.only(right: 6),
-          //   child: SafeImage(url: imageUrl, size: 18),
-          // )
           else if (icon != null)
             Icon(icon, size: 16, color: const Color(0xFF005AAB)),
-
-          // Padding(
-          //   padding: const EdgeInsets.only(right: 6),
-          //   child: Icon(icon, size: 14),
-          // ),
           const SizedBox(width: 6),
           Text(
             label,
