@@ -27,6 +27,7 @@ class DiamondDetailScreen extends StatefulWidget {
 class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   static const String shapeBaseUrl =
       "https://demo.kodllin.com/apis/storage/app/shape_images/";
+
   final List<Map<String, dynamic>> shapeCategories = [
     {'id': 1, 'name': 'Round', 'icon': '${shapeBaseUrl}Round.svg'},
     {'id': 2, 'name': 'Princess', 'icon': '${shapeBaseUrl}Princess.svg'},

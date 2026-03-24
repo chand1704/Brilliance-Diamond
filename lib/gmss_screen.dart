@@ -363,10 +363,10 @@ class _GmssScreenState extends State<GmssScreen> {
                   future: _future,
                   builder: (context, snapshot) {
                     final allStones = snapshot.data ?? [];
-                    final filteredMain = _applyFiltering(allStones);
+                    final filteredCount = _applyFiltering(allStones).length;
                     return SliverToBoxAdapter(
                       child: _buildUnifiedInventoryToolbar(
-                        mainCount: filteredMain.length,
+                        mainCount: filteredCount,
                         historyCount: _recentlyViewed.length,
                         compareCount: _savedStones.length,
                         themeColor: themeColor,
