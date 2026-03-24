@@ -774,30 +774,56 @@ class _GmssScreenState extends State<GmssScreen> {
             String imageUrl =
                 "https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_$colorFileName.png";
             return GestureDetector(
-              onTap: () => setState(() {
-                if (selectedFancyColorId == item['id']) {
-                  selectedFancyColorId = null;
-                  selectedFancyColor = null;
-                } else {
-                  selectedFancyColorId = item['id'];
-                  selectedFancyColor = item['name'];
-                }
-              }),
+              onTap: () {
+                setState(() {
+                  if (selectedFancyColorId == item['id']) {
+                    selectedFancyColorId = null;
+                    selectedFancyColor = null;
+                  } else {
+                    selectedFancyColorId = item['id'];
+                    selectedFancyColor = item['name'];
+                  }
+                  _future = _getSmartData();
+                });
+              },
               child: Column(
                 children: [
                   Container(
+                    width: 48,
+                    height: 48,
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
+                      color: Colors.white,
                       border: Border.all(
                         color: isSelected ? Colors.black : Colors.transparent,
-                        width: 1,
+                        width: isSelected ? 2 : 1,
                       ),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Image.network(
                       "https://corsproxy.io/?${Uri.encodeComponent(imageUrl)}",
                       width: 42,
                       height: 42,
                       fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey.shade100,
+                          alignment: Alignment.center,
+                          child: Text(
+                            item['name'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(strokeWidth: 1),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 4),

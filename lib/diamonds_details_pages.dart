@@ -77,7 +77,30 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     super.initState();
     _caratNotifier.value = widget.stone.weight;
     double initialWeight = widget.stone.weight;
-    _caratNotifier.value = initialWeight.clamp(0.1, 5.0);
+    // _caratNotifier.value = initialWeight.clamp(0.1, 5.0);
+    // ✅ Register the factory ONCE here, not in the build method
+    final String viewId = 'embedded-diamond-video-${widget.stone.id}';
+
+    // Try using the direct URL or a proxy if it still fails
+    const String videoUrl =
+        "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
+
+    ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
+      final video = html.VideoElement()
+        ..src = videoUrl
+        ..autoplay = true
+        ..loop = true
+        ..muted = true
+        ..controls = false
+        ..setAttribute('playsinline', 'true')
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'cover'
+        ..style.border = 'none';
+      video.crossOrigin = "anonymous";
+
+      return video;
+    });
   }
 
   void _showVideoPopup(String videoUrl) {
@@ -959,32 +982,55 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildEmbeddedVideoPlayer() {
-    const String videoUrl =
-        "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
+    // const String videoUrl =
+    //     "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.webm";
     final String viewId = 'embedded-diamond-video-${widget.stone.id}';
-    ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-      final video = html.VideoElement()
-        ..src = videoUrl
-        ..controls = false
-        ..autoplay = true
-        ..loop = true
-        ..muted = true
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..style.objectFit = 'contain'
-        ..style.border = 'none';
-      return video;
-    });
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 10),
-        Container(
-          width: double.infinity,
-          height: 500,
-          child: HtmlElementView(viewType: viewId),
-        ),
-      ],
+    // ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
+    //   final video = html.VideoElement()
+    //     ..src = videoUrl
+    //     ..controls = false
+    //     ..autoplay = true
+    //     ..loop = true
+    //     ..muted = true
+    //     ..style.width = '100%'
+    //     ..style.height = '100%'
+    //     ..style.objectFit = 'contain'
+    //     ..style.border = 'none';
+    //   return video;
+    // });
+    //   return Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       const SizedBox(height: 10),
+    //       Container(
+    //         width: double.infinity,
+    //         height: 500,
+    //         decoration: BoxDecoration(
+    //           color: Colors.black12,
+    //           borderRadius: BorderRadius.circular(8),
+    //         ),
+    //         child: ClipRRect(
+    //           // width: double.infinity,
+    //           // height: 500,
+    //           borderRadius: BorderRadius.circular(8),
+    //           child: HtmlElementView(viewType: viewId),
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    // }
+    return Container(
+      width: double.infinity,
+      height: 500,
+      decoration: BoxDecoration(
+        color: Colors
+            .black, // Dark background looks better if video takes a second to load
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: HtmlElementView(viewType: viewId),
+      ),
     );
   }
 
