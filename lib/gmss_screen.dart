@@ -241,6 +241,7 @@ class _GmssScreenState extends State<GmssScreen> {
   //     return data;
   //   }
   // }
+
   Future<List<GmssStone>> _getSmartData() async {
     int shapeId = selectedShapeId;
     Map<int, List<GmssStone>> targetCache = (selectedOrigin == 1)
