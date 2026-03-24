@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'DiamondDesign.dart';
+import 'diamond_shapes.dart';
 import 'model/gmss_stone_model.dart';
 
 class DiamondDetailScreen extends StatefulWidget {
@@ -41,37 +42,39 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   ];
   String _getStaticShapeUrl(String shape) {
     final s = shape.toLowerCase().trim();
+    String rawUrl = "";
     if (s.contains('round')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
+    } else if (s.contains('cushion')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Cushion..png";
+    } else if (s.contains('princess')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Princess..png";
+    } else if (s.contains('emerald')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Emerald..png";
+    } else if (s.contains('radiant')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Radiant..png";
+    } else if (s.contains('marquise')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Marquise..png";
+    } else if (s.contains('pear')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Pear..png";
+    } else if (s.contains('oval')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Oval..png";
+    } else if (s.contains('heart')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Heart..png";
+    } else if (s.contains('asscher')) {
+      rawUrl =
+          "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Asscher..png";
     }
-    if (s.contains('cushion')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Cushion..png";
-    }
-    if (s.contains('princess')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Princess..png";
-    }
-    if (s.contains('emerald')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Emerald..png";
-    }
-    if (s.contains('radiant')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Radiant..png";
-    }
-    if (s.contains('marquise')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Marquise..png";
-    }
-    if (s.contains('pear')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Pear..png";
-    }
-    if (s.contains('oval')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Oval..png";
-    }
-    if (s.contains('heart')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Heart..png";
-    }
-    if (s.contains('asscher')) {
-      return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Asscher..png";
-    }
-    return "https://www.brilliance.com/front/img/src/assets/images/diamond4c/diamond-Round..png";
+    return "https://corsproxy.io/?${Uri.encodeComponent(rawUrl)}";
   }
 
   double _getRotationAngle(String shape) {
@@ -1048,7 +1051,13 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       ),
       child: Stack(
         children: [
-          Center(child: SafeImage(url: widget.stone.image_link, size: 450)),
+          Center(
+            child: SafeImage(
+              url: widget.stone.image_link,
+              size: 450,
+              stone: widget.stone,
+            ),
+          ),
           Positioned(
             bottom: 20,
             left: 20,
@@ -1108,9 +1117,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildHandComparisonCard() {
-    const String handImageUrl =
-        "https://www.brilliance.com/front/img/src/assets/images/diamond4c/hand..png";
-
+    final String handImageUrl =
+        // "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/front/img/src/assets/images/diamond4c/hand..png")}";
+        "assets/images/img.png";
     return ValueListenableBuilder<double>(
       valueListenable: _caratNotifier,
       builder: (context, caratValue, child) {
@@ -1123,7 +1132,16 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
           decoration: const BoxDecoration(color: Color(0xFFF9F9F9)),
           child: Stack(
             children: [
-              Positioned.fill(child: SafeImage(url: handImageUrl, size: 400)),
+              Positioned.fill(
+                child: Image.asset(
+                  handImageUrl,
+                  fit: BoxFit.contain,
+                  // Fallback in case the file is missing
+                  errorBuilder: (context, error, stackTrace) => const Center(
+                    child: Text("Hand image not found in assets"),
+                  ),
+                ),
+              ),
               Positioned(
                 top: 120,
                 left: 216,
@@ -1132,10 +1150,20 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                   child: Transform.scale(
                     scale: scaleFactor,
                     alignment: Alignment.center,
-                    child: SafeImage(
-                      url: _getStaticShapeUrl(widget.stone.shapeStr),
-                      size: 45,
+                    child: SizedBox(
+                      width: 45,
+                      height: 45,
+                      child: CustomPaint(
+                        painter: _getPainterForShapeName(
+                          widget.stone.shapeStr,
+                          false,
+                        ),
+                      ),
                     ),
+                    // SafeImage(
+                    //   url: _getStaticShapeUrl(widget.stone.shapeStr),
+                    //   size: 45,
+                    // ),
                   ),
                 ),
               ),
@@ -1207,6 +1235,38 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         );
       },
     );
+  }
+
+  CustomPainter? _getPainterForShapeName(String name, bool isActive) {
+    if (name.isEmpty) return null;
+
+    final Color shapeColor = isActive ? Colors.teal : const Color(0xFF2D3142);
+    final String upperName = name.toUpperCase();
+
+    // Mapping API names to your Custom Painters
+    if (upperName.contains("ROUND"))
+      return MinimalRoundPainter(color: shapeColor);
+    if (upperName.contains("PRINCESS"))
+      return MinimalPrincessPainter(color: shapeColor);
+    if (upperName.contains("EMERALD"))
+      return MinimalEmeraldPainter(color: shapeColor);
+    if (upperName.contains("CUSHION"))
+      return MinimalCushionPainter(color: shapeColor);
+    if (upperName.contains("OVAL"))
+      return MinimalOvalPainter(color: shapeColor);
+    if (upperName.contains("PEAR"))
+      return MinimalPearPainter(color: shapeColor);
+    if (upperName.contains("HEART"))
+      return MinimalHeartPainter(color: shapeColor);
+    if (upperName.contains("MARQUISE"))
+      return MinimalMarquisePainter(color: shapeColor);
+    if (upperName.contains("RADIANT"))
+      return MinimalRadiantPainter(color: shapeColor);
+    if (upperName.contains("ASSCHER"))
+      return MinimalAsscherPainter(color: shapeColor);
+
+    // Default fallback if shape is not found
+    return MinimalRoundPainter(color: shapeColor);
   }
 
   Widget _buildProductInfoPanel() {
@@ -1385,7 +1445,14 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 class SafeImage extends StatefulWidget {
   final String url;
   final double size;
-  const SafeImage({super.key, required this.url, required this.size});
+  final GmssStone stone; // Ensure the stone model is passed here
+
+  const SafeImage({
+    super.key,
+    required this.url,
+    required this.size,
+    required this.stone,
+  });
   @override
   State<SafeImage> createState() => _SafeImageState();
 }
@@ -1405,7 +1472,9 @@ class _SafeImageState extends State<SafeImage> {
       return;
     }
     try {
-      final res = await http.get(Uri.parse((widget.url)));
+      // We use the URL as provided (which now includes the proxy)
+      final res = await http.get(Uri.parse(widget.url));
+
       if (res.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -1414,9 +1483,11 @@ class _SafeImageState extends State<SafeImage> {
           });
         }
       } else {
+        debugPrint("Image fetch failed with status: ${res.statusCode}");
         if (mounted) setState(() => _isLoading = false);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint("SafeImage Error: $e");
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -1442,10 +1513,48 @@ class _SafeImageState extends State<SafeImage> {
         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal),
       );
     }
-    return Icon(
-      Icons.diamond_outlined,
-      size: widget.size * 0.3,
-      color: Colors.grey.shade300,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: SizedBox(
+          width: widget.size * 0.7,
+          height: widget.size * 0.7,
+          child: CustomPaint(
+            painter: _getFallbackShapePainter(widget.stone.shapeStr),
+          ),
+        ),
+      ),
     );
+  }
+
+  CustomPainter? _getFallbackShapePainter(String shapeName) {
+    final String name = shapeName.toUpperCase();
+    final Color shapeColor = Colors.grey.shade400;
+
+    if (name.contains("ROUND")) return MinimalRoundPainter(color: shapeColor);
+    if (name.contains("PRINCESS"))
+      return MinimalPrincessPainter(color: shapeColor);
+    if (name.contains("EMERALD"))
+      return MinimalEmeraldPainter(color: shapeColor);
+    if (name.contains("CUSHION"))
+      return MinimalCushionPainter(color: shapeColor);
+    if (name.contains("OVAL")) return MinimalOvalPainter(color: shapeColor);
+    if (name.contains("PEAR")) return MinimalPearPainter(color: shapeColor);
+    if (name.contains("HEART")) return MinimalHeartPainter(color: shapeColor);
+    if (name.contains("MARQUISE"))
+      return MinimalMarquisePainter(color: shapeColor);
+    if (name.contains("RADIANT"))
+      return MinimalRadiantPainter(color: shapeColor);
+    if (name.contains("ASSCHER"))
+      return MinimalAsscherPainter(color: shapeColor);
+    if (name.contains("TRIANGLE") || name.contains("TRILLION"))
+      return MinimalTrilliantPainter(color: shapeColor);
+    if (name.contains("HEXAGON"))
+      return MinimalHexagonalPainter(color: shapeColor);
+    if (name.contains("PENTAGON"))
+      return MinimalPentagonalPainter(color: shapeColor);
+    if (name.contains("KITE")) return MinimalKitePainter(color: shapeColor);
+    if (name.contains("SHIELD")) return MinimalShieldPainter(color: shapeColor);
+    return null;
   }
 }
