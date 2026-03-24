@@ -302,6 +302,110 @@ class _GmssScreenState extends State<GmssScreen> {
             (colorIdx >= _colorRange.start.toInt() &&
             colorIdx <= _colorRange.end.toInt());
       }
+      // 2. Clarity Logic (ADD THIS PART ✅)
+      int stoneClarityIdx = clarityLabels.indexOf(
+        stone.clarityStr.trim().toUpperCase(),
+      );
+      bool matchesClarity =
+          (stoneClarityIdx >= _clarityRange.start.toInt() &&
+          stoneClarityIdx <= _clarityRange.end.toInt());
+
+      // 3. CUT LOGIC (ADD THIS PART ✅)
+      // Find where the stone's cut falls in your cutLabels list
+      int stoneCutIdx = -1;
+      const cutMapping = {
+        'ID': 0, // IDEAL
+        'EX': 1, // EXCELLENT
+        'VG': 2, // VERY GOOD
+        'GD': 3, // GOOD
+        'FR': 4, // FAIR
+      };
+
+      // Get the index using the cut_code
+      String code = stone.cut_code.trim().toUpperCase();
+      if (cutMapping.containsKey(code)) {
+        stoneCutIdx = cutMapping[code]!;
+      } else {
+        // Fallback: If code mapping fails, try finding the index in cutLabels
+        stoneCutIdx = cutLabels.indexOf(stone.cut.trim().toUpperCase());
+      }
+
+      // Compare the calculated index against the range set by the user on the slider
+      bool matchesCut =
+          (stoneCutIdx >= _cutRange.start.toInt() &&
+          stoneCutIdx <= _cutRange.end.toInt());
+
+      // Handle cases where data might be missing (optional: show them by default)
+      if (stoneCutIdx == -1) matchesCut = true;
+
+      // --- 4. POLISH LOGIC (DYNAMIC CODE MATCHING ✅) ---
+      int stonePolishIdx = -1;
+
+      // Define a map for Polish codes to Slider Index
+      const polishMapping = {
+        // 'ID': 0, // IDEAL (if your API uses ID for polish)
+        // '8X': 0, // SUPER IDEAL (Specific to some APIs)
+        'EX': 0, // EXCELLENT (Matches your first label)
+        'VG': 1, // VERY GOOD
+        'GD': 2, // GOOD
+        'FR': 3, // FAIR
+        // 'PR': 3, // POOR (mapping poor to the lowest slider option)
+      };
+
+      // Get the index using the stone.polish variable
+      String polishCode = stone.polish.trim().toUpperCase();
+
+      if (polishMapping.containsKey(polishCode)) {
+        stonePolishIdx = polishMapping[polishCode]!;
+      } else {
+        // Fallback: If code is not in map, try matching the full string in polishLabels
+        stonePolishIdx = polishLabels.indexOf(polishCode);
+      }
+
+      // Compare against the user's slider range
+      bool matchesPolish =
+          (stonePolishIdx >= _polishRange.start.toInt() &&
+          stonePolishIdx <= _polishRange.end.toInt());
+
+      // Fallback: If data is missing entirely, show the stone
+      if (stonePolishIdx == -1) matchesPolish = true;
+      // --- 5. FLUORESCENCE LOGIC (DYNAMIC ✅) ---
+      int stoneFlIdx = -1;
+
+      // Define a map to translate fl_intensity strings to your slider index
+      const flMapping = {
+        'NONE': 0,
+        'NON': 0,
+        'VERY SLIGHT': 0,
+        'SLIGHT': 1,
+        'FAINT': 1,
+        'FNT': 1,
+        'MEDIUM': 2,
+        'MED': 2,
+        'STRONG': 3,
+        'STG': 3,
+        'VERY STRONG': 3,
+        'VST': 3,
+      };
+
+      // Get the intensity string from the model
+      String intensity = stone.fl_intensity.trim().toUpperCase();
+
+      if (flMapping.containsKey(intensity)) {
+        stoneFlIdx = flMapping[intensity]!;
+      } else {
+        // Fallback: try direct matching in your label list
+        stoneFlIdx = flLabels.indexOf(intensity);
+      }
+
+      // Compare against the slider range (_flRange)
+      bool matchesFl =
+          (stoneFlIdx >= _flRange.start.toInt() &&
+          stoneFlIdx <= _flRange.end.toInt());
+
+      // Fallback: If data is missing/unknown, usually we show the stone
+      if (stoneFlIdx == -1) matchesFl = true;
+
       final bool matchesShape =
           (selectedShapeId == 0 ||
               selectedShape == "ALL" ||
@@ -323,7 +427,11 @@ class _GmssScreenState extends State<GmssScreen> {
           matchesCarat &&
           matchesPrice &&
           matchesColor &&
-          matchesOrigin;
+          matchesOrigin &&
+          matchesClarity &&
+          matchesCut &&
+          matchesPolish &&
+          matchesFl;
     }).toList();
     if (_currentTab == 1) return _recentlyViewed;
     if (_currentTab == 2) return _savedStones;
