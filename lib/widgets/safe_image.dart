@@ -4,20 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../diamond_shapes.dart';
-import '../model/gmss_stone_model.dart'; // Adjust based on your folder structure
+import '../model/gmss_stone_model.dart';
 
 class SafeImage extends StatefulWidget {
   final String url;
   final double size;
   final GmssStone stone;
-
   const SafeImage({
     super.key,
     required this.url,
     required this.size,
     required this.stone,
   });
-
   @override
   State<SafeImage> createState() => SafeImageState();
 }
@@ -25,7 +23,6 @@ class SafeImage extends StatefulWidget {
 class SafeImageState extends State<SafeImage> {
   Uint8List? _bytes;
   bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -35,7 +32,6 @@ class SafeImageState extends State<SafeImage> {
   @override
   void didUpdateWidget(SafeImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Refresh if the image URL changes
     if (oldWidget.url != widget.url) {
       _fetch();
     }
@@ -46,14 +42,9 @@ class SafeImageState extends State<SafeImage> {
       if (mounted) setState(() => _isLoading = false);
       return;
     }
-
     try {
-      // Pro-tip: Using a proxy if you face CORS issues on Web
-      // final String proxiedUrl = "https://corsproxy.io/?${Uri.encodeComponent(widget.url)}";
       final res = await http.get(Uri.parse(widget.url));
-
       if (res.statusCode == 200) {
-        // Prevent setting state if the widget was removed from the tree
         if (mounted) {
           setState(() {
             _bytes = res.bodyBytes;
@@ -82,7 +73,6 @@ class SafeImageState extends State<SafeImage> {
   }
 
   Widget _buildContent() {
-    // 1. Show the downloaded Image
     if (_bytes != null) {
       return Image.memory(
         _bytes!,
@@ -90,8 +80,6 @@ class SafeImageState extends State<SafeImage> {
         filterQuality: FilterQuality.medium,
       );
     }
-
-    // 2. Show Loading Spinner
     if (_isLoading) {
       return Center(
         child: CircularProgressIndicator(
@@ -102,8 +90,6 @@ class SafeImageState extends State<SafeImage> {
         ),
       );
     }
-
-    // 3. Fallback: Show the CustomPaint Shape (Icon) if image fails/missing
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -117,8 +103,6 @@ class SafeImageState extends State<SafeImage> {
 
   CustomPainter _getShapePainter(GmssStone stone) {
     final String shape = stone.shapeStr.toUpperCase();
-
-    // These painters need to be imported or defined below
     if (shape.contains("ROUND")) return MinimalRoundPainter();
     if (shape.contains("PRINCESS")) return MinimalPrincessPainter();
     if (shape.contains("EMERALD")) return MinimalEmeraldPainter();
@@ -129,7 +113,6 @@ class SafeImageState extends State<SafeImage> {
     if (shape.contains("OVAL")) return MinimalOvalPainter();
     if (shape.contains("HEART")) return MinimalHeartPainter();
     if (shape.contains("ASSCHER")) return MinimalAsscherPainter();
-
     return MinimalRoundPainter(); // Default
   }
 }

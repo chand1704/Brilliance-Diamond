@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../model/gmss_stone_model.dart'; // Adjust path to your model
+import '../model/gmss_stone_model.dart';
 import 'safe_image.dart';
 
 class DiamondCard extends StatefulWidget {
@@ -22,8 +22,7 @@ class DiamondCard extends StatefulWidget {
 }
 
 class DiamondCardState extends State<DiamondCard> {
-  bool _isHovered = false; // Fixed spelling from _isHoverd
-
+  bool _isHovered = false;
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -33,12 +32,10 @@ class DiamondCardState extends State<DiamondCard> {
       child: GestureDetector(
         onTap: widget.onCardTap,
         child: AnimatedContainer(
-          // Use AnimatedContainer for smooth border transition
           duration: const Duration(milliseconds: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            // ✅ This line adds the border logic
             border: Border.all(
               color: (_isHovered || widget.isFavorite)
                   ? widget.themeColor
@@ -54,7 +51,7 @@ class DiamondCardState extends State<DiamondCard> {
             ],
           ),
           child: AnimatedScale(
-            scale: _isHovered ? 1.02 : 1.0, // Reduced scale for a cleaner look
+            scale: _isHovered ? 1.02 : 1.0,
             duration: const Duration(milliseconds: 10),
             curve: Curves.easeOut,
             child: Column(
@@ -112,7 +109,7 @@ class DiamondCardState extends State<DiamondCard> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
-                            fontSize: 15, // Slightly smaller for better fit
+                            fontSize: 15,
                           ),
                         ),
                         const SizedBox(height: 4),
