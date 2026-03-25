@@ -158,7 +158,10 @@ class _MainHeaderState extends State<MainHeader> {
     Widget menu,
   ) {
     return MouseRegion(
-      onEnter: (_) => controller.show(),
+      onEnter: (_) {
+        _hideAllMenus();
+        controller.show();
+      },
       child: OverlayPortal(
         controller: controller,
         overlayChildBuilder: (context) => Positioned(
