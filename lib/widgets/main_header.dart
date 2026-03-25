@@ -165,10 +165,13 @@ class _MainHeaderState extends State<MainHeader> {
           top: 70,
           left: 0,
           right: 0,
-          child: MouseRegion(onExit: (_) => controller.hide(), child: menu),
+          child: MouseRegion(
+            onExit: (_) => controller.hide(),
+            child: _MenuAnimationWrapper(child: menu),
+          ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           child: Text(
             label,
             style: const TextStyle(
@@ -185,7 +188,7 @@ class _MainHeaderState extends State<MainHeader> {
   Widget _buildMegaMenu() {
     return Material(
       elevation: 20,
-      shadowColor: Colors.black26,
+      shadowColor: Colors.black12,
       child: Container(
         color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
@@ -802,6 +805,51 @@ class _MainHeaderState extends State<MainHeader> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MenuAnimationWrapper extends StatefulWidget {
+  final Widget child;
+  const _MenuAnimationWrapper({required this.child});
+
+  @override
+  State<_MenuAnimationWrapper> createState() => _MenuAnimationWrapperState();
+}
+
+class _MenuAnimationWrapperState extends State<_MenuAnimationWrapper>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+  late Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300), // Speed of transition
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, -0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(position: _slide, child: widget.child),
     );
   }
 }
