@@ -406,6 +406,71 @@ class _GmssScreenState extends State<GmssScreen> {
       // Fallback: If data is missing/unknown, usually we show the stone
       if (stoneFlIdx == -1) matchesFl = true;
 
+      // --- 8. SYMMETRY LOGIC (DYNAMIC ✅) ---
+      int stoneSymIdx = -1;
+
+      // Define a map to translate symmetry strings to your slider index (0 to 3)
+      const symMapping = {
+        'EX': 3, // EXCELLENT
+        'VG': 2, // VERY GOOD
+        'GD': 1, // GOOD
+        'FAIR': 0, // FAIR
+        'PR': 0, // POOR (Mapping Poor to the start of the slider)
+        'POOR': 0,
+      };
+      // Get the string from the model variable 'stone.symmetry'
+      String symmetryCode = stone.symmetry.trim().toUpperCase();
+
+      if (symMapping.containsKey(symmetryCode)) {
+        stoneSymIdx = symMapping[symmetryCode]!;
+      } else {
+        // Fallback: try direct matching in your symLabels list
+        stoneSymIdx = symLabels.indexOf(symmetryCode);
+      }
+
+      // Compare against the user's slider range (_symRange)
+      bool matchesSym =
+          (stoneSymIdx >= _symRange.start.toInt() &&
+          stoneSymIdx <= _symRange.end.toInt());
+
+      // Fallback: If data is missing/unknown, show the stone
+      if (stoneSymIdx == -1) matchesSym = true;
+
+      // --- 9. DEPTH % LOGIC (DYNAMIC ✅) ---
+      // We parse the stone.depth (which is usually a double or num)
+      // and compare it against the user's slider range (_depthRange)
+      double stoneDepth = 0.0;
+
+      // Safety check: parse the value if it's stored as a string or handle it if num
+      if (stone.depth is String) {
+        stoneDepth = double.tryParse(stone.depth as String) ?? 0.0;
+      } else {
+        stoneDepth = stone.depth.toDouble();
+      }
+
+      bool matchesDepth =
+          (stoneDepth >= _depthRange.start && stoneDepth <= _depthRange.end);
+
+      // Fallback: If depth is 0 (missing data), you can decide to show it or hide it
+      if (stoneDepth == 0) matchesDepth = true;
+
+      // --- 10. TABLE % LOGIC (DYNAMIC ✅) ---
+      double stoneTable = 0.0;
+
+      // Handle data parsing safely
+      if (stone.table is String) {
+        stoneTable = double.tryParse(stone.table as String) ?? 0.0;
+      } else {
+        stoneTable = (stone.table as num).toDouble();
+      }
+
+      // Compare stone's table percentage against user's slider range (_tableRange)
+      bool matchesTable =
+          (stoneTable >= _tableRange.start && stoneTable <= _tableRange.end);
+
+      // Fallback: If table data is 0 or missing, we usually show the stone
+      if (stoneTable == 0) matchesTable = true;
+
       final bool matchesShape =
           (selectedShapeId == 0 ||
               selectedShape == "ALL" ||
@@ -431,7 +496,10 @@ class _GmssScreenState extends State<GmssScreen> {
           matchesClarity &&
           matchesCut &&
           matchesPolish &&
-          matchesFl;
+          matchesFl &&
+          matchesSym &&
+          matchesDepth &&
+          matchesTable;
     }).toList();
     if (_currentTab == 1) return _recentlyViewed;
     if (_currentTab == 2) return _savedStones;
