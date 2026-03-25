@@ -245,7 +245,8 @@ class _MainHeaderState extends State<MainHeader> {
               ]),
             ),
             _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
+              // "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
+              "assets/images/diamonds_promo.png",
               "NEW ARRIVALS",
               "Exquisite Lab Brilliance",
             ),
@@ -349,83 +350,10 @@ class _MainHeaderState extends State<MainHeader> {
                 ],
               ),
             ),
-            Expanded(
-              flex: 3,
-              child: Container(
-                height: 250,
-                margin: const EdgeInsets.only(left: 20),
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.network(
-                        "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/engagement_promo.jpg")}",
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.blue.shade50,
-                          child: const Icon(
-                            Icons.diamond_outlined,
-                            size: 30,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.6),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "CREATE YOUR OWN RING",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              "Explore Our 3D Creator",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _buildPromoCard(
+              "assets/images/engagement_promo.png", // Ensure this path is correct
+              "CREATE YOUR OWN RING",
+              "Explore Our 3D Creator",
             ),
           ],
         ),
@@ -518,34 +446,10 @@ class _MainHeaderState extends State<MainHeader> {
                 const Text("Men's Ring Guide", style: TextStyle(fontSize: 14)),
               ]),
             ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/wedding_promo.jpg")}",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Wedding Rings",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    "Explore Our Best Sellers",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
+            _buildPromoCard(
+              "assets/images/wedding_promo.png", // Ensure this file exists in assets/images/
+              "WEDDING RINGS",
+              "Explore Our Best Sellers",
             ),
           ],
         ),
@@ -625,34 +529,10 @@ class _MainHeaderState extends State<MainHeader> {
                 ],
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/jewelry_promo.jpg")}",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Shop Vault Sale",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    "Get 50% Off with code VAULT",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
+            _buildPromoCard(
+              "assets/images/jewelry_promo.png", // Ensure this file exists in assets/images/
+              "Shop Vault Sale",
+              "Get 50% Off with code VAULT",
             ),
           ],
         ),
@@ -724,7 +604,7 @@ class _MainHeaderState extends State<MainHeader> {
                 ),
               ),
               _buildPromoCard(
-                "https://www.brilliance.com/sites/default/files/vue/workshop.jpg",
+                "assets/images/workshop.png",
                 "Handmade with Love",
                 "Learn About Our Process",
               ),
@@ -805,37 +685,89 @@ class _MainHeaderState extends State<MainHeader> {
     );
   }
 
-  Widget _buildPromoCard(String url, String title, String subtitle) {
+  Widget _buildPromoCard(String assetPath, String title, String subtitle) {
     return Container(
-      width: 240,
+      width: 260,
       height: 280,
+      margin: const EdgeInsets.only(left: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Stack(
         children: [
-          Image.network(
-            "https://corsproxy.io/?${Uri.encodeComponent(url)}",
-            fit: BoxFit.cover,
-            height: double.infinity,
+          // Image.network(
+          //   "https://corsproxy.io/?${Uri.encodeComponent(url)}",
+          //   fit: BoxFit.cover,
+          //   height: double.infinity,
+          // ),
+          Positioned.fill(
+            child: Image.asset(
+              assetPath, // Path to your asset
+              fit: BoxFit.cover,
+              // height: double.infinity,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: const Color(0xFF001F3F),
+                child: const Icon(
+                  Icons.diamond_outlined,
+                  color: Colors.white24,
+                  size: 40,
+                ),
+              ),
+            ),
           ),
-          Container(color: Colors.black.withValues(alpha: 0.3)),
-          Padding(
-            padding: const EdgeInsets.all(15),
+          // 2. Elegant Gradient Overlay (Darker at bottom for text readability)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.1),
+                    Colors.black.withValues(alpha: 0.8),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                ),
+              ),
+            ),
+          ),
+          // 3. Text Content with Luxury Styling
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  title.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15,
+                    letterSpacing: 1.2,
                   ),
                 ),
+                const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
+                const SizedBox(height: 12),
               ],
             ),
           ),

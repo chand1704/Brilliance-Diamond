@@ -1,6 +1,7 @@
 import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
 import 'package:brilliance_diamond/widgets/diamond_card.dart';
 import 'package:brilliance_diamond/widgets/main_header.dart';
+import 'package:brilliance_diamond/widgets/sidebar_filters.dart';
 import 'package:flutter/material.dart';
 
 import 'diamonds_details_pages.dart';
@@ -449,8 +450,93 @@ class _GmssScreenState extends State<GmssScreen> {
               border: Border(right: BorderSide(color: Colors.grey.shade100)),
             ),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: _buildSidebarFilters(themeColor),
+              child: SidebarFilters(
+                themeColor: themeColor,
+                selectedOrigin: selectedOrigin,
+                isFancySearch: isFancySearch,
+                caratRange: _caratRange,
+                priceRange: _priceRange,
+                colorRange: _colorRange,
+                clarityRange: _clarityRange,
+                showOnlyWithImages: showOnlyWithImages,
+                quickShipping: quickShipping,
+
+                // Advanced Filter Props
+                showAdvancedFilters: showAdvancedFilters,
+                cutRange: _cutRange,
+                polishRange: _polishRange,
+                flRange: _flRange,
+                certRange: _certRange,
+                symRange: _symRange,
+                depthRange: _depthRange,
+                tableRange: _tableRange,
+
+                // Fancy Filter Props
+                selectedFancyColorId: selectedFancyColorId,
+                isFancyExpanded: isFancyExpanded,
+                saturationRange: _saturationRange,
+                fancyColors: fancyColors,
+                saturationLabels: saturationLabels,
+                selectedShape: selectedShape,
+
+                // Labels
+                shadeLabels: shadeLabels,
+                clarityLabels: clarityLabels,
+                cutLabels: cutLabels,
+                polishLabels: polishLabels,
+                flLabels: flLabels,
+                certLabels: certLabels,
+                symLabels: symLabels,
+
+                // Callbacks
+                onOriginChanged: (val) {
+                  setState(() {
+                    selectedOrigin = val;
+                    _future = _getSmartData();
+                  });
+                },
+                onCaratChanged: (val) => setState(() => _caratRange = val),
+                onPriceChanged: (val) => setState(() => _priceRange = val),
+                onColorChanged: (val) => setState(() => _colorRange = val),
+                onClarityChanged: (val) => setState(() => _clarityRange = val),
+                onImageToggle: (val) =>
+                    setState(() => showOnlyWithImages = val),
+                onShippingToggle: (val) => setState(() => quickShipping = val),
+                onAdvancedToggle: () =>
+                    setState(() => showAdvancedFilters = !showAdvancedFilters),
+                onCutChanged: (val) => setState(() => _cutRange = val),
+                onPolishChanged: (val) => setState(() => _polishRange = val),
+                onFlChanged: (val) => setState(() => _flRange = val),
+                onCertChanged: (val) => setState(() => _certRange = val),
+                onSymChanged: (val) => setState(() => _symRange = val),
+                onDepthChanged: (val) => setState(() => _depthRange = val),
+                onTableChanged: (val) => setState(() => _tableRange = val),
+
+                // Fancy Callbacks
+                onFancyColorTap: (id, name) {
+                  setState(() {
+                    selectedFancyColorId = id;
+                    selectedFancyColor = name;
+                    _future = _getSmartData();
+                  });
+                },
+                onFancyExpandToggle: () =>
+                    setState(() => isFancyExpanded = !isFancyExpanded),
+                onSaturationChanged: (val) =>
+                    setState(() => _saturationRange = val),
+
+                onReset: () {
+                  setState(() {
+                    showOnlyWithImages = false;
+                    quickShipping = false;
+                    _caratRange = const RangeValues(0.0, 15.0);
+                    _priceRange = const RangeValues(0.0, 100000.0);
+                    selectedOrigin = 1;
+                    selectedFancyColor = null;
+                    selectedFancyColorId = null;
+                  });
+                },
+              ),
             ),
           ),
           Expanded(
@@ -470,25 +556,20 @@ class _GmssScreenState extends State<GmssScreen> {
                       setState(() {
                         isFancySearch = true;
                         _currentTab = 0;
-
                         if (colorName != null) {
-                          // Find the ID from your fancyColors list based on the name
                           final foundColor = fancyColors.firstWhere(
                             (c) =>
                                 c['name'].toString().toLowerCase() ==
                                 colorName.toLowerCase(),
                             orElse: () => {'id': null},
                           );
-
                           selectedFancyColor = colorName;
                           selectedFancyColorId = foundColor['id'];
                         } else {
-                          // If they just clicked "Fancy Color Diamonds" general link
                           selectedFancyColor = null;
                           selectedFancyColorId = null;
                         }
-
-                        _future = _getSmartData(); // Refresh the list
+                        _future = _getSmartData();
                       });
                     },
                     onShapeTap: (shapeName, shapeId) {
@@ -729,6 +810,7 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
+  //--------------------------------------------------------------------
   Widget _buildDiamondRow(GmssStone stone, Color themeColor) {
     bool isFavorite = _savedStones.any((s) => s.id == stone.id);
     return Container(
@@ -819,847 +901,6 @@ class _GmssScreenState extends State<GmssScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSaturationSlider(Color themeColor) {
-    final RangeValues currentRange =
-        _saturationRange ?? const RangeValues(0, 5);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Saturation",
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 15,
-            color: Color(0xFF2D3142),
-          ),
-        ),
-        const SizedBox(height: 10),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            activeTrackColor: themeColor,
-            thumbColor: themeColor,
-            inactiveTrackColor: Colors.grey.shade200,
-            rangeThumbShape: const RoundRangeSliderThumbShape(
-              enabledThumbRadius: 10,
-              elevation: 4,
-            ),
-            overlayColor: themeColor.withValues(alpha: 0.1),
-            tickMarkShape: SliderTickMarkShape.noTickMark,
-          ),
-          child: RangeSlider(
-            values: currentRange,
-            min: 0,
-            max: (saturationLabels.length - 1).toDouble(),
-            divisions: saturationLabels.length - 1,
-            onChanged: (RangeValues values) {
-              setState(() {
-                _saturationRange = values;
-              });
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(saturationLabels.length, (index) {
-              bool isActive =
-                  index >= currentRange.start.toInt() &&
-                  index <= currentRange.end.toInt();
-              return Text(
-                saturationLabels[index],
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? Colors.black87 : Colors.grey.shade400,
-                ),
-              );
-            }),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFancyColorFilter(Color themeColor) {
-    final List<Map<String, dynamic>> fancyColorsLocal = [
-      {'id': 7, 'name': 'Green'},
-      {'id': 8, 'name': 'Orange'},
-      {'id': 9, 'name': 'Pink'},
-      {'id': 11, 'name': 'Purple'},
-      {'id': 14, 'name': 'Yellow'},
-      {'id': 2, 'name': 'Blue'},
-      {'id': 6, 'name': 'Grey'},
-      {'id': 3, 'name': 'Brown'},
-      {'id': 10, 'name': 'NZ'},
-    ];
-    String shapName = "RD";
-    String currentShape = selectedShape.toUpperCase();
-    if (currentShape == "PEAR") shapName = "PE";
-    if (currentShape == "EMERALD") shapName = "EM";
-    if (currentShape == "MARQUISE") shapName = "MQ";
-    if (currentShape == "CUSHION") shapName = "CU";
-    if (currentShape == "RADIANT") shapName = "RA";
-    if (currentShape == "OVAL") shapName = "OV";
-    if (currentShape == "HEART") shapName = "HT";
-    if (currentShape == "PRINCESS") shapName = "PR";
-    if (currentShape == "ASSCHER") shapName = "AS";
-    final visibleColors = isFancyExpanded
-        ? fancyColors
-        : fancyColors.take(6).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionHeader("Fancy Color"),
-        const SizedBox(height: 15),
-        Wrap(
-          spacing: 15,
-          runSpacing: 15,
-          children: visibleColors.map((item) {
-            bool isSelected = selectedFancyColorId == item['id'];
-            String colorFileName = item['name'] == "White"
-                ? "NZ"
-                : item['name'];
-            String imageUrl =
-                "https://www.brilliance.com/sites/default/files/vue/fancy-search/${shapName}_$colorFileName.png";
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (selectedFancyColorId == item['id']) {
-                    selectedFancyColorId = null;
-                    selectedFancyColor = null;
-                  } else {
-                    selectedFancyColorId = item['id'];
-                    selectedFancyColor = item['name'];
-                  }
-                  _future = _getSmartData();
-                });
-              },
-              child: Column(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: isSelected ? Colors.black : Colors.transparent,
-                        width: isSelected ? 2 : 1,
-                      ),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Image.network(
-                      "https://corsproxy.io/?${Uri.encodeComponent(imageUrl)}",
-                      width: 42,
-                      height: 42,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade100,
-                          alignment: Alignment.center,
-                          child: Text(
-                            item['name'],
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(strokeWidth: 1),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item['name'],
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isSelected ? Colors.black : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-        TextButton(
-          onPressed: () => setState(() => isFancyExpanded = !isFancyExpanded),
-          child: Text(
-            isFancyExpanded ? "Show less" : "Show more",
-            style: const TextStyle(
-              fontSize: 12,
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSidebarFilters(Color themeColor) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Filters",
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.2,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 30),
-          Text(
-            "Diamond Origin",
-            style: const TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: 15,
-              color: Color(0xFF2D3142),
-            ),
-          ),
-          const SizedBox(height: 15),
-          _buildOriginSegmentedControl(),
-          const SizedBox(height: 40),
-          if (isFancySearch) ...[
-            _buildFancyColorFilter(themeColor),
-            const SizedBox(height: 30),
-            _buildSaturationSlider(themeColor),
-            const SizedBox(height: 30),
-            const Divider(),
-          ] else ...[
-            _buildColorSlider(themeColor),
-            const Divider(),
-          ],
-          _sectionHeader("Carat"),
-          const SizedBox(height: 15),
-          _buildCustomSlider(
-            _caratRange,
-            0,
-            15,
-            (v) => setState(() => _caratRange = v),
-            themeColor,
-          ),
-          _buildValueDisplay(
-            _caratRange.start.toStringAsFixed(2),
-            "${_caratRange.end.toStringAsFixed(2)} ct",
-            themeColor,
-          ),
-          const SizedBox(height: 40),
-          _sectionHeader("Price Range"),
-          const SizedBox(height: 15),
-          _buildCustomSlider(
-            _priceRange,
-            0,
-            100000,
-            (v) => setState(() => _priceRange = v),
-            themeColor,
-          ),
-          _buildValueDisplay(
-            "\$${_priceRange.start.toInt()}",
-            "\$${_priceRange.end.toInt()}",
-            themeColor,
-          ),
-          const SizedBox(height: 40),
-          _buildStaticFilters(themeColor),
-          const Divider(),
-          _buildClaritySlider(themeColor),
-          const SizedBox(height: 20),
-          _buildAdvancedFilters(themeColor),
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdvancedFilters(Color themeColor) {
-    return Column(
-      children: [
-        ListTile(
-          title: const Text(
-            "Advanced Filters",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          trailing: Icon(
-            showAdvancedFilters ? Icons.remove : Icons.add,
-            color: Colors.black,
-          ),
-          onTap: () =>
-              setState(() => showAdvancedFilters = !showAdvancedFilters),
-        ),
-        if (showAdvancedFilters) ...[
-          _buildRangeSliderGroup(
-            "Cut",
-            cutLabels,
-            _cutRange,
-            (v) => setState(() => _cutRange = v),
-            themeColor,
-          ),
-          const SizedBox(height: 20),
-          _buildRangeSliderGroup(
-            "Polish",
-            polishLabels,
-            _polishRange,
-            (v) => setState(() => _polishRange = v),
-            themeColor,
-          ),
-          const SizedBox(height: 20),
-          _buildRangeSliderGroup(
-            "Fluorescence",
-            flLabels,
-            _flRange,
-            (v) => setState(() => _flRange = v),
-            themeColor,
-          ),
-          const SizedBox(height: 20),
-          _buildRangeSliderGroup(
-            "Certification",
-            certLabels,
-            _certRange,
-            (v) => setState(() => _certRange = v),
-            themeColor,
-          ),
-          const SizedBox(height: 20),
-          _buildRangeSliderGroup(
-            "Symmetry",
-            symLabels,
-            _symRange,
-            (v) => setState(() => _symRange = v),
-            themeColor,
-          ),
-          const SizedBox(height: 20),
-          _sectionHeader("Depth"),
-          _buildCustomSlider(
-            _depthRange,
-            0,
-            90,
-            (v) => setState(() => _depthRange = v),
-            themeColor,
-          ),
-          _buildValueDisplay(
-            "${_depthRange.start.toInt()}%",
-            "${_depthRange.end.toInt()}%",
-            themeColor,
-          ),
-          const SizedBox(height: 20),
-          _sectionHeader("Table"),
-          _buildCustomSlider(
-            _tableRange,
-            0,
-            90,
-            (v) => setState(() => _tableRange = v),
-            themeColor,
-          ),
-          _buildValueDisplay(
-            "${_tableRange.start.toInt()}%",
-            "${_tableRange.end.toInt()}%",
-            themeColor,
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildRangeSliderGroup(
-    String title,
-    List<String> labels,
-    RangeValues values,
-    Function(RangeValues) onChanged,
-    Color themeColor,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3142),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            activeTrackColor: themeColor,
-            inactiveTrackColor: Colors.grey.shade200,
-            thumbColor: Colors.white,
-            overlayColor: themeColor.withValues(alpha: 0.1),
-          ),
-          child: RangeSlider(
-            values: values,
-            min: 0,
-            max: (labels.length - 1).toDouble(),
-            divisions: labels.length - 1,
-            activeColor: themeColor,
-            onChanged: onChanged,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: labels.asMap().entries.map((entry) {
-              int idx = entry.key;
-              String label = entry.value;
-              bool isActive =
-                  idx >= values.start.toInt() && idx <= values.end.toInt();
-              return Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive ? Colors.black87 : Colors.grey.shade400,
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildColorSlider(Color themeColor) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        title: _sectionHeader("Color"),
-        initiallyExpanded: true,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _rangeLabel(shadeLabels[_colorRange.start.toInt()]),
-                    const Text(
-                      "to",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    _rangeLabel(shadeLabels[_colorRange.end.toInt()]),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 3,
-                    activeTrackColor: themeColor,
-                    inactiveTrackColor: Colors.grey.shade200,
-                    thumbColor: Colors.white,
-                    rangeThumbShape: const RoundRangeSliderThumbShape(
-                      enabledThumbRadius: 10,
-                      elevation: 3,
-                    ),
-                    overlayColor: themeColor.withValues(alpha: 0.1),
-                    tickMarkShape: const RoundSliderTickMarkShape(
-                      tickMarkRadius: 2,
-                    ),
-                    activeTickMarkColor: themeColor,
-                    inactiveTickMarkColor: Colors.grey.shade300,
-                  ),
-                  child: RangeSlider(
-                    values: _colorRange,
-                    activeColor: themeColor,
-                    min: 0,
-                    max: (shadeLabels.length - 1).toDouble(),
-                    divisions: shadeLabels.length - 1,
-                    onChanged: (RangeValues values) {
-                      setState(() {
-                        _colorRange = values;
-                      });
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: shadeLabels
-                        .map(
-                          (s) => Text(
-                            s,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _rangeLabel(String text) {
-    final Color themeColor = (selectedOrigin == 1)
-        ? Colors.teal
-        : Colors.blueAccent;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: themeColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: themeColor.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontWeight: FontWeight.w900,
-          color: themeColor,
-          fontSize: 16,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStaticFilters(Color themeColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: () => setState(() => showOnlyWithImages = !showOnlyWithImages),
-          borderRadius: BorderRadius.circular(8),
-          child: Row(
-            children: [
-              Checkbox(
-                value: showOnlyWithImages,
-                activeColor: themeColor,
-                checkColor: Colors.white,
-                onChanged: (v) => setState(() => showOnlyWithImages = v!),
-              ),
-              const Text(
-                "With Image Only",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2D3142),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 7),
-        InkWell(
-          onTap: () => setState(() => quickShipping = !quickShipping),
-          borderRadius: BorderRadius.circular(8),
-          child: Row(
-            children: [
-              Checkbox(
-                value: quickShipping,
-                activeColor: themeColor,
-                checkColor: Colors.white,
-                onChanged: (v) => setState(() => quickShipping = v!),
-              ),
-              const Text(
-                "Quick Shipping",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF2D3142),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 7),
-        Padding(
-          padding: const EdgeInsets.only(),
-          child: TextButton.icon(
-            onPressed: () {
-              setState(() {
-                showOnlyWithImages = false;
-                quickShipping = false;
-                _caratRange = const RangeValues(0.0, 15.0);
-                _priceRange = const RangeValues(0.0, 100000.0);
-                selectedOrigin = 1;
-                selectedFancyColor = null;
-                _saturationRange = const RangeValues(0, 5);
-              });
-            },
-            icon: const Icon(
-              Icons.restart_alt_rounded,
-              size: 18,
-              color: Colors.black,
-            ),
-            label: const Text(
-              "Reset Filters",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOriginSegmentedControl() {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          _buildOriginOption("Lab Grown", 1),
-          _buildOriginOption("Natural", 2),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOriginOption(String label, int value) {
-    bool isSelected = selectedOrigin == value;
-    final Color activeBtnColor = (value == 1)
-        ? Colors.teal
-        : Colors.blue.shade700;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (selectedOrigin != value) {
-            setState(() {
-              selectedOrigin = value;
-              _future = _getSmartData();
-            });
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? activeBtnColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
-              fontSize: 13,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String title) {
-    return Row(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 15,
-            color: Color(0xFF2D3142),
-          ),
-        ),
-        Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey.shade400),
-      ],
-    );
-  }
-
-  Widget _buildValueDisplay(String minVal, String maxVal, Color themeColor) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildValuePod("MIN", minVal, themeColor),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            width: 15,
-            height: 2,
-            color: Colors.grey.shade300,
-          ),
-          _buildValuePod("MAX", maxVal, themeColor),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildValuePod(String label, String value, Color themeColor) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey.shade400,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Text(
-            value,
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w900,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildClaritySlider(Color themeColor) {
-    int startIdx = _clarityRange.start.toInt().clamp(
-      0,
-      clarityLabels.length - 1,
-    );
-    int endIdx = _clarityRange.end.toInt().clamp(0, clarityLabels.length - 1);
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        title: _sectionHeader("Clarity"),
-        initiallyExpanded: true,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _rangeLabel(clarityLabels[startIdx]),
-                    const Text(
-                      "to",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    _rangeLabel(clarityLabels[endIdx]),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 3,
-                    activeTrackColor: themeColor,
-                    inactiveTrackColor: Colors.grey.shade200,
-                    thumbColor: Colors.white,
-                    rangeThumbShape: const RoundRangeSliderThumbShape(
-                      enabledThumbRadius: 10,
-                    ),
-                    overlayColor: themeColor.withValues(alpha: 0.1),
-                  ),
-                  child: RangeSlider(
-                    values: _clarityRange,
-                    activeColor: themeColor,
-                    min: 0,
-                    max: (clarityLabels.length - 1).toDouble(),
-                    divisions: clarityLabels.length - 1,
-                    onChanged: (RangeValues values) {
-                      setState(() {
-                        _clarityRange = values;
-                      });
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(clarityLabels.length, (index) {
-                      bool isActive =
-                          index >= _clarityRange.start.toInt() &&
-                          index <= _clarityRange.end.toInt();
-                      return Text(
-                        clarityLabels[index],
-                        style: TextStyle(
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                          color: isActive ? Colors.black : Colors.grey.shade400,
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCustomSlider(
-    RangeValues values,
-    double min,
-    double max,
-    ValueChanged<RangeValues> onChanged,
-    Color themeColor,
-  ) {
-    return SliderTheme(
-      data: SliderThemeData(
-        activeTrackColor: themeColor,
-        inactiveTrackColor: Colors.grey.shade100,
-        trackHeight: 3,
-        thumbColor: Colors.white,
-        rangeThumbShape: const RoundRangeSliderThumbShape(
-          enabledThumbRadius: 11,
-          elevation: 4,
-        ),
-        overlayColor: themeColor.withValues(alpha: 0.1),
-      ),
-      child: RangeSlider(
-        values: values,
-        min: min,
-        max: max,
-        activeColor: themeColor,
-        onChanged: onChanged,
       ),
     );
   }
