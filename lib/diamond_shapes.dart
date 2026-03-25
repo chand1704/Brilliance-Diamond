@@ -199,7 +199,7 @@ class MinimalPrincessPainter extends MinimalShapePainter {
 
     // 4. Side Faceting (The "Chevron" look from image_3ae9ec)
     // Points for the midpoint facets
-    double midOffset = side * 0.08;
+    // double midOffset = side * 0.08;
 
     // --- TOP SIDE ---
     Offset topMid = Offset(center.dx, outer.top);
@@ -1016,8 +1016,8 @@ class MinimalTrapezoidPainter extends MinimalShapePainter {
     final double topW = size.width * 0.85;
     final double bottomW = size.width * 0.55;
     final double h = size.height * 0.5;
-    final double topY = center.dy - h / 2;
-    final double bottomY = center.dy + h / 2;
+    // final double topY = center.dy - h / 2;
+    // final double bottomY = center.dy + h / 2;
 
     // 2. Define 4 layers of "steps" (from image_3f0200.png)
     List<double> scales = [1.0, 0.75, 0.50, 0.25];

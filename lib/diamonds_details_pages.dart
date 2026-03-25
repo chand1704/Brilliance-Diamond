@@ -2,9 +2,9 @@ import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
 import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
+import 'package:brilliance_diamond/widgets/main_header.dart';
 import 'package:brilliance_diamond/widgets/safe_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'DiamondDesign.dart';
@@ -77,7 +77,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   void initState() {
     super.initState();
     _caratNotifier.value = widget.stone.weight;
-    double initialWeight = widget.stone.weight;
+    // double initialWeight = widget.stone.weight;
     // _caratNotifier.value = initialWeight.clamp(0.1, 5.0);
     // ✅ Register the factory ONCE here, not in the build method
     final String viewId = 'embedded-diamond-video-${widget.stone.id}';
@@ -227,7 +227,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                         _buildTechRow("Symmetry :", widget.stone.symmetry),
                         _buildTechRow(
                           "Gridle :",
-                          "${widget.stone.gridle_condition}",
+                          widget.stone.gridle_condition,
                         ),
                         _buildTechRow("Culet :", widget.stone.culet_size),
                         _buildTechRow(
@@ -285,591 +285,36 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 900;
+    const Color headerTheme = Color(0xFF005AAB);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          if (!isMobile) _buildMainHeader(const Color(0xFF005AAB)),
+          if (!isMobile)
+            MainHeader(
+              // ✅ Use the Widget class here
+              themeColor: headerTheme,
+              shapeCategories: shapeCategories,
+              onNaturalDiamondsTap: () {
+                // Navigate back to search or filter for Natural
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              onFancyDiamondsTap: () {
+                // Navigate back to search or filter for Fancy
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              onShapeTap: (shapeName, shapeId) {
+                // Navigate back to search and select this shape
+                debugPrint("Selected Shape from Detail: $shapeName");
+                Navigator.of(
+                  context,
+                ).pop({'selectedShape': shapeName, 'selectedShapeId': shapeId});
+              },
+            ),
           Expanded(
             child: isMobile
                 ? SingleChildScrollView(child: _buildMobileLayout())
                 : _buildDesktopLayout(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _hoverNavLink(String label, dynamic controller, Widget menu) {
-    return MouseRegion(
-      onEnter: (_) => _showMegaMenu(context, menu), // Trigger menu on hover
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
-          ),
-        ),
-      ),
-    );
-  }
-
-  OverlayEntry? _overlayEntry;
-  void _showMegaMenu(BuildContext context, Widget menu) {
-    _hideMegaMenu();
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 61,
-        left: 0,
-        right: 0,
-        child: MouseRegion(
-          onExit: (_) => _hideMegaMenu(),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 30,
-                  offset: const Offset(0, 15),
-                ),
-              ],
-            ),
-            child: menu,
-          ),
-        ),
-      ),
-    );
-    Overlay.of(context).insert(_overlayEntry!);
-  }
-
-  void _hideMegaMenu() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
-  final _diamondHoverController = null;
-  final _engagementHoverController = null;
-  final _weddingHoverController = null;
-  final _jewelryHoverController = null;
-  final _aboutHoverController = null;
-  Widget _buildMegaMenu(Color themeColor) {
-    return Material(
-      elevation: 20,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "SHOP BY SHAPE",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  Wrap(
-                    spacing: 20,
-                    runSpacing: 30,
-                    children: shapeCategories
-                        .map((shape) => _buildShapeIconItem(shape))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("NATURAL DIAMONDS", [
-                "All Natural Diamonds",
-                "Fancy Color Diamonds",
-                "GIA Certified",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("LAB GROWN", [
-                "All Lab Diamonds",
-                "Sustainable Choice",
-                "IGI Certified",
-              ]),
-            ),
-            _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
-              "NEW ARRIVALS",
-              "Exquisite Lab Brilliance",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuColumn(String title, List<String> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 13,
-            letterSpacing: 1.0,
-          ),
-        ),
-        const SizedBox(height: 20),
-        ...items.map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              item,
-              style: const TextStyle(color: Colors.black87, fontSize: 13),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPromoCard(String url, String title, String subtitle) {
-    return Container(
-      width: 240,
-      height: 320,
-      margin: const EdgeInsets.only(left: 30),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.network(
-              "https://corsproxy.io/?${Uri.encodeComponent(url)}",
-              fit: BoxFit.cover,
-              errorBuilder: (c, e, s) =>
-                  Container(color: const Color(0xFF001F3F)),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.center,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.9),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(color: Colors.white70, fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-    final String iconUrl = shape['icon'];
-    return InkWell(
-      onTap: () {
-        _hideMegaMenu();
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      },
-      borderRadius: BorderRadius.circular(8),
-      hoverColor: Colors.teal.withValues(alpha: 0.05),
-      child: Container(
-        width: 90,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          children: [
-            SvgPicture.network(
-              "https://corsproxy.io/?${Uri.encodeComponent(iconUrl)}",
-              height: 38,
-              colorFilter: const ColorFilter.mode(
-                Color(0xFF008080),
-                BlendMode.srcIn,
-              ),
-              placeholderBuilder: (context) =>
-                  const CircularProgressIndicator(),
-              errorBuilder: (c, e, s) =>
-                  const Icon(Icons.diamond_outlined, color: Colors.teal),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              shape['name'].toString().toUpperCase(),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.8,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEngagementMenu(Color themeColor) {
-    return Material(
-      elevation: 0,
-      shadowColor: Colors.white,
-      child: Container(
-        color: Colors.white,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "SHOP BY STYLE",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _engagementStyleItem("Solitaire"),
-                  _engagementStyleItem("Side Stone"),
-                  _engagementStyleItem("Halo"),
-                  _engagementStyleItem("Three Stones"),
-                  _engagementStyleItem("Vintage"),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("CREATE YOUR OWN RING", [
-                "Start with a Setting",
-                "Start with a Diamond",
-                "3D Ring Creator",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _menuColumn("SHOP BY METAL", [
-                    "White Gold",
-                    "Yellow Gold",
-                    "Rose Gold",
-                    "Platinum",
-                  ]),
-                  const SizedBox(height: 30),
-                  _menuColumn("ENGAGEMENT RING TIPS", [
-                    "Ring Guide",
-                    "Find Your Ring Size",
-                  ]),
-                ],
-              ),
-            ),
-            _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/engagement_promo.jpg",
-              "CREATE YOUR OWN RING",
-              "Explore Our 3D Creator",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _engagementStyleItem(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const Icon(Icons.diamond_outlined, size: 18, color: Colors.black54),
-          const SizedBox(width: 15),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeddingMenu(Color themeColor) {
-    return Material(
-      elevation: 20,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Women's Rings", [
-                "Diamond Wedding Bands",
-                "Diamond Eternity Bands",
-                "Gemstone Wedding Bands",
-                "Bestsellers",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Men's Rings", [
-                "Men's Wedding Bands",
-                "Men's Diamond Rings",
-                "Top 10 Men's Rings",
-                "Timeless Inspired Rings",
-                "Bold & Unique Rings",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Weddings Ring Tips", [
-                "Ring Size Chart",
-                "Metal Education",
-                "Women's Ring Guide",
-                "Men's Ring Guide",
-              ]),
-            ),
-            _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/wedding_promo.jpg",
-              "Wedding Rings",
-              "Explore Our Best Sellers",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildJewelryMenu(Color themeColor) {
-    return Material(
-      elevation: 20,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _menuColumn("Bracelets", [
-                    "Lab Diamond Bracelets",
-                    "Diamond Bracelets",
-                    "Gemstone Bracelets",
-                  ]),
-                  const SizedBox(height: 30),
-                  _menuColumn("Rings", [
-                    "Fashion Rings",
-                    "Eternity Rings",
-                    "Gemstone Rings",
-                  ]),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Gifts & Collections", [
-                "Gifts For Her",
-                "Tennis Bracelets",
-                "Hoop Earrings",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Featured", [
-                "Custom Designed Jewelry",
-                "Jewelry Guids",
-                "Best Seller Bracelets",
-              ]),
-            ),
-            _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/jewelry_promo.jpg",
-              "Shop Vault Sale",
-              "Get 50% Off with code VAULT",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAboutMenu(Color themeColor) {
-    return Material(
-      elevation: 20,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: _menuColumn("BRILLIANCE", [
-                "About",
-                "Contact Us",
-                "Diamond Experts",
-                "Brilliance Reviews",
-                "Flexible Financing",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("CUSTOMER CARE", [
-                "30 Day Return",
-                "Low Price Returns",
-                "Lifetime Warranty",
-                "FAQs",
-                "Resize Your Ring",
-                "care & Maintenance",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _menuColumn("Education", [
-                    "Diamond Education",
-                    "Jewelry Education",
-                    "Engagement Ring Guide",
-                  ]),
-                  const SizedBox(height: 30),
-                  _menuColumn("Articles", [
-                    "Jewelry Cleaning Guide",
-                    "Diamond Fluorescence Explained",
-                    "What Is Rhodium Plating?",
-                  ]),
-                ],
-              ),
-            ),
-            _buildPromoCard(
-              "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/workshop.jpg", // Path to your about promo image
-              "Handmade with Love",
-              "Learn About Our Process",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMainHeader(Color themeColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-      ),
-      child: Row(
-        children: [
-          const Spacer(),
-          Row(
-            children: [
-              _hoverNavLink(
-                "Diamonds",
-                _diamondHoverController,
-                _buildMegaMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "Engagement",
-                _engagementHoverController,
-                _buildEngagementMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "Wedding",
-                _weddingHoverController,
-                _buildWeddingMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "Jewelry",
-                _jewelryHoverController,
-                _buildJewelryMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "About",
-                _aboutHoverController,
-                _buildAboutMenu(themeColor),
-              ),
-            ],
-          ),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.search, size: 20),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite_border, size: 20),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline, size: 20),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined, size: 20),
-            onPressed: () {},
           ),
         ],
       ),
@@ -983,43 +428,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildEmbeddedVideoPlayer() {
-    // const String videoUrl =
-    //     "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.webm";
     final String viewId = 'embedded-diamond-video-${widget.stone.id}';
-    // ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-    //   final video = html.VideoElement()
-    //     ..src = videoUrl
-    //     ..controls = false
-    //     ..autoplay = true
-    //     ..loop = true
-    //     ..muted = true
-    //     ..style.width = '100%'
-    //     ..style.height = '100%'
-    //     ..style.objectFit = 'contain'
-    //     ..style.border = 'none';
-    //   return video;
-    // });
-    //   return Column(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: [
-    //       const SizedBox(height: 10),
-    //       Container(
-    //         width: double.infinity,
-    //         height: 500,
-    //         decoration: BoxDecoration(
-    //           color: Colors.black12,
-    //           borderRadius: BorderRadius.circular(8),
-    //         ),
-    //         child: ClipRRect(
-    //           // width: double.infinity,
-    //           // height: 500,
-    //           borderRadius: BorderRadius.circular(8),
-    //           child: HtmlElementView(viewType: viewId),
-    //         ),
-    //       ),
-    //     ],
-    //   );
-    // }
     return Container(
       width: double.infinity,
       height: 500,

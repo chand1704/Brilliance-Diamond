@@ -1,5 +1,6 @@
 import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
 import 'package:brilliance_diamond/widgets/diamond_card.dart';
+import 'package:brilliance_diamond/widgets/main_header.dart';
 import 'package:flutter/material.dart';
 
 import 'diamonds_details_pages.dart';
@@ -16,14 +17,6 @@ class _GmssScreenState extends State<GmssScreen> {
   final Map<int, List<GmssStone>> _cachedLabGrownMap = {};
   final Map<int, List<GmssStone>> _cachedNaturalMap = {};
   int? selectedFancyColorId;
-  void _hideMegaMenu() {
-    _diamondHoverController.hide();
-    _engagementHoverController.hide();
-    _weddingHoverController.hide();
-    _jewelryHoverController.hide();
-    _aboutHoverController.hide();
-  }
-
   double selectedSaturation = 0;
   RangeValues _saturationRange = const RangeValues(0, 5);
   final List<String> saturationLabels = [
@@ -93,16 +86,6 @@ class _GmssScreenState extends State<GmssScreen> {
           'https://www.brilliance.com/sites/default/files/vue/fancy-search/RD_NZ.png',
     },
   ];
-  final OverlayPortalController _diamondHoverController =
-      OverlayPortalController();
-  final OverlayPortalController _engagementHoverController =
-      OverlayPortalController();
-  final OverlayPortalController _weddingHoverController =
-      OverlayPortalController();
-  final OverlayPortalController _jewelryHoverController =
-      OverlayPortalController();
-  final OverlayPortalController _aboutHoverController =
-      OverlayPortalController();
   final ScrollController _scrollController = ScrollController();
   late Future<List<GmssStone>> _future;
   bool showOnlyWithImages = false;
@@ -256,31 +239,29 @@ class _GmssScreenState extends State<GmssScreen> {
     });
   }
 
-  void _handleCardTap(GmssStone stone) {
+  Future<void> _handleCardTap(GmssStone stone) async {
     setState(() {
       _recentlyViewed.removeWhere((s) => s.id == stone.id);
       _recentlyViewed.insert(0, stone);
     });
-    Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DiamondDetailScreen(
           stone: stone,
           isFavorite: _savedStones.any((s) => s.id == stone.id),
-          onFavoriteToggle: (isNowFavorite) {
-            setState(() {
-              if (isNowFavorite) {
-                if (!_savedStones.any((s) => s.id == stone.id)) {
-                  _savedStones.add(stone);
-                }
-              } else {
-                _savedStones.removeWhere((s) => s.id == stone.id);
-              }
-            });
-          },
+          onFavoriteToggle: (isNowFavorite) {},
         ),
       ),
     );
+    if (result != null && result is Map) {
+      setState(() {
+        selectedShape = result['selectedShape'];
+        selectedShapeId = result['selectedShapeId'];
+        _future = _getSmartData();
+        _currentTab = 0;
+      });
+    }
   }
 
   List<GmssStone> _applyFiltering(List<GmssStone> allStones) {
@@ -302,16 +283,14 @@ class _GmssScreenState extends State<GmssScreen> {
             (colorIdx >= _colorRange.start.toInt() &&
             colorIdx <= _colorRange.end.toInt());
       }
-      // 2. Clarity Logic (ADD THIS PART ✅)
+      // 2. Clarity Logic
       int stoneClarityIdx = clarityLabels.indexOf(
         stone.clarityStr.trim().toUpperCase(),
       );
       bool matchesClarity =
           (stoneClarityIdx >= _clarityRange.start.toInt() &&
           stoneClarityIdx <= _clarityRange.end.toInt());
-
-      // 3. CUT LOGIC (ADD THIS PART ✅)
-      // Find where the stone's cut falls in your cutLabels list
+      // 3. CUT LOGIC
       int stoneCutIdx = -1;
       const cutMapping = {
         'ID': 0, // IDEAL
@@ -320,59 +299,36 @@ class _GmssScreenState extends State<GmssScreen> {
         'GD': 3, // GOOD
         'FR': 4, // FAIR
       };
-
-      // Get the index using the cut_code
       String code = stone.cut_code.trim().toUpperCase();
       if (cutMapping.containsKey(code)) {
         stoneCutIdx = cutMapping[code]!;
       } else {
-        // Fallback: If code mapping fails, try finding the index in cutLabels
         stoneCutIdx = cutLabels.indexOf(stone.cut.trim().toUpperCase());
       }
-
-      // Compare the calculated index against the range set by the user on the slider
       bool matchesCut =
           (stoneCutIdx >= _cutRange.start.toInt() &&
           stoneCutIdx <= _cutRange.end.toInt());
-
-      // Handle cases where data might be missing (optional: show them by default)
       if (stoneCutIdx == -1) matchesCut = true;
-
-      // --- 4. POLISH LOGIC (DYNAMIC CODE MATCHING ✅) ---
+      // 4. POLISH LOGIC
       int stonePolishIdx = -1;
-
-      // Define a map for Polish codes to Slider Index
       const polishMapping = {
-        // 'ID': 0, // IDEAL (if your API uses ID for polish)
-        // '8X': 0, // SUPER IDEAL (Specific to some APIs)
         'EX': 0, // EXCELLENT (Matches your first label)
         'VG': 1, // VERY GOOD
         'GD': 2, // GOOD
         'FR': 3, // FAIR
-        // 'PR': 3, // POOR (mapping poor to the lowest slider option)
       };
-
-      // Get the index using the stone.polish variable
       String polishCode = stone.polish.trim().toUpperCase();
-
       if (polishMapping.containsKey(polishCode)) {
         stonePolishIdx = polishMapping[polishCode]!;
       } else {
-        // Fallback: If code is not in map, try matching the full string in polishLabels
         stonePolishIdx = polishLabels.indexOf(polishCode);
       }
-
-      // Compare against the user's slider range
       bool matchesPolish =
           (stonePolishIdx >= _polishRange.start.toInt() &&
           stonePolishIdx <= _polishRange.end.toInt());
-
-      // Fallback: If data is missing entirely, show the stone
       if (stonePolishIdx == -1) matchesPolish = true;
-      // --- 5. FLUORESCENCE LOGIC (DYNAMIC ✅) ---
+      //  5. FLUORESCENCE LOGIC
       int stoneFlIdx = -1;
-
-      // Define a map to translate fl_intensity strings to your slider index
       const flMapping = {
         'NONE': 0,
         'NON': 0,
@@ -387,29 +343,18 @@ class _GmssScreenState extends State<GmssScreen> {
         'VERY STRONG': 3,
         'VST': 3,
       };
-
-      // Get the intensity string from the model
       String intensity = stone.fl_intensity.trim().toUpperCase();
-
       if (flMapping.containsKey(intensity)) {
         stoneFlIdx = flMapping[intensity]!;
       } else {
-        // Fallback: try direct matching in your label list
         stoneFlIdx = flLabels.indexOf(intensity);
       }
-
-      // Compare against the slider range (_flRange)
       bool matchesFl =
           (stoneFlIdx >= _flRange.start.toInt() &&
           stoneFlIdx <= _flRange.end.toInt());
-
-      // Fallback: If data is missing/unknown, usually we show the stone
       if (stoneFlIdx == -1) matchesFl = true;
-
-      // --- 8. SYMMETRY LOGIC (DYNAMIC ✅) ---
+      // 8. SYMMETRY LOGIC
       int stoneSymIdx = -1;
-
-      // Define a map to translate symmetry strings to your slider index (0 to 3)
       const symMapping = {
         'EX': 3, // EXCELLENT
         'VG': 2, // VERY GOOD
@@ -418,57 +363,35 @@ class _GmssScreenState extends State<GmssScreen> {
         'PR': 0, // POOR (Mapping Poor to the start of the slider)
         'POOR': 0,
       };
-      // Get the string from the model variable 'stone.symmetry'
       String symmetryCode = stone.symmetry.trim().toUpperCase();
-
       if (symMapping.containsKey(symmetryCode)) {
         stoneSymIdx = symMapping[symmetryCode]!;
       } else {
-        // Fallback: try direct matching in your symLabels list
         stoneSymIdx = symLabels.indexOf(symmetryCode);
       }
-
-      // Compare against the user's slider range (_symRange)
       bool matchesSym =
           (stoneSymIdx >= _symRange.start.toInt() &&
           stoneSymIdx <= _symRange.end.toInt());
-
-      // Fallback: If data is missing/unknown, show the stone
       if (stoneSymIdx == -1) matchesSym = true;
-
-      // --- 9. DEPTH % LOGIC (DYNAMIC ✅) ---
-      // We parse the stone.depth (which is usually a double or num)
-      // and compare it against the user's slider range (_depthRange)
+      // 9. DEPTH % LOGIC
       double stoneDepth = 0.0;
-
-      // Safety check: parse the value if it's stored as a string or handle it if num
       if (stone.depth is String) {
         stoneDepth = double.tryParse(stone.depth as String) ?? 0.0;
       } else {
         stoneDepth = stone.depth.toDouble();
       }
-
       bool matchesDepth =
           (stoneDepth >= _depthRange.start && stoneDepth <= _depthRange.end);
-
-      // Fallback: If depth is 0 (missing data), you can decide to show it or hide it
       if (stoneDepth == 0) matchesDepth = true;
-
-      // --- 10. TABLE % LOGIC (DYNAMIC ✅) ---
+      // 10. TABLE % LOGIC
       double stoneTable = 0.0;
-
-      // Handle data parsing safely
       if (stone.table is String) {
         stoneTable = double.tryParse(stone.table as String) ?? 0.0;
       } else {
         stoneTable = (stone.table as num).toDouble();
       }
-
-      // Compare stone's table percentage against user's slider range (_tableRange)
       bool matchesTable =
           (stoneTable >= _tableRange.start && stoneTable <= _tableRange.end);
-
-      // Fallback: If table data is 0 or missing, we usually show the stone
       if (stoneTable == 0) matchesTable = true;
 
       final bool matchesShape =
@@ -517,7 +440,7 @@ class _GmssScreenState extends State<GmssScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 370,
+            width: 340,
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -532,9 +455,33 @@ class _GmssScreenState extends State<GmssScreen> {
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                SliverToBoxAdapter(child: _buildMainHeader(themeColor)),
+                SliverToBoxAdapter(
+                  child: MainHeader(
+                    themeColor: themeColor,
+                    shapeCategories: shapeCategories,
+                    onNaturalDiamondsTap: () {
+                      setState(() {
+                        isFancySearch = false;
+                      });
+                    },
+                    onFancyDiamondsTap: () {
+                      setState(() {
+                        isFancySearch = true;
+                        selectedFancyColor = null;
+                        _currentTab = 0;
+                      });
+                    },
+                    onShapeTap: (shapeName, shapeId) {
+                      setState(() {
+                        selectedShape = shapeName;
+                        selectedShapeId = shapeId;
+                        _future = _getSmartData();
+                      });
+                    },
+                  ),
+                ),
                 SliverToBoxAdapter(child: _buildHeader()),
-                SliverToBoxAdapter(child: _buildShapeSelector()),
+                SliverToBoxAdapter(child: _buildShapeSelector(shapeCategories)),
                 FutureBuilder<List<GmssStone>>(
                   future: _future,
                   builder: (context, snapshot) {
@@ -1713,7 +1660,7 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  Widget _buildShapeSelector() {
+  Widget _buildShapeSelector(dynamic shapeCategories) {
     return Container(
       height: 110,
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -2000,766 +1947,6 @@ class _GmssScreenState extends State<GmssScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMainHeader(Color themeColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-      ),
-      child: Row(
-        children: [
-          const Spacer(),
-          Row(
-            children: [
-              _hoverNavLink(
-                "Diamonds",
-                _diamondHoverController,
-                _buildMegaMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "Engagement",
-                _engagementHoverController,
-                _buildEngagementMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "Wedding",
-                _weddingHoverController,
-                _buildWeddingMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "Jewelry",
-                _jewelryHoverController,
-                _buildJewelryMenu(themeColor),
-              ),
-              _hoverNavLink(
-                "About",
-                _aboutHoverController,
-                _buildAboutMenu(themeColor),
-              ),
-            ],
-          ),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.search, size: 20),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite_border, size: 20),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline, size: 20),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined, size: 20),
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEngagementMenu(Color themeColor) {
-    return Material(
-      elevation: 10,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 30),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "SHOP BY STYLE",
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-                  ),
-                  const SizedBox(height: 20),
-                  _engagementStyleItem("Solitaire", ""),
-                  _engagementStyleItem("Side Stone", ""),
-                  _engagementStyleItem("Halo", ""),
-                  _engagementStyleItem("Three Stones", ""),
-                  _engagementStyleItem("Vintage", ""),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("CREATE YOUR OWN RING", [
-                "Start with a Setting",
-                "Start with a Diamond",
-                "3D Ring Creator",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _menuColumn("SHOP BY METAL", [
-                    "White Gold",
-                    "Yellow Gold",
-                    "Rose Gold",
-                    "Platinum",
-                  ]),
-                  const SizedBox(height: 30),
-                  _menuColumn("ENGAGEMENT RING TIPS", [
-                    "Ring Guide",
-                    "Find Your Ring Size",
-                  ]),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Container(
-                height: 250,
-                margin: const EdgeInsets.only(left: 20),
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.network(
-                        "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/engagement_promo.jpg")}",
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.blue.shade50,
-                          child: const Icon(
-                            Icons.diamond_outlined,
-                            size: 30,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.6),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "CREATE YOUR OWN RING",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              "Explore Our 3D Creator",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _engagementStyleItem(String label, String iconPath) {
-    return Padding(
-      padding: const EdgeInsetsGeometry.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const Icon(Icons.diamond_outlined, size: 20, color: Colors.black54),
-          const SizedBox(width: 15),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _hoverNavLink(
-    String label,
-    OverlayPortalController controller,
-    Widget menuContent,
-  ) {
-    return MouseRegion(
-      onEnter: (_) => controller.show(),
-      child: OverlayPortal(
-        controller: controller,
-        overlayChildBuilder: (context) => Positioned(
-          top: 80,
-          left: 0,
-          right: 0,
-          child: MouseRegion(
-            onExit: (_) => controller.hide(),
-            child: menuContent,
-          ),
-        ),
-        child: _navLink(label),
-      ),
-    );
-  }
-
-  Widget _buildMegaMenu(Color themeColor) {
-    return Material(
-      elevation: 20,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "SHOP BY SHAPE",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  Wrap(
-                    spacing: 20,
-                    runSpacing: 30,
-                    children: shapeCategories
-                        .map((shape) => _buildShapeIconItem(shape))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("NATURAL DIAMONDS", [
-                _menuItem(
-                  "All Natural Diamonds",
-                  onTap: () {
-                    setState(() {
-                      isFancySearch = false;
-                    });
-                    _diamondHoverController.hide();
-                  },
-                ),
-                _menuItem(
-                  "Fancy Color Diamonds",
-                  onTap: () {
-                    setState(() {
-                      isFancySearch = true;
-                      selectedFancyColor = null;
-                      _currentTab = 0;
-                    });
-                    _diamondHoverController.hide();
-                  },
-                ),
-                "GIA Certified",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("LAB GROWN", [
-                "All Lab Diamonds",
-                "Sustainable Choice",
-                "IGI Certified",
-              ]),
-            ),
-            _buildPromoCard(
-              "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg")}",
-              "NEW ARRIVALS",
-              "Exquisite Lab Brilliance",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuItem(String label, {VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShapeIconItem(Map<String, dynamic> shape) {
-    final String shapeName = shape['name']?.toString() ?? "";
-    final bool isActive = selectedShapeId == shape['id'];
-    final painter = DiamondPainterUtils.getPainterForShapeName(
-      shapeName,
-      isActive,
-    );
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedShapeId = shape['id'];
-          selectedShape = shapeName;
-          _future = GmssApiService.fetchLabGrownData();
-        });
-        _hideMegaMenu();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 90,
-        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isActive ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isActive ? Colors.teal : Colors.grey.shade200,
-            width: isActive ? 1.5 : 1,
-          ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 35,
-              width: 35,
-              child: painter != null
-                  ? CustomPaint(painter: painter)
-                  : Icon(
-                      Icons.diamond_outlined,
-                      size: 24,
-                      color: isActive ? Colors.teal : Colors.grey,
-                    ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              shape['name'].toString().toUpperCase(),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextColumn(String title, List<String> items) {
-    return Expanded(
-      flex: 1,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 13,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 25),
-          ...items.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                item,
-                style: const TextStyle(color: Colors.black87, fontSize: 14),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromoCard(String url, String title, String subtitle) {
-    final String proxiedUrl =
-        "https://corsproxy.io/?${Uri.encodeComponent(url)}";
-    return Container(
-      height: 280,
-      margin: const EdgeInsets.only(left: 30),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.network(
-              proxiedUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (c, e, s) =>
-                  Container(color: Colors.blueGrey.shade50),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.center,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.85),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _menuColumn(String title, List<dynamic> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-        ),
-        const SizedBox(height: 20),
-        ...items.map((item) {
-          Widget content = item is String
-              ? Text(
-                  item,
-                  style: const TextStyle(color: Colors.black87, fontSize: 14),
-                )
-              : item as Widget;
-          return Padding(
-            padding: const EdgeInsetsDirectional.only(bottom: 12),
-            child: content,
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _navLink(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.black,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWeddingMenu(Color themeColor) {
-    return Material(
-      elevation: 10,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 30),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Women's Rings", [
-                "Diamond Wedding Bands",
-                "Diamond Eternity Bands",
-                "Gemstone Wedding Bands",
-                "Bestsellers",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Men's Rings", [
-                "Men's Wedding Bands",
-                "Men's Diamond Rings",
-                "Top 10 Men's Rings",
-                "Timeless Inspired Rings",
-                "Bold & Unique Rings",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: _menuColumn("Weddings Ring Tips", [
-                "Ring Size Chart",
-                "Metal Education",
-                "Women's Ring Guide",
-                "Men's Ring Guide",
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/wedding_promo.jpg")}",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Wedding Rings",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    "Explore Our Best Sellers",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildJewelryMenu(Color themeColor) {
-    return Material(
-      elevation: 10,
-      shadowColor: Colors.black26,
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 30),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _menuColumn("Bracelets", [
-                    "Lab Diamond Bracelets",
-                    "Diamond Bracelets",
-                    "Gemstone Bracelets",
-                  ]),
-                  const SizedBox(height: 30),
-                  _menuColumn("Rings", [
-                    "Fashion Rings",
-                    "Eternity Rings",
-                    "Gemstone Rings",
-                  ]),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _menuColumn("Gifts & Collections", [
-                    "Gifts For Her",
-                    "Tennis Bracelets",
-                    "Hoop Earrings",
-                  ]),
-                  const SizedBox(height: 30),
-                  _menuColumn("Featured", [
-                    "Custom Designed Jewelry",
-                    "Jewelry Guids",
-                    "Best Seller Bracelets",
-                  ]),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          "https://corsproxy.io/?${Uri.encodeComponent("https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/jewelry_promo.jpg")}",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Shop Vault Sale",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    "Get 50% Off with code VAULT",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAboutMenu(Color themeColor) {
-    return Material(
-      elevation: 25,
-      shadowColor: Colors.black12,
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 40),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextColumn("Brilliance", [
-                "About",
-                "Contact Us",
-                "Diamond Experts",
-                "Brilliance Reviews",
-                "Flexible Financing",
-              ]),
-              _buildTextColumn("Customer Care", [
-                "30 Day Return",
-                "Low Price Returns",
-                "Lifetime Warranty",
-                "FAQs",
-                "Resize Your Ring",
-                "care & Maintenance",
-              ]),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _menuColumn("Education", [
-                      "Diamond Education",
-                      "Jewelry Education",
-                      "Engagement Ring Guide",
-                    ]),
-                    const SizedBox(height: 30),
-                    _menuColumn("Articles", [
-                      "Jewelry Cleaning Guide",
-                      "Diamond Fluorescence Explained",
-                      "What Is Rhodium Plating?",
-                    ]),
-                  ],
-                ),
-              ),
-              _buildPromoCard(
-                "https://www.brilliance.com/sites/default/files/vue/workshop.jpg",
-                "Handmade with Love",
-                "Learn About Our Process",
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

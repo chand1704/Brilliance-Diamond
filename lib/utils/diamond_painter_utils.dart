@@ -10,51 +10,52 @@ class DiamondPainterUtils {
     final Color shapeColor = isActive ? Colors.teal : const Color(0xFF616161);
     final String upperName = name.toUpperCase();
 
-    if (upperName.contains("ROUND"))
+    if (upperName.contains("ROUND")) {
       return MinimalRoundPainter(color: shapeColor);
-    if (upperName.contains("PRINCESS"))
+    } else if (upperName.contains("PRINCESS")) {
       return MinimalPrincessPainter(color: shapeColor);
-    if (upperName.contains("EMERALD"))
+    } else if (upperName.contains("EMERALD")) {
       return MinimalEmeraldPainter(color: shapeColor);
-    if (upperName.contains("CUSHION"))
+    } else if (upperName.contains("CUSHION")) {
       return MinimalCushionPainter(color: shapeColor);
-    if (upperName.contains("RADIANT"))
+    } else if (upperName.contains("RADIANT")) {
       return MinimalRadiantPainter(color: shapeColor);
-    if (upperName.contains("MARQUISE"))
+    } else if (upperName.contains("MARQUISE")) {
       return MinimalMarquisePainter(color: shapeColor);
-    if (upperName.contains("PEAR"))
+    } else if (upperName.contains("PEAR")) {
       return MinimalPearPainter(color: shapeColor);
-    if (upperName.contains("OVAL"))
+    } else if (upperName.contains("OVAL")) {
       return MinimalOvalPainter(color: shapeColor);
-    if (upperName.contains("HEART"))
+    } else if (upperName.contains("HEART")) {
       return MinimalHeartPainter(color: shapeColor);
-    if (upperName.contains("ASSCHER"))
+    } else if (upperName.contains("ASSCHER")) {
       return MinimalAsscherPainter(color: shapeColor);
-    if (upperName.contains("ROSE"))
+    } else if (upperName.contains("ROSE")) {
       return MinimalRosePainter(color: shapeColor);
-    if (upperName.contains("BAGUETTE"))
+    } else if (upperName.contains("BAGUETTE")) {
       return MinimalBaguettePainter(color: shapeColor);
-    if (upperName.contains("HALF MOON"))
+    } else if (upperName.contains("HALF MOON")) {
       return MinimalHalfMoonPainter(color: shapeColor);
-    if (upperName.contains("TRAPEZOID"))
+    } else if (upperName.contains("TRAPEZOID")) {
       return MinimalTrapezoidPainter(color: shapeColor);
-    if (upperName.contains("PENTAGONAL"))
+    } else if (upperName.contains("PENTAGONAL")) {
       return MinimalPentagonalPainter(color: shapeColor);
-    if (upperName.contains("HEXAGON"))
+    } else if (upperName.contains("HEXAGON")) {
       return MinimalHexagonalPainter(color: shapeColor);
-    if (upperName.contains("TRIANGULAR"))
+    } else if (upperName.contains("TRIANGULAR")) {
       return MinimalTriangularPainter(color: shapeColor);
-    if (upperName.contains("TRILLIANT") || upperName.contains("TRILLION"))
+    } else if (upperName.contains("TRILLIANT") ||
+        upperName.contains("TRILLION")) {
       return MinimalTrilliantPainter(color: shapeColor);
-    if (upperName.contains("SHIELD"))
+    } else if (upperName.contains("SHIELD")) {
       return MinimalShieldPainter(color: shapeColor);
-    if (upperName.contains("LOZENGE"))
+    } else if (upperName.contains("LOZENGE")) {
       return MinimalLozengePainter(color: shapeColor);
-    if (upperName.contains("KITE"))
+    } else if (upperName.contains("KITE")) {
       return MinimalKitePainter(color: shapeColor);
-    if (upperName.contains("PORTUGUESE"))
+    } else if (upperName.contains("PORTUGUESE")) {
       return MinimalPortuguesePainter(color: shapeColor);
-
+    }
     return null;
   }
 }
