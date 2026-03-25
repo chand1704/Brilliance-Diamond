@@ -1,7 +1,6 @@
 import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
-import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
 import 'package:brilliance_diamond/widgets/main_header.dart';
 import 'package:brilliance_diamond/widgets/safe_image.dart';
 import 'package:flutter/material.dart';
@@ -547,12 +546,21 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     child: SizedBox(
                       width: 45,
                       height: 45,
-                      child: CustomPaint(
-                        painter: DiamondPainterUtils.getPainterForShapeName(
-                          widget.stone.shapeStr,
-                          false,
+                      child: Image.asset(
+                        _getShapeAssetPath(widget.stone.shapeStr),
+                        fit: BoxFit.contain,
+                        // Fallback if the specific shape image is missing
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.diamond,
+                          color: Colors.grey.withValues(alpha: 0.5),
+                          size: 30,
                         ),
                       ),
+                      // CustomPaint(
+                      //   painter: DiamondPainterUtils.getPainterForShapeName(
+                      //     widget.stone.shapeStr,
+                      //     false,
+                      //   ),
                     ),
                   ),
                 ),
@@ -561,69 +569,132 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 bottom: 25,
                 left: 25,
                 right: 25,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 15,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        "Your diamond: ${caratValue.toStringAsFixed(2)} ct.",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            trackHeight: 4,
-                            activeTickMarkColor: const Color(0xFF005AAB),
-                            inactiveTrackColor: Colors.blue.shade50,
-                            thumbColor: Colors.white,
-                            thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 10,
-                              elevation: 3,
-                            ),
-                          ),
-                          child: Slider(
-                            value: caratValue.clamp(0.1, 5.0),
-                            min: 0.10,
-                            max: 5.00,
-                            onChanged: (val) {
-                              _caratNotifier.value = val;
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "5.00 ct.",
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: _buildSliderOverlay(caratValue),
+                // Container(
+                //   padding: const EdgeInsets.symmetric(
+                //     horizontal: 20,
+                //     vertical: 10,
+                //   ),
+                //   decoration: BoxDecoration(
+                //     color: Colors.white,
+                //     borderRadius: BorderRadius.circular(20),
+                //     boxShadow: [
+                //       BoxShadow(
+                //         color: Colors.black.withValues(alpha: 0.08),
+                //         blurRadius: 15,
+                //       ),
+                //     ],
+                //   ),
+                //   child: Row(
+                //     children: [
+                //       Text(
+                //         "Your diamond: ${caratValue.toStringAsFixed(2)} ct.",
+                //         style: const TextStyle(
+                //           fontWeight: FontWeight.bold,
+                //           fontSize: 13,
+                //         ),
+                //       ),
+                //       const SizedBox(width: 10),
+                //       Expanded(
+                //         child: SliderTheme(
+                //           data: SliderTheme.of(context).copyWith(
+                //             trackHeight: 4,
+                //             activeTickMarkColor: const Color(0xFF005AAB),
+                //             inactiveTrackColor: Colors.blue.shade50,
+                //             thumbColor: Colors.white,
+                //             thumbShape: const RoundSliderThumbShape(
+                //               enabledThumbRadius: 10,
+                //               elevation: 3,
+                //             ),
+                //           ),
+                //           child: Slider(
+                //             value: caratValue.clamp(0.1, 5.0),
+                //             min: 0.10,
+                //             max: 5.00,
+                //             onChanged: (val) {
+                //               _caratNotifier.value = val;
+                //             },
+                //           ),
+                //         ),
+                //       ),
+                //       const SizedBox(width: 10),
+                //       Text(
+                //         "5.00 ct.",
+                //         style: TextStyle(
+                //           color: Colors.grey.shade600,
+                //           fontSize: 13,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  String _getShapeAssetPath(String shapeName) {
+    final String s = shapeName.toLowerCase().trim();
+    String fileName = "Round.png"; // Default fallback
+
+    if (s.contains('round'))
+      fileName = "Round.png";
+    else if (s.contains('pear'))
+      fileName = "Pear.png";
+    else if (s.contains('oval'))
+      fileName = "Oval.png";
+    else if (s.contains('marquise'))
+      fileName = "Marquise.png";
+    else if (s.contains('emerald'))
+      fileName = "Emerald.png";
+    else if (s.contains('princess'))
+      fileName = "Princess.png";
+    else if (s.contains('heart'))
+      fileName = "Heart.png";
+    else if (s.contains('cushion'))
+      fileName = "Cushion.png";
+    else if (s.contains('radiant'))
+      fileName = "Radiant.png";
+    else if (s.contains('asscher'))
+      fileName = "Asscher.png";
+
+    return "assets/images/shapes/$fileName";
+  }
+
+  Widget _buildSliderOverlay(double caratValue) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 15)],
+      ),
+      child: Row(
+        children: [
+          Text(
+            "Your diamond: ${caratValue.toStringAsFixed(2)} ct.",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Slider(
+              value: caratValue.clamp(0.1, 5.0),
+              min: 0.10,
+              max: 5.00,
+              activeColor: const Color(0xFF005AAB),
+              onChanged: (val) => _caratNotifier.value = val,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            "5.00 ct.",
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+        ],
+      ),
     );
   }
 
