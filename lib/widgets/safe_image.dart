@@ -80,16 +80,16 @@ class SafeImageState extends State<SafeImage> {
         filterQuality: FilterQuality.medium,
       );
     }
-    if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            Colors.teal.withValues(alpha: 0.2),
-          ),
-        ),
-      );
-    }
+    // if (_isLoading) {
+    //   return Center(
+    //     child: CircularProgressIndicator(
+    //       strokeWidth: 2,
+    //       valueColor: AlwaysStoppedAnimation<Color>(
+    //         Colors.teal.withValues(alpha: 0.2),
+    //       ),
+    //     ),
+    //   );
+    // }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
