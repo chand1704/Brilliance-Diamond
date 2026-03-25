@@ -269,7 +269,9 @@ class _GmssScreenState extends State<GmssScreen> {
       bool matchesColor = false;
       if (isFancySearch) {
         if (selectedFancyColorId == null) {
-          matchesColor = stone.colorStr.toLowerCase().contains("fancy");
+          matchesColor =
+              stone.colorStr.toLowerCase().contains("fancy") ||
+              (stone.fancy_color != null && stone.fancy_color.isNotEmpty);
         } else {
           String searchColor = selectedFancyColor?.toUpperCase() ?? "";
           matchesColor =
@@ -464,11 +466,29 @@ class _GmssScreenState extends State<GmssScreen> {
                         isFancySearch = false;
                       });
                     },
-                    onFancyDiamondsTap: () {
+                    onFancyDiamondsTap: (colorName) {
                       setState(() {
                         isFancySearch = true;
-                        selectedFancyColor = null;
                         _currentTab = 0;
+
+                        if (colorName != null) {
+                          // Find the ID from your fancyColors list based on the name
+                          final foundColor = fancyColors.firstWhere(
+                            (c) =>
+                                c['name'].toString().toLowerCase() ==
+                                colorName.toLowerCase(),
+                            orElse: () => {'id': null},
+                          );
+
+                          selectedFancyColor = colorName;
+                          selectedFancyColorId = foundColor['id'];
+                        } else {
+                          // If they just clicked "Fancy Color Diamonds" general link
+                          selectedFancyColor = null;
+                          selectedFancyColorId = null;
+                        }
+
+                        _future = _getSmartData(); // Refresh the list
                       });
                     },
                     onShapeTap: (shapeName, shapeId) {
@@ -867,6 +887,17 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   Widget _buildFancyColorFilter(Color themeColor) {
+    final List<Map<String, dynamic>> fancyColorsLocal = [
+      {'id': 7, 'name': 'Green'},
+      {'id': 8, 'name': 'Orange'},
+      {'id': 9, 'name': 'Pink'},
+      {'id': 11, 'name': 'Purple'},
+      {'id': 14, 'name': 'Yellow'},
+      {'id': 2, 'name': 'Blue'},
+      {'id': 6, 'name': 'Grey'},
+      {'id': 3, 'name': 'Brown'},
+      {'id': 10, 'name': 'NZ'},
+    ];
     String shapName = "RD";
     String currentShape = selectedShape.toUpperCase();
     if (currentShape == "PEAR") shapName = "PE";

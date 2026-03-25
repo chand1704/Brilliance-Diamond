@@ -299,7 +299,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 // Navigate back to search or filter for Natural
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              onFancyDiamondsTap: () {
+              onFancyDiamondsTap: (name) {
                 // Navigate back to search or filter for Fancy
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },

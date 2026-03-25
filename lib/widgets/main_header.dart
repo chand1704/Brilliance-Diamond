@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class MainHeader extends StatefulWidget {
   final Color themeColor;
   final VoidCallback onNaturalDiamondsTap;
-  final VoidCallback onFancyDiamondsTap;
+
+  final Function(String?) onFancyDiamondsTap;
   final Function(String, int) onShapeTap;
   final List<Map<String, dynamic>> shapeCategories;
 
@@ -22,6 +23,58 @@ class MainHeader extends StatefulWidget {
 }
 
 class _MainHeaderState extends State<MainHeader> {
+  Color _getDiamondColor(String name) {
+    switch (name.toLowerCase()) {
+      case 'yellow':
+        return const Color(0xFFFFD700); // Vivid Yellow
+      case 'pink':
+        return const Color(0xFFFFB6C1); // Soft Pink
+      case 'blue':
+        return const Color(0xFF87CEEB); // Sky Blue
+      case 'green':
+        return const Color(0xFF90EE90); // Light Green
+      case 'orange':
+        return const Color(0xFFFFA500); // Orange
+      case 'purple':
+        return const Color(0xFFDDA0DD); // Plum/Purple
+      case 'brown':
+        return const Color(0xFF8B4513); // Saddle Brown
+      case 'grey':
+        return const Color(0xFF808080); // Grey
+      default:
+        return Colors.grey.shade300; // Fallback for white/NZ
+    }
+  }
+
+  // 1. Add the fancy color data list (or pass it via constructor if preferred)
+  final List<Map<String, dynamic>> fancyColors = [
+    {'id': 7, 'name': 'Green'},
+    {'id': 8, 'name': 'Orange'},
+    {'id': 9, 'name': 'Pink'},
+    {'id': 11, 'name': 'Purple'},
+    {'id': 14, 'name': 'Yellow'},
+    {'id': 2, 'name': 'Blue'},
+    {'id': 6, 'name': 'Grey'},
+    {'id': 3, 'name': 'Brown'},
+    {'id': 10, 'name': 'NZ'},
+  ];
+  // 2. Add a local state for the "Show More" toggle
+  bool isFancyExpanded = false;
+  // 3. Helper to get the shape code for the image URL
+  String _getShapeCode(String shape) {
+    String s = shape.toUpperCase();
+    if (s == "PEAR") return "PE";
+    if (s == "EMERALD") return "EM";
+    if (s == "MARQUISE") return "MQ";
+    if (s == "CUSHION") return "CU";
+    if (s == "RADIANT") return "RA";
+    if (s == "OVAL") return "OV";
+    if (s == "HEART") return "HT";
+    if (s == "PRINCESS") return "PR";
+    if (s == "ASSCHER") return "AS";
+    return "RD"; // Default to Round
+  }
+
   final OverlayPortalController _diamondHoverController =
       OverlayPortalController();
   final OverlayPortalController _engagementHoverController =
@@ -156,6 +209,25 @@ class _MainHeaderState extends State<MainHeader> {
                         .map((shape) => _shapeItem(shape))
                         .toList(),
                   ),
+                  const SizedBox(height: 30),
+                  const Text(
+                    "SHOP BY COLOR",
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                  ),
+                  const SizedBox(height: 15),
+                  Wrap(
+                    spacing: 15,
+                    children: [
+                      _headerColorItem("Yellow"),
+                      _headerColorItem("Pink"),
+                      _headerColorItem("Blue"),
+                      _headerColorItem("Green"),
+                      _headerColorItem("Orange"),
+                      _headerColorItem("Purple"),
+                      _headerColorItem("Brown"),
+                      _headerColorItem("Grey"),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -166,13 +238,46 @@ class _MainHeaderState extends State<MainHeader> {
                   "All Natural Diamonds",
                   widget.onNaturalDiamondsTap,
                 ),
-                _menuAction("Fancy Color Diamonds", widget.onFancyDiamondsTap),
+                _menuAction("Fancy Color Diamonds", () {
+                  widget.onFancyDiamondsTap(null);
+                  _hideAllMenus();
+                }),
               ]),
             ),
             _buildPromoCard(
               "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
               "NEW ARRIVALS",
               "Exquisite Lab Brilliance",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Simple helper for header color clicks
+  Widget _headerColorItem(String name) {
+    return InkWell(
+      onTap: () {
+        widget.onFancyDiamondsTap(name);
+        _hideAllMenus();
+      },
+      child: SizedBox(
+        width: 45, // Set fixed width for alignment
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.circle,
+              color: _getDiamondColor(name), // ✅ Dynamic Color
+              size: 22,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              name,
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
