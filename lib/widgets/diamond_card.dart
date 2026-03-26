@@ -1,7 +1,7 @@
+import 'package:brilliance_diamond/widgets/safe_image.dart';
 import 'package:flutter/material.dart';
 
 import '../model/gmss_stone_model.dart';
-import 'safe_image.dart';
 
 class DiamondCard extends StatefulWidget {
   final GmssStone stone;

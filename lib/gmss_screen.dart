@@ -1,10 +1,11 @@
+import 'dart:html' as html;
+
 import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
 import 'package:brilliance_diamond/widgets/diamond_card.dart';
 import 'package:brilliance_diamond/widgets/main_header.dart';
 import 'package:brilliance_diamond/widgets/sidebar_filters.dart';
 import 'package:flutter/material.dart';
 
-import 'diamonds_details_pages.dart';
 import 'model/gmss_stone_model.dart';
 import 'service/gmss_api_service.dart';
 
@@ -240,30 +241,28 @@ class _GmssScreenState extends State<GmssScreen> {
     });
   }
 
-  Future<void> _handleCardTap(GmssStone stone) async {
-    setState(() {
-      _recentlyViewed.removeWhere((s) => s.id == stone.id);
-      _recentlyViewed.insert(0, stone);
-    });
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DiamondDetailScreen(
-          stone: stone,
-          isFavorite: _savedStones.any((s) => s.id == stone.id),
-          onFavoriteToggle: (isNowFavorite) {},
-        ),
-      ),
-    );
-    if (result != null && result is Map) {
-      setState(() {
-        selectedShape = result['selectedShape'];
-        selectedShapeId = result['selectedShapeId'];
-        _future = _getSmartData();
-        _currentTab = 0;
-      });
-    }
+  void _handleCardTap(GmssStone stone) {
+    // Use the browser's window object to open a formatted URL
+    final String url =
+        "${html.window.location.origin}/#/details?id=${stone.id}";
+    html.window.open(url, "_blank");
   }
+  // gmss_screen.dart
+
+  // void _handleCardTap(GmssStone stone) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => DiamondDetailScreen(
+  //         stone: stone, // Passing the full object makes it instant
+  //         isFavorite: _savedStones.any((s) => s.id == stone.id),
+  //         onFavoriteToggle: (isNowFavorite) {
+  //           _toggleSave(stone);
+  //         },
+  //       ),
+  //     ),
+  //   );
+  // }
 
   List<GmssStone> _applyFiltering(List<GmssStone> allStones) {
     final List<GmssStone> filtered = allStones.where((stone) {
