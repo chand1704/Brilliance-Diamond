@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class SidebarFilters extends StatelessWidget {
   final Color themeColor;
-
   // Basic Filter States
   final int selectedOrigin;
   final bool isFancySearch;
@@ -12,7 +11,6 @@ class SidebarFilters extends StatelessWidget {
   final RangeValues clarityRange;
   final bool showOnlyWithImages;
   final bool quickShipping;
-
   // Advanced Filter States
   final bool showAdvancedFilters;
   final RangeValues cutRange;
@@ -22,7 +20,6 @@ class SidebarFilters extends StatelessWidget {
   final RangeValues symRange;
   final RangeValues depthRange;
   final RangeValues tableRange;
-
   // Fancy Color States
   final int? selectedFancyColorId;
   final bool isFancyExpanded;
@@ -30,7 +27,6 @@ class SidebarFilters extends StatelessWidget {
   final List<Map<String, dynamic>> fancyColors;
   final List<String> saturationLabels;
   final String selectedShape;
-
   // Labels
   final List<String> shadeLabels;
   final List<String> clarityLabels;
@@ -39,7 +35,6 @@ class SidebarFilters extends StatelessWidget {
   final List<String> flLabels;
   final List<String> certLabels;
   final List<String> symLabels;
-
   // Callbacks
   final Function(int) onOriginChanged;
   final Function(RangeValues) onCaratChanged;
@@ -49,7 +44,6 @@ class SidebarFilters extends StatelessWidget {
   final Function(bool) onImageToggle;
   final Function(bool) onShippingToggle;
   final VoidCallback onReset;
-
   // Advanced Callbacks
   final VoidCallback onAdvancedToggle;
   final Function(RangeValues) onCutChanged;
@@ -59,12 +53,10 @@ class SidebarFilters extends StatelessWidget {
   final Function(RangeValues) onSymChanged;
   final Function(RangeValues) onDepthChanged;
   final Function(RangeValues) onTableChanged;
-
   // Fancy Callbacks
   final Function(int?, String?) onFancyColorTap;
   final VoidCallback onFancyExpandToggle;
   final Function(RangeValues) onSaturationChanged;
-
   const SidebarFilters({
     super.key,
     required this.themeColor,
@@ -118,7 +110,6 @@ class SidebarFilters extends StatelessWidget {
     required this.onFancyExpandToggle,
     required this.onSaturationChanged,
   });
-
   @override
   Widget build(BuildContext context) {
     return Padding(
