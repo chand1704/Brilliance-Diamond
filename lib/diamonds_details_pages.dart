@@ -11,8 +11,8 @@ import 'DiamondDesign.dart';
 import 'model/gmss_stone_model.dart';
 
 class DiamondDetailScreen extends StatefulWidget {
-  final GmssStone? stone; // Make optional
-  final String? stoneId; // Add this
+  final GmssStone? stone;
+  final String? stoneId;
   final bool isFavorite;
   final Function(bool) onFavoriteToggle;
   const DiamondDetailScreen({
@@ -31,7 +31,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   bool _isLoading = true;
   static const String shapeBaseUrl =
       "https://demo.kodllin.com/apis/storage/app/shape_images/";
-
   final List<Map<String, dynamic>> shapeCategories = [
     {'id': 1, 'name': 'Round', 'icon': '${shapeBaseUrl}Round.svg'},
     {'id': 2, 'name': 'Princess', 'icon': '${shapeBaseUrl}Princess.svg'},
@@ -81,93 +80,26 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   void initState() {
     super.initState();
     _loadStoneData();
-    // _caratNotifier.value = widget.stone!.weight;
-    // // double initialWeight = widget.stone.weight;
-    // // _caratNotifier.value = initialWeight.clamp(0.1, 5.0);
-    // // ✅ Register the factory ONCE here, not in the build method
-    // final String viewId = 'embedded-diamond-video-${widget.stone!.id}';
-    //
-    // // Try using the direct URL or a proxy if it still fails
-    // const String videoUrl =
-    //     "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
-    //
-    // ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-    //   final video = html.VideoElement()
-    //     ..src = videoUrl
-    //     ..autoplay = true
-    //     ..loop = true
-    //     ..muted = true
-    //     ..controls = false
-    //     ..setAttribute('playsinline', 'true')
-    //     ..style.width = '100%'
-    //     ..style.height = '100%'
-    //     ..style.objectFit = 'cover'
-    //     ..style.border = 'none';
-    //   video.crossOrigin = "anonymous";
-    //
-    //   return video;
-    // });
   }
-  //
-  // Future<void> _loadStoneData() async {
-  //   if (widget.stone != null) {
-  //     _updateUI(widget.stone!);
-  //     return;
-  //   }
-  //
-  //   final String? savedJson = html.window.localStorage['selected_stone_data'];
-  //   if (widget.stoneId != null) {
-  //     // Check if the data is already in our Static Cache (Fastest)
-  //     final cachedStones =
-  //         GmssApiService.getCachedStones(); // Add a getter for _cachedStones
-  //     if (cachedStones != null) {
-  //       final found = cachedStones.firstWhere(
-  //         (s) => s.id.toString() == widget.stoneId,
-  //         orElse: () => cachedStones.first,
-  //       );
-  //       _updateUI(found);
-  //       return; // Exit early! No skeleton loader shown.
-  //     }
-  //
-  //     try {
-  //       // Fallback to API if cache is empty
-  //       final allStones = await GmssApiService.fetchLabGrownData();
-  //       final foundStone = allStones.firstWhere(
-  //         (s) => s.id.toString() == widget.stoneId,
-  //         orElse: () => allStones.first,
-  //       );
-  //       _updateUI(foundStone);
-  //     } catch (e) {
-  //       if (mounted) setState(() => _isLoading = false);
-  //     }
-  //   }
-  // }
 
   Future<void> _loadStoneData() async {
-    // 1. Check if the stone was passed directly (Internal Navigation)
     if (widget.stone != null) {
       _updateUI(widget.stone!);
       return;
     }
-
-    // 2. Check LocalStorage for the stone data (New Tab Navigation)
     final String? savedJson = html.window.localStorage['selected_stone_data'];
     if (savedJson != null) {
       try {
         final Map<String, dynamic> stoneMap = jsonDecode(savedJson);
         final stone = GmssStone.fromJson(stoneMap, isLab: true);
-
-        // Verify the ID matches the URL ID to avoid showing the wrong diamond
         if (stone.id.toString() == widget.stoneId) {
           _updateUI(stone);
-          return; // Success! Instant load.
+          return;
         }
       } catch (e) {
         debugPrint("Error parsing local stone data: $e");
       }
     }
-
-    // 3. Fallback: If no local data, fetch from API (User refreshed or shared link)
     if (widget.stoneId != null) {
       try {
         final allStones = await GmssApiService.fetchLabGrownData();
@@ -183,16 +115,11 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
   void _updateUI(GmssStone stone) {
     if (!mounted) return;
-
-    // DEBUG: Check what the URL actually is in the console
-    // debugPrint("DEBUG: Stone ID ${stone.id} Image URL: ${stone.image_link}");
-
     setState(() {
       _currentStone = stone;
       _caratNotifier.value = stone.weight;
       _isLoading = false;
     });
-
     _registerVideoFactory();
   }
 
@@ -201,7 +128,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     final String viewId = 'embedded-diamond-video-${_currentStone!.id}';
     const String videoUrl =
         "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
-
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
       return html.VideoElement()
         ..src = videoUrl
@@ -394,7 +320,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _currentStone == null) {
-      // return Scaffold(body: Center(child: CircularProgressIndicator()));
       return Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(child: _buildSkeletonLoader()),
@@ -409,19 +334,15 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         children: [
           if (!isMobile)
             MainHeader(
-              // ✅ Use the Widget class here
               themeColor: headerTheme,
               shapeCategories: shapeCategories,
               onNaturalDiamondsTap: () {
-                // Navigate back to search or filter for Natural
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
               onFancyDiamondsTap: (name) {
-                // Navigate back to search or filter for Fancy
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
               onShapeTap: (shapeName, shapeId) {
-                // Navigate back to search and select this shape
                 debugPrint("Selected Shape from Detail: $shapeName");
                 Navigator.of(
                   context,
@@ -550,8 +471,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       width: double.infinity,
       height: 500,
       decoration: BoxDecoration(
-        color: Colors
-            .black, // Dark background looks better if video takes a second to load
+        color: Colors.black,
         borderRadius: BorderRadius.circular(8),
       ),
       child: ClipRRect(
@@ -586,26 +506,15 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       ),
       child: Stack(
         children: [
-          // Center(
-          //   child: SafeImage(
-          //     // url: widget.stone!.image_link,
-          //     url: _currentStone!.image_link,
-          //     size: 450,
-          //     // stone: widget.stone!,
-          //     stone: _currentStone!,
-          //   ),
-          // ),
           Center(
             child: Image.network(
               _currentStone!.image_link,
               height: 450,
               width: 450,
-              // If the image is missing, show a loading icon
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
                 return const CircularProgressIndicator();
               },
-              // If the URL is broken, show an error icon
               errorBuilder: (context, error, stackTrace) {
                 debugPrint("Image Load Error: $error");
                 return const Icon(
@@ -627,10 +536,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                   Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: InkWell(
-                      // onTap: () => _launchCertificate(widget.stone!.certi_file),
-                      onTap: () => _launchCertificate(
-                        _currentStone!.certi_file,
-                      ), // CHANGE THIS
+                      onTap: () =>
+                          _launchCertificate(_currentStone!.certi_file),
                       borderRadius: BorderRadius.circular(20),
                       child: _buildBadge(
                         "${_currentStone!.lab} Certificate",
@@ -641,9 +548,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                     ),
                   ),
                 InkWell(
-                  // onTap: () => _showVideoPopup(widget.stone!.video_link),
-                  onTap: () =>
-                      _showVideoPopup(_currentStone!.video_link), // CHANGE THIS
+                  onTap: () => _showVideoPopup(_currentStone!.video_link),
                   borderRadius: BorderRadius.circular(20),
                   child: _buildBadge(
                     "360 Video",
@@ -695,18 +600,12 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                       child: Image.asset(
                         _getShapeAssetPath(_currentStone!.shapeStr),
                         fit: BoxFit.contain,
-                        // Fallback if the specific shape image is missing
                         errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.diamond,
                           color: Colors.grey.withValues(alpha: 0.5),
                           size: 30,
                         ),
                       ),
-                      // CustomPaint(
-                      //   painter: DiamondPainterUtils.getPainterForShapeName(
-                      //     widget.stone.shapeStr,
-                      //     false,
-                      //   ),
                     ),
                   ),
                 ),
@@ -716,64 +615,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 left: 25,
                 right: 25,
                 child: _buildSliderOverlay(caratValue),
-                // Container(
-                //   padding: const EdgeInsets.symmetric(
-                //     horizontal: 20,
-                //     vertical: 10,
-                //   ),
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(20),
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: Colors.black.withValues(alpha: 0.08),
-                //         blurRadius: 15,
-                //       ),
-                //     ],
-                //   ),
-                //   child: Row(
-                //     children: [
-                //       Text(
-                //         "Your diamond: ${caratValue.toStringAsFixed(2)} ct.",
-                //         style: const TextStyle(
-                //           fontWeight: FontWeight.bold,
-                //           fontSize: 13,
-                //         ),
-                //       ),
-                //       const SizedBox(width: 10),
-                //       Expanded(
-                //         child: SliderTheme(
-                //           data: SliderTheme.of(context).copyWith(
-                //             trackHeight: 4,
-                //             activeTickMarkColor: const Color(0xFF005AAB),
-                //             inactiveTrackColor: Colors.blue.shade50,
-                //             thumbColor: Colors.white,
-                //             thumbShape: const RoundSliderThumbShape(
-                //               enabledThumbRadius: 10,
-                //               elevation: 3,
-                //             ),
-                //           ),
-                //           child: Slider(
-                //             value: caratValue.clamp(0.1, 5.0),
-                //             min: 0.10,
-                //             max: 5.00,
-                //             onChanged: (val) {
-                //               _caratNotifier.value = val;
-                //             },
-                //           ),
-                //         ),
-                //       ),
-                //       const SizedBox(width: 10),
-                //       Text(
-                //         "5.00 ct.",
-                //         style: TextStyle(
-                //           color: Colors.grey.shade600,
-                //           fontSize: 13,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
               ),
             ],
           ),
