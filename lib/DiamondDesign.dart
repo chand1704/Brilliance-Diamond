@@ -7,27 +7,19 @@ import 'model/gmss_stone_model.dart';
 class RoundTopViewPainter extends CustomPainter {
   final GmssStone stone;
   RoundTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
-
     final infoPaint = Paint()
-      ..color =
-          const Color(0xFF008080) // Teal color from reference
+      ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width * 0.45) / 2;
-
-    // 1. Girdle (Outer Circle)
     canvas.drawCircle(center, radius, paint);
-
-    // 2. Table Facets (The Center Octagon)
     final double tableRadius = radius * 0.55;
     List<Offset> tablePoints = List.generate(8, (i) {
       double angle = (i * 45 - 22.5) * math.pi / 180;
@@ -37,30 +29,21 @@ class RoundTopViewPainter extends CustomPainter {
       );
     });
     canvas.drawPath(Path()..addPolygon(tablePoints, true), paint);
-
-    // 3. Star, Bezel, and Girdle Facets
     for (int i = 0; i < 8; i++) {
-      // Main Bezel Lines (Connects table corners to girdle)
       double bezelAngle = (i * 45 - 22.5) * math.pi / 180;
       Offset girdlePoint = Offset(
         center.dx + radius * math.cos(bezelAngle),
         center.dy + radius * math.sin(bezelAngle),
       );
       canvas.drawLine(tablePoints[i], girdlePoint, paint);
-
-      // Star Facet Points (The "V" shape between table edges)
       double starAngle = (i * 45 + 22.5) * math.pi / 180;
       Offset starPoint = Offset(
         center.dx + radius * math.cos(starAngle),
         center.dy + radius * math.sin(starAngle),
       );
-
-      // Connect adjacent table corners to the star point on the girdle
       canvas.drawLine(tablePoints[i], starPoint, paint);
       canvas.drawLine(tablePoints[(i + 1) % 8], starPoint, paint);
     }
-
-    // 4. Dimension Indicators (Width & Length)
     _drawDimensions(canvas, center, radius, infoPaint);
   }
 
@@ -70,7 +53,6 @@ class RoundTopViewPainter extends CustomPainter {
     double radius,
     Paint infoPaint,
   ) {
-    // Width Indicator (Top)
     canvas.drawLine(
       Offset(center.dx - radius, center.dy - radius - 25),
       Offset(center.dx + radius, center.dy - radius - 25),
@@ -81,8 +63,6 @@ class RoundTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, center.dy - radius - 40),
     );
-
-    // Length Indicator (Right)
     canvas.drawLine(
       Offset(center.dx + radius + 25, center.dy - radius),
       Offset(center.dx + radius + 25, center.dy + radius),
@@ -93,8 +73,6 @@ class RoundTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(center.dx + radius + 70, center.dy),
     );
-
-    // Ratio Text (Bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -130,33 +108,21 @@ class RoundTopViewPainter extends CustomPainter {
 class PrincessTopViewPainter extends CustomPainter {
   final GmssStone stone;
   PrincessTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
-      ..color =
-          const Color(0xFF008080) // Professional Teal
+      ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // 1. Precise Scaling based on Stone Ratio
-    // Princess cuts are ideally square (1.00 to 1.05 ratio)
     final double h = size.height * 0.5;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.0);
-
-    // 2. Outer Girdle (Square/Rectangle)
     Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
     canvas.drawRect(outerRect, paint);
-
-    // 3. Table Facet (Inner Square)
-    // The table of a princess cut is typically 65-75% of the width
     final double tableW = w * 0.65;
     final double tableH = h * 0.65;
     Rect tableRect = Rect.fromCenter(
@@ -165,36 +131,25 @@ class PrincessTopViewPainter extends CustomPainter {
       height: tableH,
     );
     canvas.drawRect(tableRect, paint);
-
-    // 4. Facet Lines (The characteristic "X" pattern)
     _drawPrincessFacets(canvas, outerRect, tableRect, paint);
-
-    // 5. Professional Dimensioning
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
 
   void _drawPrincessFacets(Canvas canvas, Rect outer, Rect inner, Paint paint) {
-    // Corner Bezel Lines (Connecting the four corners)
     canvas.drawLine(outer.topLeft, inner.topLeft, paint);
     canvas.drawLine(outer.topRight, inner.topRight, paint);
     canvas.drawLine(outer.bottomLeft, inner.bottomLeft, paint);
     canvas.drawLine(outer.bottomRight, inner.bottomRight, paint);
-
-    // Star Facets (Cross pattern from table corners to side mid-points)
     Offset topMid = Offset(outer.center.dx, outer.top);
     Offset bottomMid = Offset(outer.center.dx, outer.bottom);
     Offset leftMid = Offset(outer.left, outer.center.dy);
     Offset rightMid = Offset(outer.right, outer.center.dy);
-
     canvas.drawLine(inner.topLeft, topMid, paint);
     canvas.drawLine(inner.topRight, topMid, paint);
-
     canvas.drawLine(inner.bottomLeft, bottomMid, paint);
     canvas.drawLine(inner.bottomRight, bottomMid, paint);
-
     canvas.drawLine(inner.topLeft, leftMid, paint);
     canvas.drawLine(inner.bottomLeft, leftMid, paint);
-
     canvas.drawLine(inner.topRight, rightMid, paint);
     canvas.drawLine(inner.bottomRight, rightMid, paint);
   }
@@ -206,7 +161,6 @@ class PrincessTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar (Top)
     double widthY = center.dy - h / 2 - 30;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -218,8 +172,6 @@ class PrincessTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar (Right)
     double lengthX = center.dx + w / 2 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h / 2),
@@ -231,8 +183,6 @@ class PrincessTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 50, center.dy),
     );
-
-    // Ratio Label (Bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -268,39 +218,25 @@ class PrincessTopViewPainter extends CustomPainter {
 class EmeraldTopViewPainter extends CustomPainter {
   final GmssStone stone;
   EmeraldTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final center = Offset(size.width / 2, size.height / 2);
-    // Scale based on the 1.40 to 1 ratio typically seen in emeralds
     final double h = size.height * 0.5;
     final double w = h / 1.4;
-
-    // 1. Outer Girdle (Octagon)
     Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
     _drawEmeraldRect(canvas, outerRect, 15, paint);
-
-    // 2. Nested Step Facets ( Hall of Mirrors effect)
     _drawEmeraldRect(canvas, outerRect.deflate(10), 12, paint);
     _drawEmeraldRect(canvas, outerRect.deflate(20), 8, paint);
-
-    // 3. Table (Inner Center Rectangle)
     _drawEmeraldRect(canvas, outerRect.deflate(35), 5, paint);
-
-    // 4. Connecting Corner Lines
     _drawCornerLines(canvas, outerRect, outerRect.deflate(35), paint);
-
-    // 5. Dimension Indicators
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
 
@@ -312,25 +248,21 @@ class EmeraldTopViewPainter extends CustomPainter {
   }
 
   void _drawCornerLines(Canvas canvas, Rect outer, Rect inner, Paint paint) {
-    // Top-Left to Center
     canvas.drawLine(
       Offset(outer.left + 15, outer.top),
       Offset(inner.left + 5, inner.top),
       paint,
     );
-    // Top-Right to Center
     canvas.drawLine(
       Offset(outer.right - 15, outer.top),
       Offset(inner.right - 5, inner.top),
       paint,
     );
-    // Bottom-Left to Center
     canvas.drawLine(
       Offset(outer.left + 15, outer.bottom),
       Offset(inner.left + 5, inner.bottom),
       paint,
     );
-    // Bottom-Right to Center
     canvas.drawLine(
       Offset(outer.right - 15, outer.bottom),
       Offset(inner.right - 5, inner.bottom),
@@ -345,7 +277,6 @@ class EmeraldTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar (Top)
     double widthY = center.dy - h / 2 - 30;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -357,8 +288,6 @@ class EmeraldTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar (Right)
     double lengthX = center.dx + w / 2 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h / 2),
@@ -370,8 +299,6 @@ class EmeraldTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 50, center.dy),
     );
-
-    // Ratio Label (Bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -407,33 +334,24 @@ class EmeraldTopViewPainter extends CustomPainter {
 class CushionTopViewPainter extends CustomPainter {
   final GmssStone stone;
   CushionTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Scale based on the weight/ratio, typically square or slightly elongated
     final double h = size.height * 0.45;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.0);
-
-    // 1. Outer Girdle (Rounded Rectangle/Pillow Shape)
     RRect outerRRect = RRect.fromRectAndRadius(
       Rect.fromCenter(center: center, width: w, height: h),
-      const Radius.circular(35), // Significant corner rounding
+      const Radius.circular(35),
     );
     canvas.drawRRect(outerRRect, paint);
-
-    // 2. Table Facet (Center Octagon)
     final double tableW = w * 0.55;
     final double tableH = h * 0.55;
     RRect tableRRect = RRect.fromRectAndRadius(
@@ -441,11 +359,7 @@ class CushionTopViewPainter extends CustomPainter {
       const Radius.circular(10),
     );
     canvas.drawRRect(tableRRect, paint);
-
-    // 3. Facet Lines (Connecting corners and sides)
     _drawCushionFacets(canvas, outerRRect, tableRRect, paint);
-
-    // 4. Dimension Indicators
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
 
@@ -455,7 +369,6 @@ class CushionTopViewPainter extends CustomPainter {
     RRect inner,
     Paint paint,
   ) {
-    // Corner connections
     canvas.drawLine(
       Offset(outer.left + 15, outer.top + 15),
       Offset(inner.left, inner.top),
@@ -476,8 +389,6 @@ class CushionTopViewPainter extends CustomPainter {
       Offset(inner.right, inner.bottom),
       paint,
     );
-
-    // Side mid-point connections
     canvas.drawLine(
       Offset(outer.center.dx, outer.top),
       Offset(inner.center.dx, inner.top),
@@ -507,7 +418,6 @@ class CushionTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar (Top)
     double widthY = center.dy - h / 2 - 30;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -519,8 +429,6 @@ class CushionTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar (Right)
     double lengthX = center.dx + w / 2 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h / 2),
@@ -533,7 +441,6 @@ class CushionTopViewPainter extends CustomPainter {
       Offset(lengthX + 50, center.dy),
     );
 
-    // Ratio Label (Bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -569,39 +476,26 @@ class CushionTopViewPainter extends CustomPainter {
 class RadiantTopViewPainter extends CustomPainter {
   final GmssStone stone;
   RadiantTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Scale based on the stone ratio (Radiants are often rectangular)
     final double h = size.height * 0.5;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.4);
-
-    // 1. Outer Girdle (Rectangular with Cropped Corners)
     final Path outerPath = _getRadiantPath(center, w, h, 15);
     canvas.drawPath(outerPath, paint);
-
-    // 2. Table Facet (Inner Cropped Rectangle)
     final double tableW = w * 0.5;
     final double tableH = h * 0.5;
     final Path tablePath = _getRadiantPath(center, tableW, tableH, 8);
     canvas.drawPath(tablePath, paint);
-
-    // 3. Star and Bezel Facets (Brilliant pattern lines)
     _drawRadiantFacets(canvas, center, w, h, tableW, tableH, paint);
-
-    // 4. Dimension Indicators
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
 
@@ -627,7 +521,6 @@ class RadiantTopViewPainter extends CustomPainter {
     double th,
     Paint paint,
   ) {
-    // Corner to corner connection lines
     canvas.drawLine(
       Offset(center.dx - w / 2 + 15, center.dy - h / 2),
       Offset(center.dx - tw / 2 + 8, center.dy - th / 2),
@@ -648,8 +541,6 @@ class RadiantTopViewPainter extends CustomPainter {
       Offset(center.dx + tw / 2 - 8, center.dy + th / 2),
       paint,
     );
-
-    // Side mid-point to table connections
     canvas.drawLine(
       Offset(center.dx, center.dy - h / 2),
       Offset(center.dx, center.dy - th / 2),
@@ -679,7 +570,6 @@ class RadiantTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar (Top)
     double widthY = center.dy - h / 2 - 30;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -691,8 +581,6 @@ class RadiantTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar (Right)
     double lengthX = center.dx + w / 2 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h / 2),
@@ -704,8 +592,6 @@ class RadiantTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 50, center.dy),
     );
-
-    // Ratio Label (Bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -741,43 +627,34 @@ class RadiantTopViewPainter extends CustomPainter {
 class MarquiseTopViewPainter extends CustomPainter {
   final GmssStone stone;
   MarquiseTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Scale based on typical marquise ratios (often ~2.0)
     final double h = size.height * 0.6;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 2.0);
-
-    // 1. Outer Girdle (Pointed Oval/Boat Shape)
     final Path outerPath = Path();
-    outerPath.moveTo(center.dx, center.dy - h / 2); // Top Point
+    outerPath.moveTo(center.dx, center.dy - h / 2);
     outerPath.quadraticBezierTo(
       center.dx + w,
       center.dy,
       center.dx,
       center.dy + h / 2,
-    ); // Right Curve to Bottom Point
+    );
     outerPath.quadraticBezierTo(
       center.dx - w,
       center.dy,
       center.dx,
       center.dy - h / 2,
-    ); // Left Curve back to Top
+    );
     canvas.drawPath(outerPath, paint);
-
-    // 2. Table Facet (Inner Diamond Shape)
     final double tableW = w * 0.4;
     final double tableH = h * 0.4;
     final Path tablePath = Path();
@@ -787,11 +664,7 @@ class MarquiseTopViewPainter extends CustomPainter {
     tablePath.lineTo(center.dx - tableW / 2, center.dy);
     tablePath.close();
     canvas.drawPath(tablePath, paint);
-
-    // 3. Facet Lines (Connecting table corners to points and sides)
     _drawMarquiseFacets(canvas, center, w, h, tableW, tableH, paint);
-
-    // 4. Dimension Indicators
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
 
@@ -804,7 +677,6 @@ class MarquiseTopViewPainter extends CustomPainter {
     double th,
     Paint paint,
   ) {
-    // Top and Bottom Point connections
     canvas.drawLine(
       Offset(center.dx, center.dy - h / 2),
       Offset(center.dx, center.dy - th / 2),
@@ -815,8 +687,6 @@ class MarquiseTopViewPainter extends CustomPainter {
       Offset(center.dx, center.dy + th / 2),
       paint,
     );
-
-    // Side mid-point connections
     canvas.drawLine(
       Offset(center.dx + tw / 2, center.dy),
       Offset(center.dx + w / 2, center.dy),
@@ -836,7 +706,6 @@ class MarquiseTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar (Top)
     double widthY = center.dy - h / 2 - 20;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -848,8 +717,6 @@ class MarquiseTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar (Right)
     double lengthX = center.dx + w / 2 + 40;
     canvas.drawLine(
       Offset(lengthX, center.dy - h / 2),
@@ -861,8 +728,6 @@ class MarquiseTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 50, center.dy),
     );
-
-    // Ratio Label (Bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -898,42 +763,27 @@ class MarquiseTopViewPainter extends CustomPainter {
 class PearTopViewPainter extends CustomPainter {
   final GmssStone stone;
   PearTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
-      ..color =
-          const Color(0xFF008080) // Professional Teal
+      ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final dashedPaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // 1. Precise Scaling based on Stone Ratio
-    // Uses the stone.ratio from your model to define teardrop elongation
     final double h = size.height * 0.58;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.55);
-
-    // 2. Draw Dashed Boundary Grid
     _drawDashedBoundary(canvas, center, w, h, dashedPaint);
-
-    // 3. Perfect Teardrop Geometry Path
     final Path outerPath = Path();
     double headRadius = w / 2;
-    // Anchor point for the circular head
     double headCenterY = center.dy - (h * 0.15);
-
-    // Rounded Head Arc
     outerPath.addArc(
       Rect.fromCircle(
         center: Offset(center.dx, headCenterY),
@@ -942,14 +792,12 @@ class PearTopViewPainter extends CustomPainter {
       math.pi,
       math.pi,
     );
-
-    // Tapering Shoulders to the sharp tip
     outerPath.moveTo(center.dx - headRadius, headCenterY);
     outerPath.quadraticBezierTo(
       center.dx - headRadius,
       center.dy + (h * 0.1),
       center.dx,
-      center.dy + (h * 0.45), // Bottom Point
+      center.dy + (h * 0.45),
     );
     outerPath.quadraticBezierTo(
       center.dx + headRadius,
@@ -958,15 +806,9 @@ class PearTopViewPainter extends CustomPainter {
       headCenterY,
     );
     canvas.drawPath(outerPath, paint);
-
-    // 4. Internal Brilliant Facets
     _drawPearFacets(canvas, center, w, h, headCenterY, paint);
-
-    // 5. Professional Dimensioning with Arrows
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
-
-  // --- HELPER METHODS ---
 
   void _drawPearFacets(
     Canvas canvas,
@@ -976,12 +818,9 @@ class PearTopViewPainter extends CustomPainter {
     double headY,
     Paint paint,
   ) {
-    // Center Table (Circular for Pear)
     double tableR = w * 0.22;
     Offset tableCenter = Offset(center.dx, headY);
     canvas.drawCircle(tableCenter, tableR, paint);
-
-    // Star Facets distributed around the head arc
     for (int i = 0; i < 6; i++) {
       double angle = (180 + i * 36) * math.pi / 180;
       canvas.drawLine(
@@ -996,8 +835,6 @@ class PearTopViewPainter extends CustomPainter {
         paint,
       );
     }
-
-    // Vertical line connecting table to the bottom point
     canvas.drawLine(
       Offset(center.dx, headY + tableR),
       Offset(center.dx, center.dy + h * 0.45),
@@ -1016,7 +853,6 @@ class PearTopViewPainter extends CustomPainter {
     double bottom = center.dy + h * 0.45;
     double left = center.dx - w / 2;
     double right = center.dx + w / 2;
-
     void drawD(Offset p1, Offset p2) {
       double dist = (p2 - p1).distance;
       for (double i = 0; i < dist; i += 8) {
@@ -1034,8 +870,8 @@ class PearTopViewPainter extends CustomPainter {
       }
     }
 
-    drawD(Offset(left, top), Offset(right + 40, top)); // Horizontal guide
-    drawD(Offset(right, top - 40), Offset(right, bottom)); // Vertical guide
+    drawD(Offset(left, top), Offset(right + 40, top));
+    drawD(Offset(right, top - 40), Offset(right, bottom));
   }
 
   void _drawDimensions(
@@ -1045,7 +881,6 @@ class PearTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar
     double widthY = center.dy - (h * 0.4) - 35;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -1059,8 +894,6 @@ class PearTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar
     double lengthX = center.dx + w / 2 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h * 0.4),
@@ -1079,8 +912,6 @@ class PearTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 50, center.dy),
     );
-
-    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -1138,43 +969,27 @@ class PearTopViewPainter extends CustomPainter {
 class OvalTopViewPainter extends CustomPainter {
   final GmssStone stone;
   OvalTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
-      ..color =
-          const Color(0xFF008080) // Professional Teal
+      ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final dashedPaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // 1. Precise Scaling based on Stone Ratio
-    // Standard oval ratios are typically 1.30 to 1.50.
     final double h = size.height * 0.55;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.40);
-
-    // 2. Draw Dashed Boundary Grid
     _drawDashedBoundary(canvas, center, w, h, dashedPaint);
-
-    // 3. Draw Outer Girdle (Perfect Oval)
     Rect ovalRect = Rect.fromCenter(center: center, width: w, height: h);
     canvas.drawOval(ovalRect, paint);
-
-    // 4. Draw Internal Facets (Brilliant Pattern)
     _drawOvalFacets(canvas, center, w, h, paint);
-
-    // 5. Professional Dimensioning with Arrows
     _drawDimensions(canvas, center, w, h, infoPaint);
   }
 
@@ -1185,15 +1000,12 @@ class OvalTopViewPainter extends CustomPainter {
     double h,
     Paint paint,
   ) {
-    // Table Facet (Inner Oval)
     double tableW = w * 0.5;
     double tableH = h * 0.5;
     canvas.drawOval(
       Rect.fromCenter(center: center, width: tableW, height: tableH),
       paint,
     );
-
-    // Star and Bezel Facets (Connecting table to girdle)
     for (int i = 0; i < 8; i++) {
       double angle = (i * 45) * math.pi / 180;
       canvas.drawLine(
@@ -1221,7 +1033,6 @@ class OvalTopViewPainter extends CustomPainter {
     double bottom = center.dy + h / 2;
     double left = center.dx - w / 2;
     double right = center.dx + w / 2;
-
     void drawD(Offset p1, Offset p2) {
       double dist = (p2 - p1).distance;
       for (double i = 0; i < dist; i += 8) {
@@ -1239,8 +1050,8 @@ class OvalTopViewPainter extends CustomPainter {
       }
     }
 
-    drawD(Offset(left, top), Offset(right + 40, top)); // Horizontal guide
-    drawD(Offset(right, top - 40), Offset(right, bottom)); // Vertical guide
+    drawD(Offset(left, top), Offset(right + 40, top));
+    drawD(Offset(right, top - 40), Offset(right, bottom));
   }
 
   void _drawDimensions(
@@ -1250,7 +1061,6 @@ class OvalTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar
     double widthY = center.dy - h / 2 - 35;
     canvas.drawLine(
       Offset(center.dx - w / 2, widthY),
@@ -1264,8 +1074,6 @@ class OvalTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar
     double lengthX = center.dx + w / 2 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h / 2),
@@ -1279,8 +1087,6 @@ class OvalTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 55, center.dy),
     );
-
-    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -1338,44 +1144,30 @@ class OvalTopViewPainter extends CustomPainter {
 class HeartTopViewPainter extends CustomPainter {
   final GmssStone stone;
   HeartTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final facetPaint = Paint()
-      ..color = Colors
-          .grey
-          .shade700 // Darker grey for better contrast
+      ..color = Colors.grey.shade700
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
     final dimensionPaint = Paint()
-      ..color =
-          const Color(0xFF008080) // Professional Teal
+      ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final guidePaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // 1. Precise Scaling based on Stone Ratio
-    // Calibrated height for technical containers, scaling width dynamically.
     final double h = size.height * 0.52;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.14);
-
-    // 2. Technical Boundary Guidelines
     _drawDashedBoundary(canvas, center, w, h, guidePaint);
-
-    // 3. Perfect Symmetrical Path
     final Path heartPath = Path();
     double cleftY = center.dy - h * 0.18;
     double bottomY = center.dy + h * 0.5;
     double lobeTopY = center.dy - h * 0.48;
     heartPath.moveTo(center.dx, cleftY);
-    // Left Lobe: Refined control points for "Perfect" curves
     heartPath.cubicTo(
       center.dx - w * 0.5,
       lobeTopY,
@@ -1384,7 +1176,6 @@ class HeartTopViewPainter extends CustomPainter {
       center.dx,
       bottomY,
     );
-    // Right Lobe: Mirrored for absolute symmetry
     heartPath.moveTo(center.dx, cleftY);
     heartPath.cubicTo(
       center.dx + w * 0.5,
@@ -1395,11 +1186,7 @@ class HeartTopViewPainter extends CustomPainter {
       bottomY,
     );
     canvas.drawPath(heartPath, facetPaint);
-
-    // 4. Advanced Brilliant Faceting Pattern
     _drawHeartBrilliance(canvas, center, w, h, cleftY, bottomY, facetPaint);
-
-    // 5. Dimension Indicators with Arrowheads
     _drawDimensions(canvas, center, w, h, dimensionPaint);
   }
 
@@ -1412,7 +1199,6 @@ class HeartTopViewPainter extends CustomPainter {
     double bottomY,
     Paint paint,
   ) {
-    // Technical Table (Vertical multifaceted diamond center)
     final double tw = w * 0.4;
     final double th = h * 0.35;
     final Path table = Path();
@@ -1422,8 +1208,6 @@ class HeartTopViewPainter extends CustomPainter {
     table.lineTo(center.dx - tw * 0.5, center.dy - th * 0.1);
     table.close();
     canvas.drawPath(table, paint);
-
-    // Vertical Brilliant Connectors
     canvas.drawLine(
       Offset(center.dx, cleftY),
       Offset(center.dx, center.dy - th * 0.45),
@@ -1435,90 +1219,6 @@ class HeartTopViewPainter extends CustomPainter {
       paint,
     );
   }
-  // Path _getPerfectHeartPath(Offset center, double w, double h) {
-  //   final Path path = Path();
-  //   double topY = center.dy - h * 0.45;
-  //   double bottomY = center.dy + h * 0.5;
-  //   double cleftY = center.dy - h * 0.15;
-  //
-  //   path.moveTo(center.dx, cleftY);
-  //   // Left lobe with precise cubic control points for full shoulders
-  //   path.cubicTo(
-  //     center.dx - w * 0.5,
-  //     topY,
-  //     center.dx - w * 0.65,
-  //     center.dy + h * 0.1,
-  //     center.dx,
-  //     bottomY,
-  //   );
-  //   // Right lobe - mirrored for perfect technical symmetry
-  //   path.moveTo(center.dx, cleftY);
-  //   path.cubicTo(
-  //     center.dx + w * 0.5,
-  //     topY,
-  //     center.dx + w * 0.65,
-  //     center.dy + h * 0.1,
-  //     center.dx,
-  //     bottomY,
-  //   );
-  //   return path;
-  // }
-
-  // void _drawHeartFacets(
-  //   Canvas canvas,
-  //   Offset center,
-  //   double w,
-  //   double h,
-  //   Paint paint,
-  // ) {
-  //   // 1. Center Table Facet (Angular multifaceted diamond)
-  //   final double tw = w * 0.42;
-  //   final double th = h * 0.35;
-  //   final Path table = Path();
-  //   table.moveTo(center.dx, center.dy - th * 0.45);
-  //   table.lineTo(center.dx + tw * 0.5, center.dy - th * 0.1);
-  //   table.lineTo(center.dx, center.dy + th * 0.65);
-  //   table.lineTo(center.dx - tw * 0.5, center.dy - th * 0.1);
-  //   table.close();
-  //   canvas.drawPath(table, paint);
-  //
-  //   // 2. Main Vertical Connectors
-  //   canvas.drawLine(
-  //     Offset(center.dx, center.dy - h * 0.15),
-  //     Offset(center.dx, center.dy - th * 0.45),
-  //     paint,
-  //   );
-  //   canvas.drawLine(
-  //     Offset(center.dx, center.dy + h * 0.5),
-  //     Offset(center.dx, center.dy + th * 0.65),
-  //     paint,
-  //   );
-  //
-  //   // 3. Radial Brilliant Facets (The "Sunburst" effect)
-  //   // Upper lobes
-  //   canvas.drawLine(
-  //     Offset(center.dx - w * 0.35, center.dy - h * 0.25),
-  //     Offset(center.dx - tw * 0.2, center.dy - th * 0.25),
-  //     paint,
-  //   );
-  //   canvas.drawLine(
-  //     Offset(center.dx + w * 0.35, center.dy - h * 0.25),
-  //     Offset(center.dx + tw * 0.2, center.dy - th * 0.25),
-  //     paint,
-  //   );
-  //
-  //   // Side wings
-  //   canvas.drawLine(
-  //     Offset(center.dx - w * 0.48, center.dy + h * 0.1),
-  //     Offset(center.dx - tw * 0.5, center.dy - th * 0.1),
-  //     paint,
-  //   );
-  //   canvas.drawLine(
-  //     Offset(center.dx + w * 0.48, center.dy + h * 0.1),
-  //     Offset(center.dx + tw * 0.5, center.dy - th * 0.1),
-  //     paint,
-  //   );
-  // }
 
   void _drawDashedBoundary(
     Canvas canvas,
@@ -1531,7 +1231,6 @@ class HeartTopViewPainter extends CustomPainter {
     double bottom = center.dy + h * 0.5;
     double left = center.dx - w * 0.5;
     double right = center.dx + w * 0.5;
-
     void drawD(Offset p1, Offset p2) {
       double dist = (p2 - p1).distance;
       for (double i = 0; i < dist; i += 8) {
@@ -1549,11 +1248,8 @@ class HeartTopViewPainter extends CustomPainter {
       }
     }
 
-    drawD(Offset(left, top), Offset(right + 45, top)); // Horizontal top guide
-    drawD(
-      Offset(right, top - 45),
-      Offset(right, bottom),
-    ); // Vertical right guide
+    drawD(Offset(left, top), Offset(right + 45, top));
+    drawD(Offset(right, top - 45), Offset(right, bottom));
   }
 
   void _drawDimensions(
@@ -1563,7 +1259,6 @@ class HeartTopViewPainter extends CustomPainter {
     double h,
     Paint infoPaint,
   ) {
-    // Width Bar
     double widthY = center.dy - h * 0.45 - 35;
     canvas.drawLine(
       Offset(center.dx - w * 0.5, widthY),
@@ -1577,8 +1272,6 @@ class HeartTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length Bar
     double lengthX = center.dx + w * 0.5 + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - h * 0.45),
@@ -1602,8 +1295,6 @@ class HeartTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 55, center.dy),
     );
-
-    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -1661,40 +1352,28 @@ class HeartTopViewPainter extends CustomPainter {
 class BaguetteTopViewPainter extends CustomPainter {
   final GmssStone stone;
   BaguetteTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Setup Paints
     final facetPaint = Paint()
       ..color = Colors.grey.shade700
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.3;
-
     final filledPaint = Paint()
       ..color = const Color(0xFF008080).withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
-
     final dimensionPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final guidePaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Scaling: Hexagons are usually equal in width/height (Ratio 1.0)
     final double radius = (size.width * 0.45) / 2;
     final double h = radius * 2;
     final double w = h / (stone.ratio > 0 ? stone.ratio : 1.0);
-
-    // 2. Draw Technical Guides
     _drawDashedBoundary(canvas, center, w, h, guidePaint);
-
-    // 3. Define Hexagon Points (Outer Girdle)
     List<Offset> outerPoints = [];
     for (int i = 0; i < 6; i++) {
       double angle = (i * 60) * math.pi / 180;
@@ -1705,8 +1384,6 @@ class BaguetteTopViewPainter extends CustomPainter {
         ),
       );
     }
-
-    // 4. Define Table Points (Inner Hexagon)
     final double tableRadius = radius * 0.45;
     List<Offset> tablePoints = [];
     for (int i = 0; i < 6; i++) {
@@ -1718,36 +1395,21 @@ class BaguetteTopViewPainter extends CustomPainter {
         ),
       );
     }
-
-    // 5. Draw the Geometry
     final Path hexPath = Path()..addPolygon(outerPoints, true);
-    canvas.drawPath(hexPath, filledPaint); // Soft teal background
-    canvas.drawPath(hexPath, facetPaint); // Outer border
-
-    // Draw Inner Table
+    canvas.drawPath(hexPath, filledPaint);
+    canvas.drawPath(hexPath, facetPaint);
     canvas.drawPath(Path()..addPolygon(tablePoints, true), facetPaint);
-
-    // 6. Draw Internal Facet Lines (As per your image)
     for (int i = 0; i < 6; i++) {
-      // Connect Table corners to Girdle corners
       canvas.drawLine(tablePoints[i], outerPoints[i], facetPaint);
-
-      // Draw the triangular "star" facets between main segments
-      // Connect table corner to the midpoint of the outer girdle edge
       double midAngle = (i * 60 + 30) * math.pi / 180;
       Offset girdleMid = Offset(
-        center.dx + (radius * 0.866) * math.cos(midAngle), // 0.866 is cos(30)
+        center.dx + (radius * 0.866) * math.cos(midAngle),
         center.dy + (radius * 0.866) * math.sin(midAngle),
       );
-
       canvas.drawLine(tablePoints[i], girdleMid, facetPaint);
       canvas.drawLine(tablePoints[(i + 1) % 6], girdleMid, facetPaint);
-
-      // Vertical/Horizontal cross-hair pattern seen in your reference
       canvas.drawLine(center, tablePoints[i], facetPaint);
     }
-
-    // 7. Draw Professional Dimensions
     _drawDimensions(canvas, center, radius, dimensionPaint);
   }
 
@@ -1763,7 +1425,6 @@ class BaguetteTopViewPainter extends CustomPainter {
     final double left = center.dx - w / 2;
     final double right = center.dx + w / 2;
     const double ext = 15.0;
-
     void drawLine(Offset p1, Offset p2) {
       double dist = (p2 - p1).distance;
       for (double i = 0; i < dist; i += 8) {
@@ -1781,7 +1442,6 @@ class BaguetteTopViewPainter extends CustomPainter {
       }
     }
 
-    // Corner L-pipes
     drawLine(Offset(left - ext, top), Offset(left, top));
     drawLine(Offset(left, top - ext), Offset(left, top));
     drawLine(Offset(right, top), Offset(right + ext, top));
@@ -1798,7 +1458,6 @@ class BaguetteTopViewPainter extends CustomPainter {
     double radius,
     Paint infoPaint,
   ) {
-    // Width (Top)
     double widthY = center.dy - radius - 35;
     canvas.drawLine(
       Offset(center.dx - radius, widthY),
@@ -1812,8 +1471,6 @@ class BaguetteTopViewPainter extends CustomPainter {
       "Width: ${stone.width} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Length (Right)
     double lengthX = center.dx + radius + 35;
     canvas.drawLine(
       Offset(lengthX, center.dy - radius),
@@ -1827,8 +1484,6 @@ class BaguetteTopViewPainter extends CustomPainter {
       "Length: ${stone.length} mm",
       Offset(lengthX + 55, center.dy),
     );
-
-    // Ratio (Bottom)
     _drawText(
       canvas,
       "Ratio: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -1880,37 +1535,27 @@ class BaguetteTopViewPainter extends CustomPainter {
 class DiamondProfilePainter extends CustomPainter {
   final GmssStone stone;
   DiamondProfilePainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final linePaint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final infoPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final dashedPaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-
-    // Adjust multipliers to ensure text doesn't go off-screen
     final double width = size.width * 0.55;
     final double centerX = size.width / 2;
     final double startY = 70.0;
-
     final double tableWidth = width * (stone.table / 100);
     final double totalHeight = width * (stone.depth / 100);
     final double crownHeight = totalHeight * 0.25;
-
-    // 1. Draw Dashed Boundary Box
     _drawDashedRect(canvas, centerX, width, startY, totalHeight, dashedPaint);
-
-    // 2. Draw Diamond Shape
     final Path path = Path();
     path.moveTo(centerX - tableWidth / 2, startY);
     path.lineTo(centerX + tableWidth / 2, startY);
@@ -1921,8 +1566,6 @@ class DiamondProfilePainter extends CustomPainter {
     path.lineTo(centerX - width / 2, startY + crownHeight);
     path.close();
     canvas.drawPath(path, linePaint);
-
-    // 3. Table % Indicator with Arrows
     double tableLineY = startY - 15;
     canvas.drawLine(
       Offset(centerX - tableWidth / 2, tableLineY),
@@ -1946,8 +1589,6 @@ class DiamondProfilePainter extends CustomPainter {
       "Table %: ${stone.table.toInt()}%",
       Offset(centerX, tableLineY - 15),
     );
-
-    // 4. Depth % Indicator with Arrows
     double depthX = centerX + width / 2 + 35;
     canvas.drawLine(
       Offset(depthX, startY),
@@ -1971,8 +1612,6 @@ class DiamondProfilePainter extends CustomPainter {
       "Depth: ${stone.length} mm",
       Offset(depthX + 45, startY + totalHeight / 2 + 10),
     );
-
-    // 5. Girdle Callout
     _drawIndicator(
       canvas,
       Offset(centerX + width / 4, startY + crownHeight + 2),
@@ -1980,8 +1619,6 @@ class DiamondProfilePainter extends CustomPainter {
       infoPaint,
       true,
     );
-
-    // 6. Culet Callout
     _drawIndicator(
       canvas,
       Offset(centerX - 5, startY + totalHeight - 5),
@@ -2000,7 +1637,6 @@ class DiamondProfilePainter extends CustomPainter {
     Paint paint,
   ) {
     double dashWidth = 4, dashSpace = 4;
-    // Top dashed line
     for (
       double i = cx + w / 2;
       i < cx + w / 2 + 35;
@@ -2008,7 +1644,6 @@ class DiamondProfilePainter extends CustomPainter {
     ) {
       canvas.drawLine(Offset(i, sy), Offset(i + dashWidth, sy), paint);
     }
-    // Bottom dashed line
     for (double i = cx; i < cx + w / 2 + 35; i += dashWidth + dashSpace) {
       canvas.drawLine(Offset(i, sy + h), Offset(i + dashWidth, sy + h), paint);
     }
