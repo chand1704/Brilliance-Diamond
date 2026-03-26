@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html' as html;
 
 import 'package:brilliance_diamond/utils/diamond_painter_utils.dart';
@@ -242,7 +243,9 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   void _handleCardTap(GmssStone stone) {
-    html.window.localStorage['last_clicked_id'] = stone.id.toString();
+    html.window.localStorage['selected_stone_data'] = jsonEncode(
+      stone.toJson(),
+    );
     // Use the browser's window object to open a formatted URL
     final String url =
         "${html.window.location.origin}/#/details?id=${stone.id}";

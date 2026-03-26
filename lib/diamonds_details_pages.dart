@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
@@ -107,60 +108,71 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     //   return video;
     // });
   }
-
+  //
   // Future<void> _loadStoneData() async {
   //   if (widget.stone != null) {
-  //     setState(() {
-  //       _currentStone = widget.stone;
-  //       _caratNotifier.value = _currentStone!.weight;
-  //       _isLoading = false;
-  //     });
-  //     _registerVideoFactory();
+  //     _updateUI(widget.stone!);
   //     return;
-  //   } else if (widget.stoneId != null) {
-  //     // FETCH DATA FROM API
-  //     // You need a method in your service like: GmssApiService.getStoneById(id)
-  //     // For now, let's assume you fetch all and find the one with the ID
-  //     final allStones =
-  //         await GmssApiService.fetchLabGrownData(); // Or logic to check both lab/natural
-  //     final foundStone = allStones.firstWhere(
-  //       (s) => s.id.toString() == widget.stoneId,
-  //       orElse: () => allStones.first, // Fallback
-  //     );
+  //   }
   //
-  //     setState(() {
-  //       _currentStone = foundStone;
-  //       _caratNotifier.value = _currentStone!.weight;
-  //       _isLoading = false;
-  //     });
-  //     _registerVideoFactory();
+  //   final String? savedJson = html.window.localStorage['selected_stone_data'];
+  //   if (widget.stoneId != null) {
+  //     // Check if the data is already in our Static Cache (Fastest)
+  //     final cachedStones =
+  //         GmssApiService.getCachedStones(); // Add a getter for _cachedStones
+  //     if (cachedStones != null) {
+  //       final found = cachedStones.firstWhere(
+  //         (s) => s.id.toString() == widget.stoneId,
+  //         orElse: () => cachedStones.first,
+  //       );
+  //       _updateUI(found);
+  //       return; // Exit early! No skeleton loader shown.
+  //     }
+  //
+  //     try {
+  //       // Fallback to API if cache is empty
+  //       final allStones = await GmssApiService.fetchLabGrownData();
+  //       final foundStone = allStones.firstWhere(
+  //         (s) => s.id.toString() == widget.stoneId,
+  //         orElse: () => allStones.first,
+  //       );
+  //       _updateUI(foundStone);
+  //     } catch (e) {
+  //       if (mounted) setState(() => _isLoading = false);
+  //     }
   //   }
   // }
+
   Future<void> _loadStoneData() async {
+    // 1. Check if the stone was passed directly (Internal Navigation)
     if (widget.stone != null) {
       _updateUI(widget.stone!);
       return;
     }
 
-    if (widget.stoneId != null) {
-      // Check if the data is already in our Static Cache (Fastest)
-      final cachedStones =
-          GmssApiService.getCachedStones(); // Add a getter for _cachedStones
-      if (cachedStones != null) {
-        final found = cachedStones.firstWhere(
-          (s) => s.id.toString() == widget.stoneId,
-          orElse: () => cachedStones.first,
-        );
-        _updateUI(found);
-        return; // Exit early! No skeleton loader shown.
-      }
-
+    // 2. Check LocalStorage for the stone data (New Tab Navigation)
+    final String? savedJson = html.window.localStorage['selected_stone_data'];
+    if (savedJson != null) {
       try {
-        // Fallback to API if cache is empty
+        final Map<String, dynamic> stoneMap = jsonDecode(savedJson);
+        final stone = GmssStone.fromJson(stoneMap, isLab: true);
+
+        // Verify the ID matches the URL ID to avoid showing the wrong diamond
+        if (stone.id.toString() == widget.stoneId) {
+          _updateUI(stone);
+          return; // Success! Instant load.
+        }
+      } catch (e) {
+        debugPrint("Error parsing local stone data: $e");
+      }
+    }
+
+    // 3. Fallback: If no local data, fetch from API (User refreshed or shared link)
+    if (widget.stoneId != null) {
+      try {
         final allStones = await GmssApiService.fetchLabGrownData();
         final foundStone = allStones.firstWhere(
           (s) => s.id.toString() == widget.stoneId,
-          orElse: () => allStones.first,
         );
         _updateUI(foundStone);
       } catch (e) {

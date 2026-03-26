@@ -123,6 +123,38 @@ class GmssStone {
       total_price: safeDouble(json['totalPrice']),
     );
   }
+  // Inside your GmssStone class
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'stockNo': stockNo,
+      'shapeStr': shapeStr,
+      'shapeIcon': shapeIcon,
+      'weight': weight,
+      'color': colorStr,
+      'fancyColor': fancy_color,
+      'clarity': clarityStr,
+      'cut': cut,
+      'cut_code': cut_code,
+      'lab': lab,
+      'fluorescenceIntensity': fl_intensity,
+      'polish': polish,
+      'imageLink': image_link,
+      'videoLink': video_link,
+      'certiFile': certi_file,
+      'stoneName': stoneName,
+      'girdleCondition': gridle_condition,
+      'symmetry': symmetry,
+      'culetSize': culet_size,
+      'measurements':
+          "$length*$width*$depth", // Reconstructed for fromJson split
+      'ratio': ratio,
+      'depth': depth,
+      'table': table, // Maps to both width and table in your logic
+      'totalPrice': total_price,
+    };
+  }
+
   // factory GmssStone.fromJson(Map<String, dynamic> json) {
   //   double safeDouble(dynamic v) {
   //     if (v == null || v.toString() == 'null') return 0.0;
