@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 class MainHeader extends StatefulWidget {
   final Color themeColor;
   final VoidCallback onNaturalDiamondsTap;
-
   final Function(String?) onFancyDiamondsTap;
   final Function(String, int) onShapeTap;
   final List<Map<String, dynamic>> shapeCategories;
-
   const MainHeader({
     super.key,
     required this.themeColor,
@@ -17,7 +15,6 @@ class MainHeader extends StatefulWidget {
     required this.onShapeTap,
     required this.shapeCategories,
   });
-
   @override
   State<MainHeader> createState() => _MainHeaderState();
 }
@@ -26,27 +23,26 @@ class _MainHeaderState extends State<MainHeader> {
   Color _getDiamondColor(String name) {
     switch (name.toLowerCase()) {
       case 'yellow':
-        return const Color(0xFFFFD700); // Vivid Yellow
+        return const Color(0xFFFFD700);
       case 'pink':
-        return const Color(0xFFFFB6C1); // Soft Pink
+        return const Color(0xFFFFB6C1);
       case 'blue':
-        return const Color(0xFF87CEEB); // Sky Blue
+        return const Color(0xFF87CEEB);
       case 'green':
-        return const Color(0xFF90EE90); // Light Green
+        return const Color(0xFF90EE90);
       case 'orange':
-        return const Color(0xFFFFA500); // Orange
+        return const Color(0xFFFFA500);
       case 'purple':
-        return const Color(0xFFDDA0DD); // Plum/Purple
+        return const Color(0xFFDDA0DD);
       case 'brown':
-        return const Color(0xFF8B4513); // Saddle Brown
+        return const Color(0xFF8B4513);
       case 'grey':
-        return const Color(0xFF808080); // Grey
+        return const Color(0xFF808080);
       default:
-        return Colors.grey.shade300; // Fallback for white/NZ
+        return Colors.grey.shade300;
     }
   }
 
-  // 1. Add the fancy color data list (or pass it via constructor if preferred)
   final List<Map<String, dynamic>> fancyColors = [
     {'id': 7, 'name': 'Green'},
     {'id': 8, 'name': 'Orange'},
@@ -58,23 +54,7 @@ class _MainHeaderState extends State<MainHeader> {
     {'id': 3, 'name': 'Brown'},
     {'id': 10, 'name': 'NZ'},
   ];
-  // 2. Add a local state for the "Show More" toggle
   bool isFancyExpanded = false;
-  // 3. Helper to get the shape code for the image URL
-  String _getShapeCode(String shape) {
-    String s = shape.toUpperCase();
-    if (s == "PEAR") return "PE";
-    if (s == "EMERALD") return "EM";
-    if (s == "MARQUISE") return "MQ";
-    if (s == "CUSHION") return "CU";
-    if (s == "RADIANT") return "RA";
-    if (s == "OVAL") return "OV";
-    if (s == "HEART") return "HT";
-    if (s == "PRINCESS") return "PR";
-    if (s == "ASSCHER") return "AS";
-    return "RD"; // Default to Round
-  }
-
   final OverlayPortalController _diamondHoverController =
       OverlayPortalController();
   final OverlayPortalController _engagementHoverController =
@@ -85,7 +65,6 @@ class _MainHeaderState extends State<MainHeader> {
       OverlayPortalController();
   final OverlayPortalController _aboutHoverController =
       OverlayPortalController();
-
   void _hideAllMenus() {
     _diamondHoverController.hide();
     _engagementHoverController.hide();
@@ -251,7 +230,6 @@ class _MainHeaderState extends State<MainHeader> {
               ]),
             ),
             _buildPromoCard(
-              // "https://www.brilliance.com/cdn-cgi/image/f=webp,quality=90/sites/default/files/vue/diamonds_promo.jpg",
               "assets/images/diamonds_promo.png",
               "NEW ARRIVALS",
               "Exquisite Lab Brilliance",
@@ -262,7 +240,6 @@ class _MainHeaderState extends State<MainHeader> {
     );
   }
 
-  // Simple helper for header color clicks
   Widget _headerColorItem(String name) {
     return InkWell(
       onTap: () {
@@ -270,15 +247,11 @@ class _MainHeaderState extends State<MainHeader> {
         _hideAllMenus();
       },
       child: SizedBox(
-        width: 45, // Set fixed width for alignment
+        width: 45,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.circle,
-              color: _getDiamondColor(name), // ✅ Dynamic Color
-              size: 22,
-            ),
+            Icon(Icons.circle, color: _getDiamondColor(name), size: 22),
             const SizedBox(height: 4),
             Text(
               name,
@@ -357,7 +330,7 @@ class _MainHeaderState extends State<MainHeader> {
               ),
             ),
             _buildPromoCard(
-              "assets/images/engagement_promo.png", // Ensure this path is correct
+              "assets/images/engagement_promo.png",
               "CREATE YOUR OWN RING",
               "Explore Our 3D Creator",
             ),
@@ -453,7 +426,7 @@ class _MainHeaderState extends State<MainHeader> {
               ]),
             ),
             _buildPromoCard(
-              "assets/images/wedding_promo.png", // Ensure this file exists in assets/images/
+              "assets/images/wedding_promo.png",
               "WEDDING RINGS",
               "Explore Our Best Sellers",
             ),
@@ -536,7 +509,7 @@ class _MainHeaderState extends State<MainHeader> {
               ),
             ),
             _buildPromoCard(
-              "assets/images/jewelry_promo.png", // Ensure this file exists in assets/images/
+              "assets/images/jewelry_promo.png",
               "Shop Vault Sale",
               "Get 50% Off with code VAULT",
             ),
@@ -621,17 +594,6 @@ class _MainHeaderState extends State<MainHeader> {
     );
   }
 
-  // Widget _simpleMenu(String text) {
-  //   return Material(
-  //     elevation: 10,
-  //     child: Container(
-  //       padding: const EdgeInsets.all(40),
-  //       color: Colors.white,
-  //       child: Text(text),
-  //     ),
-  //   );
-  // }
-
   Widget _shapeItem(Map<String, dynamic> shape) {
     return InkWell(
       onTap: () {
@@ -709,16 +671,10 @@ class _MainHeaderState extends State<MainHeader> {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // Image.network(
-          //   "https://corsproxy.io/?${Uri.encodeComponent(url)}",
-          //   fit: BoxFit.cover,
-          //   height: double.infinity,
-          // ),
           Positioned.fill(
             child: Image.asset(
-              assetPath, // Path to your asset
+              assetPath,
               fit: BoxFit.cover,
-              // height: double.infinity,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: const Color(0xFF001F3F),
                 child: const Icon(
@@ -729,7 +685,6 @@ class _MainHeaderState extends State<MainHeader> {
               ),
             ),
           ),
-          // 2. Elegant Gradient Overlay (Darker at bottom for text readability)
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -746,7 +701,6 @@ class _MainHeaderState extends State<MainHeader> {
               ),
             ),
           ),
-          // 3. Text Content with Luxury Styling
           Positioned(
             bottom: 20,
             left: 20,
@@ -815,7 +769,6 @@ class _MainHeaderState extends State<MainHeader> {
 class _MenuAnimationWrapper extends StatefulWidget {
   final Widget child;
   const _MenuAnimationWrapper({required this.child});
-
   @override
   State<_MenuAnimationWrapper> createState() => _MenuAnimationWrapperState();
 }
@@ -825,20 +778,18 @@ class _MenuAnimationWrapperState extends State<_MenuAnimationWrapper>
   late AnimationController _controller;
   late Animation<double> _opacity;
   late Animation<Offset> _slide;
-
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300), // Speed of transition
+      duration: const Duration(milliseconds: 300),
     );
     _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _slide = Tween<Offset>(
       begin: const Offset(0, -0.05),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-
     _controller.forward();
   }
 
