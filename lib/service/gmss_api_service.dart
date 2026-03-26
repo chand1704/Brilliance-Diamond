@@ -6,27 +6,18 @@ import '../model/gmss_stone_model.dart';
 
 class GmssApiService {
   static const String baseUrl = 'https://app.prajesh.co/apis/api/getStockN';
-  // Your new Lab Grown API URL
-  // static const String labGrownUrl = 'https://app.prajesh.co/apis/api/getStockN';
   static const String labAuthKey = 'nigtw54xafke';
-
-  // static const String naturalUrl = 'https://app.prajesh.co/apis/api/getStockN';
   static const String naturalAuthKey = 'wwoy95kxfwll';
   static List<GmssStone>? _cachedStones;
-  // 2. Add this getter method (Fixes the undefined_method error)
   static List<GmssStone>? getCachedStones() => _cachedStones;
   static Future<List<GmssStone>> fetchLabGrownData() async {
     if (_cachedStones != null && _cachedStones!.isNotEmpty) {
       return _cachedStones!;
     }
-    // Construct URL with Query Parameters as seen in your Postman screenshot
     final uri = Uri.parse('$baseUrl?auth_key=$labAuthKey');
-
-    final response = await http.post(uri); // Your Postman shows POST
-
+    final response = await http.post(uri);
     if (response.statusCode == 200) {
       final List<dynamic> decoded = jsonDecode(response.body);
-      // Map the list directly since this API returns a top-level Array
       _cachedStones = decoded
           .map((e) => GmssStone.fromJson(e, isLab: true))
           .toList();
@@ -40,7 +31,6 @@ class GmssApiService {
     final response = await http.post(uri);
     if (response.statusCode == 200) {
       final List<dynamic> decoded = jsonDecode(response.body);
-      // Pass isLab: false to identify these as natural diamonds
       return decoded.map((e) => GmssStone.fromJson(e, isLab: false)).toList();
     } else {
       throw Exception('Failed to load Natural data');
