@@ -113,6 +113,6 @@ class SafeImageState extends State<SafeImage> {
     if (shape.contains("OVAL")) return MinimalOvalPainter();
     if (shape.contains("HEART")) return MinimalHeartPainter();
     if (shape.contains("ASSCHER")) return MinimalAsscherPainter();
-    return MinimalRoundPainter(); // Default
+    return MinimalRoundPainter();
   }
 }
