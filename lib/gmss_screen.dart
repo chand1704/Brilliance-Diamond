@@ -246,27 +246,10 @@ class _GmssScreenState extends State<GmssScreen> {
     html.window.localStorage['selected_stone_data'] = jsonEncode(
       stone.toJson(),
     );
-    // Use the browser's window object to open a formatted URL
     final String url =
         "${html.window.location.origin}/#/details?id=${stone.id}";
     html.window.open(url, "_blank");
   }
-  // gmss_screen.dart
-
-  // void _handleCardTap(GmssStone stone) {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => DiamondDetailScreen(
-  //         stone: stone, // Passing the full object makes it instant
-  //         isFavorite: _savedStones.any((s) => s.id == stone.id),
-  //         onFavoriteToggle: (isNowFavorite) {
-  //           _toggleSave(stone);
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
 
   List<GmssStone> _applyFiltering(List<GmssStone> allStones) {
     final List<GmssStone> filtered = allStones.where((stone) {
@@ -463,7 +446,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 clarityRange: _clarityRange,
                 showOnlyWithImages: showOnlyWithImages,
                 quickShipping: quickShipping,
-
                 // Advanced Filter Props
                 showAdvancedFilters: showAdvancedFilters,
                 cutRange: _cutRange,
@@ -473,7 +455,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 symRange: _symRange,
                 depthRange: _depthRange,
                 tableRange: _tableRange,
-
                 // Fancy Filter Props
                 selectedFancyColorId: selectedFancyColorId,
                 isFancyExpanded: isFancyExpanded,
@@ -481,7 +462,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 fancyColors: fancyColors,
                 saturationLabels: saturationLabels,
                 selectedShape: selectedShape,
-
                 // Labels
                 shadeLabels: shadeLabels,
                 clarityLabels: clarityLabels,
@@ -490,7 +470,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 flLabels: flLabels,
                 certLabels: certLabels,
                 symLabels: symLabels,
-
                 // Callbacks
                 onOriginChanged: (val) {
                   setState(() {
@@ -514,7 +493,6 @@ class _GmssScreenState extends State<GmssScreen> {
                 onSymChanged: (val) => setState(() => _symRange = val),
                 onDepthChanged: (val) => setState(() => _depthRange = val),
                 onTableChanged: (val) => setState(() => _tableRange = val),
-
                 // Fancy Callbacks
                 onFancyColorTap: (id, name) {
                   setState(() {
@@ -527,7 +505,6 @@ class _GmssScreenState extends State<GmssScreen> {
                     setState(() => isFancyExpanded = !isFancyExpanded),
                 onSaturationChanged: (val) =>
                     setState(() => _saturationRange = val),
-
                 onReset: () {
                   setState(() {
                     showOnlyWithImages = false;
@@ -813,7 +790,6 @@ class _GmssScreenState extends State<GmssScreen> {
     );
   }
 
-  //--------------------------------------------------------------------
   Widget _buildDiamondRow(GmssStone stone, Color themeColor) {
     bool isFavorite = _savedStones.any((s) => s.id == stone.id);
     return Container(
@@ -1132,7 +1108,6 @@ class _GmssScreenState extends State<GmssScreen> {
                       color: isSelected ? Colors.teal : Colors.grey,
                     ),
             ),
-
             const SizedBox(height: 10),
             Text(
               shape['name'].toString().toUpperCase(),
