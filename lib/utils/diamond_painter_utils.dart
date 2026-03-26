@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// If your painters are in diamond_shapes.dart, import it here:
 import '../diamond_shapes.dart';
 
 class DiamondPainterUtils {
