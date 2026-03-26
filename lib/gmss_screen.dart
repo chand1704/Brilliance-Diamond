@@ -242,6 +242,7 @@ class _GmssScreenState extends State<GmssScreen> {
   }
 
   void _handleCardTap(GmssStone stone) {
+    html.window.localStorage['last_clicked_id'] = stone.id.toString();
     // Use the browser's window object to open a formatted URL
     final String url =
         "${html.window.location.origin}/#/details?id=${stone.id}";

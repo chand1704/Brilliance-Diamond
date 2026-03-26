@@ -37,14 +37,16 @@ class MyApp extends StatelessWidget {
           // );
           return PageRouteBuilder(
             settings: settings,
+            transitionDuration: Duration.zero,
+            // reverseTransitionDuration: Duration.zero,
             pageBuilder: (_, __, ___) => DiamondDetailScreen(
               stoneId: stoneId,
               stone: null,
               isFavorite: false,
               onFavoriteToggle: (val) {},
             ),
-            transitionsBuilder: (_, animation, __, child) =>
-                FadeTransition(opacity: animation, child: child),
+            // transitionsBuilder: (_, animation, __, child) =>
+            //     FadeTransition(opacity: animation, child: child),
           );
         }
         return null;

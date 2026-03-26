@@ -12,8 +12,13 @@ class GmssApiService {
 
   // static const String naturalUrl = 'https://app.prajesh.co/apis/api/getStockN';
   static const String naturalAuthKey = 'wwoy95kxfwll';
-
+  static List<GmssStone>? _cachedStones;
+  // 2. Add this getter method (Fixes the undefined_method error)
+  static List<GmssStone>? getCachedStones() => _cachedStones;
   static Future<List<GmssStone>> fetchLabGrownData() async {
+    if (_cachedStones != null && _cachedStones!.isNotEmpty) {
+      return _cachedStones!;
+    }
     // Construct URL with Query Parameters as seen in your Postman screenshot
     final uri = Uri.parse('$baseUrl?auth_key=$labAuthKey');
 
@@ -22,10 +27,12 @@ class GmssApiService {
     if (response.statusCode == 200) {
       final List<dynamic> decoded = jsonDecode(response.body);
       // Map the list directly since this API returns a top-level Array
-      return decoded.map((e) => GmssStone.fromJson(e, isLab: true)).toList();
-    } else {
-      throw Exception('Failed to load Lab Grown data');
+      _cachedStones = decoded
+          .map((e) => GmssStone.fromJson(e, isLab: true))
+          .toList();
+      return _cachedStones!;
     }
+    return [];
   }
 
   static Future<List<GmssStone>> fetchNaturalData() async {

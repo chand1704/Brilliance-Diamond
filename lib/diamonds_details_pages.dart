@@ -3,7 +3,6 @@ import 'dart:ui_web' as ui;
 
 import 'package:brilliance_diamond/service/gmss_api_service.dart';
 import 'package:brilliance_diamond/widgets/main_header.dart';
-import 'package:brilliance_diamond/widgets/safe_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -109,33 +108,80 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     // });
   }
 
+  // Future<void> _loadStoneData() async {
+  //   if (widget.stone != null) {
+  //     setState(() {
+  //       _currentStone = widget.stone;
+  //       _caratNotifier.value = _currentStone!.weight;
+  //       _isLoading = false;
+  //     });
+  //     _registerVideoFactory();
+  //     return;
+  //   } else if (widget.stoneId != null) {
+  //     // FETCH DATA FROM API
+  //     // You need a method in your service like: GmssApiService.getStoneById(id)
+  //     // For now, let's assume you fetch all and find the one with the ID
+  //     final allStones =
+  //         await GmssApiService.fetchLabGrownData(); // Or logic to check both lab/natural
+  //     final foundStone = allStones.firstWhere(
+  //       (s) => s.id.toString() == widget.stoneId,
+  //       orElse: () => allStones.first, // Fallback
+  //     );
+  //
+  //     setState(() {
+  //       _currentStone = foundStone;
+  //       _caratNotifier.value = _currentStone!.weight;
+  //       _isLoading = false;
+  //     });
+  //     _registerVideoFactory();
+  //   }
+  // }
   Future<void> _loadStoneData() async {
     if (widget.stone != null) {
-      setState(() {
-        _currentStone = widget.stone;
-        _caratNotifier.value = _currentStone!.weight;
-        _isLoading = false;
-      });
-      _registerVideoFactory();
+      _updateUI(widget.stone!);
       return;
-    } else if (widget.stoneId != null) {
-      // FETCH DATA FROM API
-      // You need a method in your service like: GmssApiService.getStoneById(id)
-      // For now, let's assume you fetch all and find the one with the ID
-      final allStones =
-          await GmssApiService.fetchLabGrownData(); // Or logic to check both lab/natural
-      final foundStone = allStones.firstWhere(
-        (s) => s.id.toString() == widget.stoneId,
-        orElse: () => allStones.first, // Fallback
-      );
-
-      setState(() {
-        _currentStone = foundStone;
-        _caratNotifier.value = _currentStone!.weight;
-        _isLoading = false;
-      });
-      _registerVideoFactory();
     }
+
+    if (widget.stoneId != null) {
+      // Check if the data is already in our Static Cache (Fastest)
+      final cachedStones =
+          GmssApiService.getCachedStones(); // Add a getter for _cachedStones
+      if (cachedStones != null) {
+        final found = cachedStones.firstWhere(
+          (s) => s.id.toString() == widget.stoneId,
+          orElse: () => cachedStones.first,
+        );
+        _updateUI(found);
+        return; // Exit early! No skeleton loader shown.
+      }
+
+      try {
+        // Fallback to API if cache is empty
+        final allStones = await GmssApiService.fetchLabGrownData();
+        final foundStone = allStones.firstWhere(
+          (s) => s.id.toString() == widget.stoneId,
+          orElse: () => allStones.first,
+        );
+        _updateUI(foundStone);
+      } catch (e) {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _updateUI(GmssStone stone) {
+    if (!mounted) return;
+
+    // DEBUG: Check what the URL actually is in the console
+    // debugPrint("DEBUG: Stone ID ${stone.id} Image URL: ${stone.image_link}");
+
+    setState(() {
+      _currentStone = stone;
+      _caratNotifier.value = stone.weight;
+      _isLoading = false;
+    });
+
+    _registerVideoFactory();
   }
 
   void _registerVideoFactory() {
@@ -218,7 +264,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
-      transitionDuration: const Duration(milliseconds: 300),
+      transitionDuration: const Duration(milliseconds: 2),
       pageBuilder: (context, animation1, animation2) {
         return Align(
           alignment: Alignment.centerRight,
@@ -528,13 +574,34 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       ),
       child: Stack(
         children: [
+          // Center(
+          //   child: SafeImage(
+          //     // url: widget.stone!.image_link,
+          //     url: _currentStone!.image_link,
+          //     size: 450,
+          //     // stone: widget.stone!,
+          //     stone: _currentStone!,
+          //   ),
+          // ),
           Center(
-            child: SafeImage(
-              // url: widget.stone!.image_link,
-              url: _currentStone!.image_link,
-              size: 450,
-              // stone: widget.stone!,
-              stone: _currentStone!,
+            child: Image.network(
+              _currentStone!.image_link,
+              height: 450,
+              width: 450,
+              // If the image is missing, show a loading icon
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return const CircularProgressIndicator();
+              },
+              // If the URL is broken, show an error icon
+              errorBuilder: (context, error, stackTrace) {
+                debugPrint("Image Load Error: $error");
+                return const Icon(
+                  Icons.broken_image,
+                  size: 100,
+                  color: Colors.grey,
+                );
+              },
             ),
           ),
           Positioned(
