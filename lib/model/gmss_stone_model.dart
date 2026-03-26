@@ -25,7 +25,6 @@ class GmssStone {
   final double width;
   final double table;
   final double total_price;
-
   GmssStone({
     required this.id,
     required this.stockNo,
@@ -123,7 +122,6 @@ class GmssStone {
       total_price: safeDouble(json['totalPrice']),
     );
   }
-  // Inside your GmssStone class
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -146,11 +144,10 @@ class GmssStone {
       'girdleCondition': gridle_condition,
       'symmetry': symmetry,
       'culetSize': culet_size,
-      'measurements':
-          "$length*$width*$depth", // Reconstructed for fromJson split
+      'measurements': "$length*$width*$depth",
       'ratio': ratio,
       'depth': depth,
-      'table': table, // Maps to both width and table in your logic
+      'table': table,
       'totalPrice': total_price,
     };
   }
