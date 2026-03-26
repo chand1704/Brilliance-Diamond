@@ -627,27 +627,27 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     final String s = shapeName.toLowerCase().trim();
     String fileName = "Round.png"; // Default fallback
 
-    if (s.contains('round'))
+    if (s.contains('round')) {
       fileName = "Round.png";
-    else if (s.contains('pear'))
+    } else if (s.contains('pear')) {
       fileName = "Pear.png";
-    else if (s.contains('oval'))
+    } else if (s.contains('oval')) {
       fileName = "Oval.png";
-    else if (s.contains('marquise'))
+    } else if (s.contains('marquise')) {
       fileName = "Marquise.png";
-    else if (s.contains('emerald'))
+    } else if (s.contains('emerald')) {
       fileName = "Emerald.png";
-    else if (s.contains('princess'))
+    } else if (s.contains('princess')) {
       fileName = "Princess.png";
-    else if (s.contains('heart'))
+    } else if (s.contains('heart')) {
       fileName = "Heart.png";
-    else if (s.contains('cushion'))
+    } else if (s.contains('cushion')) {
       fileName = "Cushion.png";
-    else if (s.contains('radiant'))
+    } else if (s.contains('radiant')) {
       fileName = "Radiant.png";
-    else if (s.contains('asscher'))
+    } else if (s.contains('asscher')) {
       fileName = "Asscher.png";
-
+    }
     return "assets/images/shapes/$fileName";
   }
 
