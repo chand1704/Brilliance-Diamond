@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html' as html;
+
 class GmssStone {
   final int id;
   final String stockNo;
@@ -61,6 +64,14 @@ class GmssStone {
       return double.tryParse(v.toString()) ?? 0.0;
     }
 
+    // Handle measurements split
+    String measurements = json['measurements']?.toString() ?? "";
+    double len = 0.0;
+    if (measurements.contains('*')) {
+      len = safeDouble(measurements.split('*').first);
+    } else {
+      len = safeDouble(json['length']); // Fallback if already split
+    }
     // return GmssStone(
     //   id: 0, // New API doesn't seem to have a unique numeric ID, using 0 or use stockNo.hashCode
     //   stockNo: json['stockNo']?.toString() ?? '',
@@ -150,6 +161,31 @@ class GmssStone {
       'table': table,
       'totalPrice': total_price,
     };
+  }
+
+  // --- HISTORY LOGIC ---
+  static void addToHistory(GmssStone stone) {
+    final String? existingHistory = html.window.localStorage['recent_history'];
+    List<dynamic> historyList = [];
+
+    if (existingHistory != null) {
+      try {
+        historyList = jsonDecode(existingHistory);
+      } catch (_) {}
+    }
+
+    // Remove if duplicate exists
+    historyList.removeWhere((item) => item['stockNo'] == stone.stockNo);
+
+    // Add to top
+    historyList.insert(0, stone.toJson());
+
+    // Limit to 20
+    if (historyList.length > 20) {
+      historyList = historyList.sublist(0, 20);
+    }
+
+    html.window.localStorage['recent_history'] = jsonEncode(historyList);
   }
 
   // factory GmssStone.fromJson(Map<String, dynamic> json) {

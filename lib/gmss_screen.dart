@@ -230,6 +230,32 @@ class _GmssScreenState extends State<GmssScreen> {
   void initState() {
     super.initState();
     _future = _getSmartData();
+    _loadHistoryFromStorage();
+
+    html.window.onStorage.listen((html.StorageEvent e) {
+      if (e.key == 'recent_history') {
+        _loadHistoryFromStorage();
+      }
+    });
+  }
+
+  void _loadHistoryFromStorage() {
+    final String? historyJson = html.window.localStorage['recent_history'];
+    if (historyJson != null && historyJson.isNotEmpty) {
+      try {
+        final List<dynamic> decoded = jsonDecode(historyJson);
+        if (mounted) {
+          setState(() {
+            _recentlyViewed.clear();
+            _recentlyViewed.addAll(
+              decoded.map((e) => GmssStone.fromJson(e, isLab: true)).toList(),
+            );
+          });
+        }
+      } catch (e) {
+        debugPrint("Error loading history: $e");
+      }
+    }
   }
 
   void _toggleSave(GmssStone stone) {
@@ -246,6 +272,8 @@ class _GmssScreenState extends State<GmssScreen> {
     html.window.localStorage['selected_stone_data'] = jsonEncode(
       stone.toJson(),
     );
+    GmssStone.addToHistory(stone);
+    _loadHistoryFromStorage();
     final String url =
         "${html.window.location.origin}/#/details?id=${stone.id}";
     html.window.open(url, "_blank");
@@ -1174,7 +1202,12 @@ class _GmssScreenState extends State<GmssScreen> {
   Widget _tabItem(String label, int index, int count, Color themeColor) {
     bool active = _currentTab == index;
     return InkWell(
-      onTap: () => setState(() => _currentTab = index),
+      onTap: () {
+        if (index == 1) {
+          _loadHistoryFromStorage();
+        }
+        setState(() => _currentTab = index);
+      },
       child: Column(
         children: [
           Text(

@@ -120,6 +120,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       _caratNotifier.value = stone.weight;
       _isLoading = false;
     });
+    GmssStone.addToHistory(stone);
+
     _registerVideoFactory();
   }
 
