@@ -188,6 +188,35 @@ class GmssStone {
     html.window.localStorage['recent_history'] = jsonEncode(historyList);
   }
 
+  static void toggleSaveStone(GmssStone stone) {
+    final String? existing = html.window.localStorage['saved_stones'];
+    List<dynamic> savedList = existing != null ? jsonDecode(existing) : [];
+
+    bool exists = savedList.any((item) => item['stockNo'] == stone.stockNo);
+
+    if (exists) {
+      savedList.removeWhere((item) => item['stockNo'] == stone.stockNo);
+    } else {
+      savedList.add(stone.toJson());
+    }
+
+    html.window.localStorage['saved_stones'] = jsonEncode(savedList);
+  }
+
+  static List<GmssStone> loadSavedStones() {
+    final String? existing = html.window.localStorage['saved_stones'];
+    if (existing == null) return [];
+    List<dynamic> decoded = jsonDecode(existing);
+    return decoded
+        .map(
+          (e) => GmssStone.fromJson(
+            e,
+            isLab: e['stoneName'].toString().contains("LAB"),
+          ),
+        )
+        .toList();
+  }
+
   // factory GmssStone.fromJson(Map<String, dynamic> json) {
   //   double safeDouble(dynamic v) {
   //     if (v == null || v.toString() == 'null') return 0.0;

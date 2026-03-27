@@ -260,11 +260,22 @@ class _GmssScreenState extends State<GmssScreen> {
 
   void _toggleSave(GmssStone stone) {
     setState(() {
-      if (_savedStones.any((s) => s.id == stone.id)) {
-        _savedStones.removeWhere((s) => s.id == stone.id);
-      } else {
-        _savedStones.add(stone);
-      }
+      GmssStone.toggleSaveStone(stone);
+      _loadSavedFromStorage();
+      _loadHistoryFromStorage();
+
+      // if (_savedStones.any((s) => s.id == stone.id)) {
+      //   _savedStones.removeWhere((s) => s.id == stone.id);
+      // } else {
+      //   _savedStones.add(stone);
+      // }
+    });
+  }
+
+  void _loadSavedFromStorage() {
+    setState(() {
+      _savedStones.clear();
+      _savedStones.addAll(GmssStone.loadSavedStones());
     });
   }
 
@@ -615,9 +626,25 @@ class _GmssScreenState extends State<GmssScreen> {
                         ),
                       );
                     }
-                    final List<GmssStone> displayStones = _applyFiltering(
+                    // final List<GmssStone> displayStones = _applyFiltering(
+                    //   snapshot.data ?? [],
+                    // );
+                    // 1. Calculate search results for the 'Diamond' tab count
+                    final List<GmssStone> searchResults = _applyFiltering(
                       snapshot.data ?? [],
                     );
+                    // 2. LOGIC FIX: Decide which list to actually DISPLAY
+                    List<GmssStone> displayStones;
+                    if (_currentTab == 1) {
+                      displayStones =
+                          _recentlyViewed; // Show history when middle tab clicked
+                    } else if (_currentTab == 2) {
+                      displayStones =
+                          _savedStones; // Show compare when third tab clicked
+                    } else {
+                      displayStones =
+                          searchResults; // Show search results by default
+                    }
                     return SliverPadding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -636,21 +663,25 @@ class _GmssScreenState extends State<GmssScreen> {
                                     crossAxisSpacing: 15,
                                     mainAxisSpacing: 15,
                                   ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) => DiamondCard(
-                                  key: ValueKey(displayStones[index].id),
-                                  stone: displayStones[index],
-                                  isFavorite: _savedStones.any(
-                                    (s) => s.id == displayStones[index].id,
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                final stone = displayStones[index];
+                                return DiamondCard(
+                                  // Add a unique key so Flutter refreshes the card correctly when switching tabs
+                                  key: ValueKey(
+                                    "tab-${_currentTab}-${stone.stockNo}",
                                   ),
-                                  onFavoriteTap: () =>
-                                      _toggleSave(displayStones[index]),
-                                  onCardTap: () =>
-                                      _handleCardTap(displayStones[index]),
+                                  stone: stone,
+                                  isFavorite: _savedStones.any(
+                                    (s) => s.stockNo == stone.stockNo,
+                                  ),
+                                  onFavoriteTap: () => _toggleSave(stone),
+                                  onCardTap: () => _handleCardTap(stone),
                                   themeColor: themeColor,
-                                ),
-                                childCount: displayStones.length,
-                              ),
+                                );
+                              }, childCount: displayStones.length),
                             )
                           : SliverMainAxisGroup(
                               slivers: [
@@ -670,23 +701,35 @@ class _GmssScreenState extends State<GmssScreen> {
                                     index,
                                   ) {
                                     final stone = displayStones[index];
-                                    bool showCategoryHeader = false;
-                                    if (index == 0) {
-                                      showCategoryHeader = true;
-                                    } else {
-                                      if (stone.shapeStr !=
-                                          displayStones[index - 1].shapeStr) {
-                                        showCategoryHeader = true;
-                                      }
-                                    }
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _buildDiamondRow(stone, themeColor),
-                                      ],
-                                    );
+                                    // bool showCategoryHeader = false;
+                                    // if (index == 0) {
+                                    //   showCategoryHeader = true;
+                                    // } else {
+                                    //   if (stone.shapeStr !=
+                                    //       displayStones[index - 1].shapeStr) {
+                                    //     showCategoryHeader = true;
+                                    //   }
+                                    // }
+                                    return _buildDiamondRow(stone, themeColor);
+                                    //   Column(
+                                    //   crossAxisAlignment:
+                                    //       CrossAxisAlignment.start,
+                                    //   children: [
+                                    //     _buildDiamondRow(stone, themeColor),
+                                    //   ],
+                                    // );
                                   }, childCount: displayStones.length),
+                                ),
+
+                                SliverToBoxAdapter(child: _buildListHeader()),
+                                SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) => _buildDiamondRow(
+                                      displayStones[index],
+                                      themeColor,
+                                    ),
+                                    childCount: displayStones.length,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1203,6 +1246,8 @@ class _GmssScreenState extends State<GmssScreen> {
       onTap: () {
         if (index == 1) {
           _loadHistoryFromStorage();
+        } else if (index == 2) {
+          _loadSavedFromStorage();
         }
         setState(() => _currentTab = index);
       },
