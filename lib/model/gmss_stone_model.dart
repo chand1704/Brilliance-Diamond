@@ -133,8 +133,10 @@ class GmssStone {
           json['girdleCondition']?.toString() ??
           json['gridle_condition']?.toString() ??
           '',
+
       symmetry: json['symmetry']?.toString() ?? "",
       culet_size: json['culetSize']?.toString() ?? '',
+      // length: safeDouble(json['measurements']?.toString().split('*').first),
       length: len,
       ratio: safeDouble(json['ratio']),
       depth: safeDouble(json['depth']),

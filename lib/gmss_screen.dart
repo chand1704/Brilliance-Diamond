@@ -691,52 +691,60 @@ class _GmssScreenState extends State<GmssScreen>
                               child: Center(child: Text("No data found")),
                             )
                           : isGridView
-                          ? SliverGrid(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: 0.85,
-                                    crossAxisSpacing: 15,
-                                    mainAxisSpacing: 15,
-                                  ),
-                              delegate: SliverChildBuilderDelegate((
-                                context,
-                                index,
-                              ) {
-                                final stone = displayStones[index];
-                                return AnimatedSwitcher(
-                                  duration: const Duration(
-                                    milliseconds: 600,
-                                  ), // Smooth fade duration
-                                  switchInCurve: Curves.easeIn,
-                                  child: DiamondCard(
-                                    // Use a key that changes when the stone data is ready
-                                    key: ValueKey(
-                                      "diamond-${stone.stockNo}-${_currentTab}",
+                          ? SliverPadding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 20,
+                              ),
+                              sliver: SliverGrid(
+                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  // 1. FLEXIBLE WIDTH: Each card will try to be around 280-300 pixels
+                                  maxCrossAxisExtent: 300,
+                                  // 2. FIXED RATIO: Adjust this to fix the "Bottom Overflow" error
+                                  // Increase this number (e.g., 0.8 to 0.7) if you still see overflow
+                                  childAspectRatio: 0.78,
+                                  crossAxisSpacing: 15,
+                                  mainAxisSpacing: 15,
+                                ),
+                                delegate: SliverChildBuilderDelegate((
+                                  context,
+                                  index,
+                                ) {
+                                  final stone = displayStones[index];
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(
+                                      milliseconds: 600,
+                                    ), // Smooth fade duration
+                                    // switchInCurve: Curves.easeIn,
+                                    child: DiamondCard(
+                                      // Use a key that changes when the stone data is ready
+                                      key: ValueKey(
+                                        "diamond-${stone.stockNo}-${_currentTab}",
+                                      ),
+                                      stone: stone,
+                                      isFavorite: _savedStones.any(
+                                        (s) => s.stockNo == stone.stockNo,
+                                      ),
+                                      onFavoriteTap: () => _toggleSave(stone),
+                                      onCardTap: () => _handleCardTap(stone),
+                                      themeColor: themeColor,
                                     ),
-                                    stone: stone,
-                                    isFavorite: _savedStones.any(
-                                      (s) => s.stockNo == stone.stockNo,
-                                    ),
-                                    onFavoriteTap: () => _toggleSave(stone),
-                                    onCardTap: () => _handleCardTap(stone),
-                                    themeColor: themeColor,
-                                  ),
-                                );
+                                  );
 
-                                //   DiamondCard(
-                                //   key: ValueKey(
-                                //     "tab-${_currentTab}-${stone.stockNo}",
-                                //   ),
-                                //   stone: stone,
-                                //   isFavorite: _savedStones.any(
-                                //     (s) => s.stockNo == stone.stockNo,
-                                //   ),
-                                //   onFavoriteTap: () => _toggleSave(stone),
-                                //   onCardTap: () => _handleCardTap(stone),
-                                //   themeColor: themeColor,
-                                // );
-                              }, childCount: displayStones.length),
+                                  //   DiamondCard(
+                                  //   key: ValueKey(
+                                  //     "tab-${_currentTab}-${stone.stockNo}",
+                                  //   ),
+                                  //   stone: stone,
+                                  //   isFavorite: _savedStones.any(
+                                  //     (s) => s.stockNo == stone.stockNo,
+                                  //   ),
+                                  //   onFavoriteTap: () => _toggleSave(stone),
+                                  //   onCardTap: () => _handleCardTap(stone),
+                                  //   themeColor: themeColor,
+                                  // );
+                                }, childCount: displayStones.length),
+                              ),
                             )
                           : SliverMainAxisGroup(
                               slivers: [

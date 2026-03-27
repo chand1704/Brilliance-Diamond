@@ -105,6 +105,7 @@ class DiamondCardState extends State<DiamondCard> {
                       children: [
                         Text(
                           "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
+                          // widget.stone.stoneName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
