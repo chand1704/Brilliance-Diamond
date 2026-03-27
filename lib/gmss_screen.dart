@@ -248,7 +248,11 @@ class _GmssScreenState extends State<GmssScreen> {
           setState(() {
             _recentlyViewed.clear();
             _recentlyViewed.addAll(
-              decoded.map((e) => GmssStone.fromJson(e, isLab: true)).toList(),
+              decoded.map((e) {
+                bool labFlag =
+                    e['stoneName']?.toString().contains("LAB") ?? true;
+                return GmssStone.fromJson(e, isLab: labFlag);
+              }).toList(),
             );
           });
         }

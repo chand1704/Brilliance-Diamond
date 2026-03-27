@@ -72,6 +72,9 @@ class GmssStone {
     } else {
       len = safeDouble(json['length']); // Fallback if already split
     }
+
+    String actualShape =
+        json['shape']?.toString() ?? json['shapeStr']?.toString() ?? 'ROUND';
     // return GmssStone(
     //   id: 0, // New API doesn't seem to have a unique numeric ID, using 0 or use stockNo.hashCode
     //   stockNo: json['stockNo']?.toString() ?? '',
@@ -102,9 +105,12 @@ class GmssStone {
     //   total_price: safeDouble(json['totalPrice']),
     // );
     return GmssStone(
-      id: json['stockNo'].hashCode, // Use stockNo hash as unique ID
+      id:
+          json['id'] ??
+          json['stockNo'].hashCode, // Use stockNo hash as unique ID
       stockNo: json['stockNo']?.toString() ?? '',
-      shapeStr: json['shape']?.toString() ?? 'ROUND',
+      // shapeStr: json['shape']?.toString() ?? 'ROUND',
+      shapeStr: actualShape,
       shapeIcon: '',
       weight: safeDouble(json['weight']),
       colorStr: json['color']?.toString() ?? "",
@@ -119,10 +125,23 @@ class GmssStone {
       video_link: json['videoLink']?.toString() ?? "",
       certi_file: json['certiFile'] ?? json['certi_file'] ?? "",
       // Crucial for your UI filters:
-      stoneName: isLab
-          ? "LAB GROWN ${json['weight']} CT ${json['shape']}"
-          : "NATURAL ${json['weight']} CT ${json['shape']}",
-      gridle_condition: json['girdleCondition']?.toString() ?? '',
+      // stoneName:
+      //     json['ssoneName'] ??
+      //     (
+      //       isLab
+      //           ? "LAB GROWN ${json['weight']} CT ${json['shape']}"
+      //           : "NATURAL ${json['weight']} CT ${json['shape']}",
+      //     ),
+      stoneName:
+          json['stoneName'] ??
+          (isLab
+              ? "LAB GROWN ${json['weight']} CT ${actualShape.toUpperCase()}"
+              : "NATURAL ${json['weight']} CT ${actualShape.toUpperCase()}"),
+      gridle_condition:
+          json['girdleCondition']?.toString() ??
+          json['gridle_condition']?.toString() ??
+          '',
+
       symmetry: json['symmetry']?.toString() ?? "",
       culet_size: json['culetSize']?.toString() ?? '',
       length: safeDouble(json['measurements']?.toString().split('*').first),
@@ -130,7 +149,7 @@ class GmssStone {
       depth: safeDouble(json['depth']),
       width: safeDouble(json['table']),
       table: safeDouble(json['table']),
-      total_price: safeDouble(json['totalPrice']),
+      total_price: safeDouble(json['totalPrice'] ?? json['total_price']),
     );
   }
   Map<String, dynamic> toJson() {
