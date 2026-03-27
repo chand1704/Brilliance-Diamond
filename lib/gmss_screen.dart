@@ -441,8 +441,6 @@ class _GmssScreenState extends State<GmssScreen> {
           matchesDepth &&
           matchesTable;
     }).toList();
-    if (_currentTab == 1) return _recentlyViewed;
-    if (_currentTab == 2) return _savedStones;
     return filtered;
   }
 
