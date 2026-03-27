@@ -4,6 +4,7 @@ import 'dart:ui_web' as ui;
 
 import 'package:brilliance_diamond/service/gmss_api_service.dart';
 import 'package:brilliance_diamond/widgets/main_header.dart';
+import 'package:brilliance_diamond/widgets/safe_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -509,23 +510,28 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       child: Stack(
         children: [
           Center(
-            child: Image.network(
-              _currentStone!.image_link,
-              height: 450,
-              width: 450,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const CircularProgressIndicator();
-              },
-              errorBuilder: (context, error, stackTrace) {
-                debugPrint("Image Load Error: $error");
-                return const Icon(
-                  Icons.broken_image,
-                  size: 100,
-                  color: Colors.grey,
-                );
-              },
+            child: SafeImage(
+              url: _currentStone!.image_link,
+              size: 450, // This is the size used for the shape painter fallback
+              stone: _currentStone!,
             ),
+            // Image.network(
+            //   _currentStone!.image_link,
+            //   height: 450,
+            //   width: 450,
+            //   loadingBuilder: (context, child, loadingProgress) {
+            //     if (loadingProgress == null) return child;
+            //     return const CircularProgressIndicator();
+            //   },
+            //   errorBuilder: (context, error, stackTrace) {
+            //     debugPrint("Image Load Error: $error");
+            //     return const Icon(
+            //       Icons.broken_image,
+            //       size: 100,
+            //       color: Colors.grey,
+            //     );
+            //   },
+            // ),
           ),
           Positioned(
             bottom: 20,
