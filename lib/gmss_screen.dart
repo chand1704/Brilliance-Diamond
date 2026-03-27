@@ -720,17 +720,6 @@ class _GmssScreenState extends State<GmssScreen> {
                                     // );
                                   }, childCount: displayStones.length),
                                 ),
-
-                                SliverToBoxAdapter(child: _buildListHeader()),
-                                SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                    (context, index) => _buildDiamondRow(
-                                      displayStones[index],
-                                      themeColor,
-                                    ),
-                                    childCount: displayStones.length,
-                                  ),
-                                ),
                               ],
                             ),
                     );
