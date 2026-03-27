@@ -16,7 +16,9 @@ class GmssScreen extends StatefulWidget {
   State<GmssScreen> createState() => _GmssScreenState();
 }
 
-class _GmssScreenState extends State<GmssScreen> {
+class _GmssScreenState extends State<GmssScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _shimmerController;
   final Map<int, List<GmssStone>> _cachedLabGrownMap = {};
   final Map<int, List<GmssStone>> _cachedNaturalMap = {};
   int? selectedFancyColorId;
@@ -229,6 +231,10 @@ class _GmssScreenState extends State<GmssScreen> {
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
     _future = _getSmartData();
     _loadHistoryFromStorage();
 
@@ -237,6 +243,12 @@ class _GmssScreenState extends State<GmssScreen> {
         _loadHistoryFromStorage();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose(); // Always dispose controllers
+    super.dispose();
   }
 
   void _loadHistoryFromStorage() {
@@ -624,11 +636,31 @@ class _GmssScreenState extends State<GmssScreen> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData &&
                         snapshot.connectionState == ConnectionState.waiting) {
-                      return const SliverFillRemaining(
-                        child: Center(
-                          child: CircularProgressIndicator(color: Colors.teal),
+                      return SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
+                        ),
+                        sliver: SliverGrid(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                childAspectRatio: 0.85,
+                                crossAxisSpacing: 15,
+                                mainAxisSpacing: 15,
+                              ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => _buildSkeletonCard(),
+                            childCount:
+                                8, // Show 8 placeholder cards while loading
+                          ),
                         ),
                       );
+                      //   const SliverFillRemaining(
+                      //   child: Center(
+                      //     child: CircularProgressIndicator(color: Colors.teal),
+                      //   ),
+                      // );
                     }
                     // final List<GmssStone> displayStones = _applyFiltering(
                     //   snapshot.data ?? [],
@@ -672,19 +704,38 @@ class _GmssScreenState extends State<GmssScreen> {
                                 index,
                               ) {
                                 final stone = displayStones[index];
-                                return DiamondCard(
-                                  // Add a unique key so Flutter refreshes the card correctly when switching tabs
-                                  key: ValueKey(
-                                    "tab-${_currentTab}-${stone.stockNo}",
+                                return AnimatedSwitcher(
+                                  duration: const Duration(
+                                    milliseconds: 600,
+                                  ), // Smooth fade duration
+                                  switchInCurve: Curves.easeIn,
+                                  child: DiamondCard(
+                                    // Use a key that changes when the stone data is ready
+                                    key: ValueKey(
+                                      "diamond-${stone.stockNo}-${_currentTab}",
+                                    ),
+                                    stone: stone,
+                                    isFavorite: _savedStones.any(
+                                      (s) => s.stockNo == stone.stockNo,
+                                    ),
+                                    onFavoriteTap: () => _toggleSave(stone),
+                                    onCardTap: () => _handleCardTap(stone),
+                                    themeColor: themeColor,
                                   ),
-                                  stone: stone,
-                                  isFavorite: _savedStones.any(
-                                    (s) => s.stockNo == stone.stockNo,
-                                  ),
-                                  onFavoriteTap: () => _toggleSave(stone),
-                                  onCardTap: () => _handleCardTap(stone),
-                                  themeColor: themeColor,
                                 );
+
+                                //   DiamondCard(
+                                //   key: ValueKey(
+                                //     "tab-${_currentTab}-${stone.stockNo}",
+                                //   ),
+                                //   stone: stone,
+                                //   isFavorite: _savedStones.any(
+                                //     (s) => s.stockNo == stone.stockNo,
+                                //   ),
+                                //   onFavoriteTap: () => _toggleSave(stone),
+                                //   onCardTap: () => _handleCardTap(stone),
+                                //   themeColor: themeColor,
+                                // );
                               }, childCount: displayStones.length),
                             )
                           : SliverMainAxisGroup(
@@ -735,6 +786,120 @@ class _GmssScreenState extends State<GmssScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // Widget _buildSkeletonCard() {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(15),
+  //       border: Border.all(color: Colors.grey.shade100),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Expanded(
+  //           flex: 3,
+  //           child: Container(
+  //             margin: const EdgeInsets.all(10),
+  //             decoration: BoxDecoration(
+  //               color: Colors.grey.shade200,
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           flex: 1,
+  //           child: Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 12),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Container(
+  //                   height: 12,
+  //                   width: 100,
+  //                   color: Colors.grey.shade200,
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 Container(height: 10, width: 60, color: Colors.grey.shade100),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  Widget _buildSkeletonCard() {
+    return AnimatedBuilder(
+      animation: _shimmerController,
+      builder: (context, child) {
+        // Create a value that moves from -1.0 to 2.0 based on the controller
+        double value = (_shimmerController.value * 3.0) - 1.0;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ShaderMask(
+            blendMode: BlendMode.srcIn,
+            shaderCallback: (bounds) {
+              return LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.grey.shade300,
+                  Colors.grey.shade100,
+                  Colors.grey.shade300,
+                ],
+                stops: [
+                  (value - 0.3).clamp(0.0, 1.0),
+                  value.clamp(0.0, 1.0),
+                  (value + 0.3).clamp(0.0, 1.0),
+                ],
+              ).createShader(bounds);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    margin: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(height: 14, width: 140, color: Colors.white),
+                        const SizedBox(height: 10),
+                        Container(height: 12, width: 80, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

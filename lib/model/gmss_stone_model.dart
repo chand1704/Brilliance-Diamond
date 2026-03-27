@@ -105,11 +105,8 @@ class GmssStone {
     //   total_price: safeDouble(json['totalPrice']),
     // );
     return GmssStone(
-      id:
-          json['id'] ??
-          json['stockNo'].hashCode, // Use stockNo hash as unique ID
+      id: json['id'] ?? json['stockNo']?.hashCode ?? 0,
       stockNo: json['stockNo']?.toString() ?? '',
-      // shapeStr: json['shape']?.toString() ?? 'ROUND',
       shapeStr: actualShape,
       shapeIcon: '',
       weight: safeDouble(json['weight']),
@@ -121,33 +118,27 @@ class GmssStone {
       lab: json['lab'] ?? "GIA",
       fl_intensity: json['fluorescenceIntensity']?.toString() ?? '',
       polish: json['polish']?.toString() ?? '',
-      image_link: json['imageLink']?.toString() ?? "",
-      video_link: json['videoLink']?.toString() ?? "",
-      certi_file: json['certiFile'] ?? json['certi_file'] ?? "",
-      // Crucial for your UI filters:
-      // stoneName:
-      //     json['ssoneName'] ??
-      //     (
-      //       isLab
-      //           ? "LAB GROWN ${json['weight']} CT ${json['shape']}"
-      //           : "NATURAL ${json['weight']} CT ${json['shape']}",
-      //     ),
+      image_link:
+          json['imageLink']?.toString() ?? json['image_link']?.toString() ?? "",
+      video_link:
+          json['videoLink']?.toString() ?? json['video_link']?.toString() ?? "",
+      certi_file:
+          json['certiFile']?.toString() ?? json['certi_file']?.toString() ?? "",
       stoneName:
           json['stoneName'] ??
           (isLab
-              ? "LAB GROWN ${json['weight']} CT ${actualShape.toUpperCase()}"
-              : "NATURAL ${json['weight']} CT ${actualShape.toUpperCase()}"),
+              ? "${json['weight']} CARAT ${actualShape.toUpperCase()} LAB GROWN"
+              : "${json['weight']} CARAT ${actualShape.toUpperCase()} NATURAL"),
       gridle_condition:
           json['girdleCondition']?.toString() ??
           json['gridle_condition']?.toString() ??
           '',
-
       symmetry: json['symmetry']?.toString() ?? "",
       culet_size: json['culetSize']?.toString() ?? '',
-      length: safeDouble(json['measurements']?.toString().split('*').first),
+      length: len,
       ratio: safeDouble(json['ratio']),
       depth: safeDouble(json['depth']),
-      width: safeDouble(json['table']),
+      width: safeDouble(json['width'] ?? json['table']),
       table: safeDouble(json['table']),
       total_price: safeDouble(json['totalPrice'] ?? json['total_price']),
     );
