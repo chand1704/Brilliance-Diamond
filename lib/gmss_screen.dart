@@ -233,7 +233,7 @@ class _GmssScreenState extends State<GmssScreen>
     super.initState();
     _shimmerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1400),
     )..repeat();
 
     _future = _getSmartData();

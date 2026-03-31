@@ -18,7 +18,7 @@ class RoundTopViewPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width * 0.45) / 2;
+    final radius = 80.0;
     canvas.drawCircle(center, radius, paint);
     final double tableRadius = radius * 0.55;
     List<Offset> tablePoints = List.generate(8, (i) {
@@ -119,8 +119,8 @@ class PrincessTopViewPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     final center = Offset(size.width / 2, size.height / 2);
-    final double h = size.height * 0.5;
-    final double w = h / (stone.ratio > 0 ? stone.ratio : 1.0);
+    final double h = 160.0; // Fixed visual height
+    final double w = 160.0; // Fixed visual width (Square)
     Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
     canvas.drawRect(outerRect, paint);
     final double tableW = w * 0.65;
@@ -778,12 +778,12 @@ class PearTopViewPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
     final center = Offset(size.width / 2, size.height / 2);
-    final double h = size.height * 0.58;
-    final double w = h / (stone.ratio > 0 ? stone.ratio : 1.55);
-    _drawDashedBoundary(canvas, center, w, h, dashedPaint);
+    const double visualH = 180.0;
+    const double visualW = 120.0; // Fixed ratio for drawing (approx 1.5)
+    _drawDashedBoundary(canvas, center, visualW, visualH, dashedPaint);
     final Path outerPath = Path();
-    double headRadius = w / 2;
-    double headCenterY = center.dy - (h * 0.15);
+    double headRadius = visualW / 2;
+    double headCenterY = center.dy - (visualH * 0.15);
     outerPath.addArc(
       Rect.fromCircle(
         center: Offset(center.dx, headCenterY),
@@ -795,19 +795,19 @@ class PearTopViewPainter extends CustomPainter {
     outerPath.moveTo(center.dx - headRadius, headCenterY);
     outerPath.quadraticBezierTo(
       center.dx - headRadius,
-      center.dy + (h * 0.1),
+      center.dy + (visualH * 0.1),
       center.dx,
-      center.dy + (h * 0.45),
+      center.dy + (visualH * 0.45),
     );
     outerPath.quadraticBezierTo(
       center.dx + headRadius,
-      center.dy + (h * 0.1),
+      center.dy + (visualH * 0.1),
       center.dx + headRadius,
       headCenterY,
     );
     canvas.drawPath(outerPath, paint);
-    _drawPearFacets(canvas, center, w, h, headCenterY, paint);
-    _drawDimensions(canvas, center, w, h, infoPaint);
+    _drawPearFacets(canvas, center, visualW, visualH, headCenterY, paint);
+    _drawDimensions(canvas, center, visualW, visualH, infoPaint);
   }
 
   void _drawPearFacets(
@@ -1549,21 +1549,40 @@ class DiamondProfilePainter extends CustomPainter {
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-    final double width = size.width * 0.55;
+    // --- APPLY THE CHANGE HERE ---
+    // 1. Define Fixed Visual Dimensions
+    const double visualWidth = 200.0;
+    const double visualTotalHeight = 130.0;
     final double centerX = size.width / 2;
-    final double startY = 70.0;
+    final double startY = 100.0; // Pushed down slightly for labels
+
+    // 2. Define Fixed Drawing Proportions (Visual Only)
+    final double drawTableWidth = visualWidth * 0.55;
+    final double drawCrownHeight = visualTotalHeight * 0.20;
+    // ----------------------------
+    final double width = size.width * 0.55;
+    // final double centerX = size.width / 2;
+    // final double startY = 70.0;
     final double tableWidth = width * (stone.table / 100);
     final double totalHeight = width * (stone.depth / 100);
+
     final double crownHeight = totalHeight * 0.25;
-    _drawDashedRect(canvas, centerX, width, startY, totalHeight, dashedPaint);
+    _drawDashedRect(
+      canvas,
+      centerX,
+      visualWidth,
+      startY,
+      visualTotalHeight,
+      dashedPaint,
+    );
     final Path path = Path();
-    path.moveTo(centerX - tableWidth / 2, startY);
-    path.lineTo(centerX + tableWidth / 2, startY);
-    path.lineTo(centerX + width / 2, startY + crownHeight);
-    path.lineTo(centerX + width / 2, startY + crownHeight + 4);
-    path.lineTo(centerX, startY + totalHeight);
-    path.lineTo(centerX - width / 2, startY + crownHeight + 4);
-    path.lineTo(centerX - width / 2, startY + crownHeight);
+    path.moveTo(centerX - drawTableWidth / 2, startY);
+    path.lineTo(centerX + drawTableWidth / 2, startY);
+    path.lineTo(centerX + visualWidth / 2, startY + drawCrownHeight);
+    path.lineTo(centerX + visualWidth / 2, startY + drawCrownHeight + 4);
+    path.lineTo(centerX, startY + visualTotalHeight);
+    path.lineTo(centerX - visualWidth / 2, startY + drawCrownHeight + 4);
+    path.lineTo(centerX - visualWidth / 2, startY + drawCrownHeight);
     path.close();
     canvas.drawPath(path, linePaint);
     double tableLineY = startY - 15;
