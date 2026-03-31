@@ -5,10 +5,8 @@ import '../diamond_shapes.dart';
 class DiamondPainterUtils {
   static CustomPainter? getPainterForShapeName(String name, bool isActive) {
     if (name.isEmpty) return null;
-
     final Color shapeColor = isActive ? Colors.teal : const Color(0xFF616161);
     final String upperName = name.toUpperCase();
-
     if (upperName.contains("ROUND")) {
       return MinimalRoundPainter(color: shapeColor);
     } else if (upperName.contains("PRINCESS")) {
