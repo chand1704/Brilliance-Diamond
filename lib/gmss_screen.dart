@@ -235,6 +235,7 @@ class _GmssScreenState extends State<GmssScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat();
+
     _future = _getSmartData();
     _loadHistoryFromStorage();
 
@@ -565,8 +566,10 @@ class _GmssScreenState extends State<GmssScreen>
                     _caratRange = const RangeValues(0.0, 15.0);
                     _priceRange = const RangeValues(0.0, 100000.0);
                     selectedOrigin = 1;
-                    selectedFancyColor = null;
+                    _colorRange = const RangeValues(0, 8);
                     selectedFancyColorId = null;
+                    selectedFancyColor = null;
+                    isFancySearch = false;
                   });
                 },
               ),
@@ -713,7 +716,7 @@ class _GmssScreenState extends State<GmssScreen>
                                   final stone = displayStones[index];
                                   return AnimatedSwitcher(
                                     duration: const Duration(
-                                      milliseconds: 600,
+                                      milliseconds: 2,
                                     ), // Smooth fade duration
                                     // switchInCurve: Curves.easeIn,
                                     child: DiamondCard(
@@ -1175,7 +1178,7 @@ class _GmssScreenState extends State<GmssScreen>
               }
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 10),
+              duration: const Duration(milliseconds: 2),
               width: 90,
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(4),
@@ -1233,7 +1236,7 @@ class _GmssScreenState extends State<GmssScreen>
       context: context,
       barrierDismissible: true,
       barrierLabel: "OtherShapes",
-      transitionDuration: const Duration(milliseconds: 10),
+      transitionDuration: const Duration(milliseconds: 2),
       pageBuilder: (context, anim1, anim2) => const SizedBox(),
       transitionBuilder: (context, anim1, anim2, child) {
         return Transform.scale(
@@ -1318,7 +1321,7 @@ class _GmssScreenState extends State<GmssScreen>
       },
       borderRadius: BorderRadius.circular(15),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 5),
+        duration: const Duration(milliseconds: 2),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.teal.withValues(alpha: 0.05)
