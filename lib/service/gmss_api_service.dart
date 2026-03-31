@@ -10,6 +10,7 @@ class GmssApiService {
   static const String naturalAuthKey = 'wwoy95kxfwll';
   static List<GmssStone>? _cachedStones;
   static List<GmssStone>? getCachedStones() => _cachedStones;
+
   static Future<List<GmssStone>> fetchLabGrownData() async {
     if (_cachedStones != null && _cachedStones!.isNotEmpty) {
       return _cachedStones!;
