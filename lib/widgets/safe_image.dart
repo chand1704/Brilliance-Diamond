@@ -53,16 +53,27 @@ class SafeImage extends StatelessWidget {
 
   CustomPainter _getShapePainter(GmssStone stone) {
     final String shape = stone.shapeStr.toUpperCase();
-    if (shape.contains("ROUND")) return MinimalRoundPainter();
-    if (shape.contains("PRINCESS")) return MinimalPrincessPainter();
-    if (shape.contains("EMERALD")) return MinimalEmeraldPainter();
-    if (shape.contains("CUSHION")) return MinimalCushionPainter();
-    if (shape.contains("RADIANT")) return MinimalRadiantPainter();
-    if (shape.contains("MARQUISE")) return MinimalMarquisePainter();
-    if (shape.contains("PEAR")) return MinimalPearPainter();
-    if (shape.contains("OVAL")) return MinimalOvalPainter();
-    if (shape.contains("HEART")) return MinimalHeartPainter();
-    if (shape.contains("ASSCHER")) return MinimalAsscherPainter();
+    if (shape.contains("ROUND")) {
+      return MinimalRoundPainter();
+    } else if (shape.contains("PRINCESS")) {
+      return MinimalPrincessPainter();
+    } else if (shape.contains("EMERALD")) {
+      return MinimalEmeraldPainter();
+    } else if (shape.contains("CUSHION")) {
+      return MinimalCushionPainter();
+    } else if (shape.contains("RADIANT")) {
+      return MinimalRadiantPainter();
+    } else if (shape.contains("MARQUISE")) {
+      return MinimalMarquisePainter();
+    } else if (shape.contains("PEAR")) {
+      return MinimalPearPainter();
+    } else if (shape.contains("OVAL")) {
+      return MinimalOvalPainter();
+    } else if (shape.contains("HEART")) {
+      return MinimalHeartPainter();
+    } else if (shape.contains("ASSCHER")) {
+      return MinimalAsscherPainter();
+    }
     return MinimalRoundPainter();
   }
 }
