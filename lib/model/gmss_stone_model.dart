@@ -64,17 +64,17 @@ class GmssStone {
       return double.tryParse(v.toString()) ?? 0.0;
     }
 
-    // Handle measurements split
     String measurements = json['measurements']?.toString() ?? "";
     double len = 0.0;
     if (measurements.contains('*')) {
       len = safeDouble(measurements.split('*').first);
     } else {
-      len = safeDouble(json['length']); // Fallback if already split
+      len = safeDouble(json['length']);
     }
 
     String actualShape =
         json['shape']?.toString() ?? json['shapeStr']?.toString() ?? 'ROUND';
+
     // return GmssStone(
     //   id: 0, // New API doesn't seem to have a unique numeric ID, using 0 or use stockNo.hashCode
     //   stockNo: json['stockNo']?.toString() ?? '',
@@ -104,6 +104,7 @@ class GmssStone {
     //   table: safeDouble(json['table']),
     //   total_price: safeDouble(json['totalPrice']),
     // );
+
     return GmssStone(
       id: json['id'] ?? json['stockNo']?.hashCode ?? 0,
       stockNo: json['stockNo']?.toString() ?? '',
@@ -133,10 +134,8 @@ class GmssStone {
           json['girdleCondition']?.toString() ??
           json['gridle_condition']?.toString() ??
           '',
-
       symmetry: json['symmetry']?.toString() ?? "",
       culet_size: json['culetSize']?.toString() ?? '',
-      // length: safeDouble(json['measurements']?.toString().split('*').first),
       length: len,
       ratio: safeDouble(json['ratio']),
       depth: safeDouble(json['depth']),
@@ -175,7 +174,6 @@ class GmssStone {
     };
   }
 
-  // --- HISTORY LOGIC ---
   static void addToHistory(GmssStone stone) {
     final String? existingHistory = html.window.localStorage['recent_history'];
     List<dynamic> historyList = [];
@@ -185,33 +183,26 @@ class GmssStone {
         historyList = jsonDecode(existingHistory);
       } catch (_) {}
     }
-
     // Remove if duplicate exists
     historyList.removeWhere((item) => item['stockNo'] == stone.stockNo);
-
     // Add to top
     historyList.insert(0, stone.toJson());
-
     // Limit to 20
     if (historyList.length > 20) {
       historyList = historyList.sublist(0, 20);
     }
-
     html.window.localStorage['recent_history'] = jsonEncode(historyList);
   }
 
   static void toggleSaveStone(GmssStone stone) {
     final String? existing = html.window.localStorage['saved_stones'];
     List<dynamic> savedList = existing != null ? jsonDecode(existing) : [];
-
     bool exists = savedList.any((item) => item['stockNo'] == stone.stockNo);
-
     if (exists) {
       savedList.removeWhere((item) => item['stockNo'] == stone.stockNo);
     } else {
       savedList.add(stone.toJson());
     }
-
     html.window.localStorage['saved_stones'] = jsonEncode(savedList);
   }
 
