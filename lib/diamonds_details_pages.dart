@@ -122,7 +122,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       _isLoading = false;
     });
     GmssStone.addToHistory(stone);
-
     _registerVideoFactory();
   }
 
@@ -512,26 +511,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
           Center(
             child: SafeImage(
               url: _currentStone!.image_link,
-              size: 450, // This is the size used for the shape painter fallback
+              size: 450,
               stone: _currentStone!,
             ),
-            // Image.network(
-            //   _currentStone!.image_link,
-            //   height: 450,
-            //   width: 450,
-            //   loadingBuilder: (context, child, loadingProgress) {
-            //     if (loadingProgress == null) return child;
-            //     return const CircularProgressIndicator();
-            //   },
-            //   errorBuilder: (context, error, stackTrace) {
-            //     debugPrint("Image Load Error: $error");
-            //     return const Icon(
-            //       Icons.broken_image,
-            //       size: 100,
-            //       color: Colors.grey,
-            //     );
-            //   },
-            // ),
           ),
           Positioned(
             bottom: 20,
@@ -633,8 +615,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
   String _getShapeAssetPath(String shapeName) {
     final String s = shapeName.toLowerCase().trim();
-    String fileName = "Round.png"; // Default fallback
-
+    String fileName = "Round.png";
     if (s.contains('round')) {
       fileName = "Round.png";
     } else if (s.contains('pear')) {
