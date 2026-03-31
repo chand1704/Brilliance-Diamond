@@ -248,7 +248,7 @@ class _GmssScreenState extends State<GmssScreen>
 
   @override
   void dispose() {
-    _shimmerController.dispose(); // Always dispose controllers
+    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -280,12 +280,6 @@ class _GmssScreenState extends State<GmssScreen>
       GmssStone.toggleSaveStone(stone);
       _loadSavedFromStorage();
       _loadHistoryFromStorage();
-
-      // if (_savedStones.any((s) => s.id == stone.id)) {
-      //   _savedStones.removeWhere((s) => s.id == stone.id);
-      // } else {
-      //   _savedStones.add(stone);
-      // }
     });
   }
 
@@ -654,35 +648,21 @@ class _GmssScreenState extends State<GmssScreen>
                               ),
                           delegate: SliverChildBuilderDelegate(
                             (context, index) => _buildSkeletonCard(),
-                            childCount:
-                                8, // Show 8 placeholder cards while loading
+                            childCount: 8,
                           ),
                         ),
                       );
-                      //   const SliverFillRemaining(
-                      //   child: Center(
-                      //     child: CircularProgressIndicator(color: Colors.teal),
-                      //   ),
-                      // );
                     }
-                    // final List<GmssStone> displayStones = _applyFiltering(
-                    //   snapshot.data ?? [],
-                    // );
-                    // 1. Calculate search results for the 'Diamond' tab count
                     final List<GmssStone> searchResults = _applyFiltering(
                       snapshot.data ?? [],
                     );
-                    // 2. LOGIC FIX: Decide which list to actually DISPLAY
                     List<GmssStone> displayStones;
                     if (_currentTab == 1) {
-                      displayStones =
-                          _recentlyViewed; // Show history when middle tab clicked
+                      displayStones = _recentlyViewed;
                     } else if (_currentTab == 2) {
-                      displayStones =
-                          _savedStones; // Show compare when third tab clicked
+                      displayStones = _savedStones;
                     } else {
-                      displayStones =
-                          searchResults; // Show search results by default
+                      displayStones = searchResults;
                     }
                     return SliverPadding(
                       padding: const EdgeInsets.symmetric(
@@ -700,27 +680,21 @@ class _GmssScreenState extends State<GmssScreen>
                                 vertical: 20,
                               ),
                               sliver: SliverGrid(
-                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  // 1. FLEXIBLE WIDTH: Each card will try to be around 280-300 pixels
-                                  maxCrossAxisExtent: 300,
-                                  // 2. FIXED RATIO: Adjust this to fix the "Bottom Overflow" error
-                                  // Increase this number (e.g., 0.8 to 0.7) if you still see overflow
-                                  childAspectRatio: 0.78,
-                                  crossAxisSpacing: 15,
-                                  mainAxisSpacing: 15,
-                                ),
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 300,
+                                      childAspectRatio: 0.78,
+                                      crossAxisSpacing: 15,
+                                      mainAxisSpacing: 15,
+                                    ),
                                 delegate: SliverChildBuilderDelegate((
                                   context,
                                   index,
                                 ) {
                                   final stone = displayStones[index];
                                   return AnimatedSwitcher(
-                                    duration: const Duration(
-                                      milliseconds: 2,
-                                    ), // Smooth fade duration
-                                    // switchInCurve: Curves.easeIn,
+                                    duration: const Duration(milliseconds: 2),
                                     child: DiamondCard(
-                                      // Use a key that changes when the stone data is ready
                                       key: ValueKey(
                                         "diamond-${stone.stockNo}-${_currentTab}",
                                       ),
@@ -733,19 +707,6 @@ class _GmssScreenState extends State<GmssScreen>
                                       themeColor: themeColor,
                                     ),
                                   );
-
-                                  //   DiamondCard(
-                                  //   key: ValueKey(
-                                  //     "tab-${_currentTab}-${stone.stockNo}",
-                                  //   ),
-                                  //   stone: stone,
-                                  //   isFavorite: _savedStones.any(
-                                  //     (s) => s.stockNo == stone.stockNo,
-                                  //   ),
-                                  //   onFavoriteTap: () => _toggleSave(stone),
-                                  //   onCardTap: () => _handleCardTap(stone),
-                                  //   themeColor: themeColor,
-                                  // );
                                 }, childCount: displayStones.length),
                               ),
                             )
@@ -767,23 +728,7 @@ class _GmssScreenState extends State<GmssScreen>
                                     index,
                                   ) {
                                     final stone = displayStones[index];
-                                    // bool showCategoryHeader = false;
-                                    // if (index == 0) {
-                                    //   showCategoryHeader = true;
-                                    // } else {
-                                    //   if (stone.shapeStr !=
-                                    //       displayStones[index - 1].shapeStr) {
-                                    //     showCategoryHeader = true;
-                                    //   }
-                                    // }
                                     return _buildDiamondRow(stone, themeColor);
-                                    //   Column(
-                                    //   crossAxisAlignment:
-                                    //       CrossAxisAlignment.start,
-                                    //   children: [
-                                    //     _buildDiamondRow(stone, themeColor),
-                                    //   ],
-                                    // );
                                   }, childCount: displayStones.length),
                                 ),
                               ],
@@ -800,55 +745,11 @@ class _GmssScreenState extends State<GmssScreen>
     );
   }
 
-  // Widget _buildSkeletonCard() {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(15),
-  //       border: Border.all(color: Colors.grey.shade100),
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Expanded(
-  //           flex: 3,
-  //           child: Container(
-  //             margin: const EdgeInsets.all(10),
-  //             decoration: BoxDecoration(
-  //               color: Colors.grey.shade200,
-  //               borderRadius: BorderRadius.circular(10),
-  //             ),
-  //           ),
-  //         ),
-  //         Expanded(
-  //           flex: 1,
-  //           child: Padding(
-  //             padding: const EdgeInsets.symmetric(horizontal: 12),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Container(
-  //                   height: 12,
-  //                   width: 100,
-  //                   color: Colors.grey.shade200,
-  //                 ),
-  //                 const SizedBox(height: 8),
-  //                 Container(height: 10, width: 60, color: Colors.grey.shade100),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Widget _buildSkeletonCard() {
     return AnimatedBuilder(
       animation: _shimmerController,
       builder: (context, child) {
-        // Create a value that moves from -1.0 to 2.0 based on the controller
         double value = (_shimmerController.value * 3.0) - 1.0;
-
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
