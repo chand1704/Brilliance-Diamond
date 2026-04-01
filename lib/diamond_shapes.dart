@@ -222,17 +222,32 @@ class MinimalCushionPainter extends MinimalShapePainter {
 // 5. RADIANT
 class MinimalRadiantPainter extends MinimalShapePainter {
   MinimalRadiantPainter({super.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
+
     final center = Offset(size.width / 2, size.height / 2);
-    final w = size.width * 0.65;
-    final h = size.height * 0.85;
-    final c = 6.0;
-    Path getRadiantPath(double width, double height, double crop) {
+
+    // Proportions
+    final double w = size.width * 0.65;
+    final double h = size.height * 0.85;
+    final double cropOuter = 10.0; // Corner clipping for outer girdle
+
+    final double tw = w * 0.5; // Table Width
+    final double th = h * 0.5; // Table Height
+    final double cropInner = 5.0; // Corner clipping for inner table
+
+    // Helper to generate the clipped rectangle path
+    Path getRadiantPath(
+      Offset center,
+      double width,
+      double height,
+      double crop,
+    ) {
       return Path()
         ..moveTo(center.dx - width / 2 + crop, center.dy - height / 2)
         ..lineTo(center.dx + width / 2 - crop, center.dy - height / 2)
@@ -245,29 +260,55 @@ class MinimalRadiantPainter extends MinimalShapePainter {
         ..close();
     }
 
-    canvas.drawPath(getRadiantPath(w, h, c), paint);
-    canvas.drawRect(
-      Rect.fromCenter(center: center, width: w * 0.4, height: h * 0.4),
+    // 1. Draw Outer Girdle
+    canvas.drawPath(getRadiantPath(center, w, h, cropOuter), paint);
+
+    // 2. Draw Inner Table
+    canvas.drawPath(getRadiantPath(center, tw, th, cropInner), paint);
+
+    // 3. Draw Facet Lines (Connections)
+
+    // Diagonal Corner Connections
+    canvas.drawLine(
+      Offset(center.dx - w / 2 + cropOuter, center.dy - h / 2),
+      Offset(center.dx - tw / 2 + cropInner, center.dy - th / 2),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx, center.dy - h / 2),
-      Offset(center.dx, center.dy - h * 0.2),
+      Offset(center.dx + w / 2 - cropOuter, center.dy - h / 2),
+      Offset(center.dx + tw / 2 - cropInner, center.dy - th / 2),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx, center.dy + h / 2),
-      Offset(center.dx, center.dy + h * 0.2),
+      Offset(center.dx - w / 2 + cropOuter, center.dy + h / 2),
+      Offset(center.dx - tw / 2 + cropInner, center.dy + th / 2),
       paint,
     );
+    canvas.drawLine(
+      Offset(center.dx + w / 2 - cropOuter, center.dy + h / 2),
+      Offset(center.dx + tw / 2 - cropInner, center.dy + th / 2),
+      paint,
+    );
+
+    // Midpoint Side Connections
     canvas.drawLine(
       Offset(center.dx - w / 2, center.dy),
-      Offset(center.dx - w * 0.2, center.dy),
+      Offset(center.dx - tw / 2, center.dy),
       paint,
     );
     canvas.drawLine(
       Offset(center.dx + w / 2, center.dy),
-      Offset(center.dx + w * 0.2, center.dy),
+      Offset(center.dx + tw / 2, center.dy),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, center.dy - h / 2),
+      Offset(center.dx, center.dy - th / 2),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, center.dy + h / 2),
+      Offset(center.dx, center.dy + th / 2),
       paint,
     );
   }
@@ -276,52 +317,50 @@ class MinimalRadiantPainter extends MinimalShapePainter {
 // 6. MARQUISE
 class MinimalMarquisePainter extends MinimalShapePainter {
   MinimalMarquisePainter({super.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
+
     final center = Offset(size.width / 2, size.height / 2);
-    final double h = size.height * 0.8;
-    final double w = h / 2.0;
+
+    // Proportions: Narrow and long for the icon look
+    final double h = size.height * 0.85;
+    final double w = size.width * 0.45;
+
+    // 1. Draw Outer Girdle (The curved Marquise path)
     final Path outer = Path();
     outer.moveTo(center.dx, center.dy - h / 2);
     outer.quadraticBezierTo(
-      center.dx + w,
+      center.dx + w, // Control point for curve
       center.dy,
       center.dx,
       center.dy + h / 2,
     );
     outer.quadraticBezierTo(
-      center.dx - w,
+      center.dx - w, // Control point for curve
       center.dy,
       center.dx,
       center.dy - h / 2,
     );
     canvas.drawPath(outer, paint);
-    final double tw = w * 0.4;
-    final double th = h * 0.4;
-    canvas.drawLine(
-      Offset(center.dx, center.dy - th / 2),
-      Offset(center.dx + tw / 2, center.dy),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx + tw / 2, center.dy),
-      Offset(center.dx, center.dy + th / 2),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx, center.dy + th / 2),
-      Offset(center.dx - tw / 2, center.dy),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx - tw / 2, center.dy),
-      Offset(center.dx, center.dy - th / 2),
-      paint,
-    );
+
+    // 2. Draw Table (Inner Diamond Shape)
+    final double tw = w * 0.45;
+    final double th = h * 0.45;
+    final Path tablePath = Path()
+      ..moveTo(center.dx, center.dy - th / 2)
+      ..lineTo(center.dx + tw / 2, center.dy)
+      ..lineTo(center.dx, center.dy + th / 2)
+      ..lineTo(center.dx - tw / 2, center.dy)
+      ..close();
+    canvas.drawPath(tablePath, paint);
+
+    // 3. Main Vertical & Horizontal Facets
+    // Top & Bottom points to table
     canvas.drawLine(
       Offset(center.dx, center.dy - h / 2),
       Offset(center.dx, center.dy - th / 2),
@@ -330,6 +369,40 @@ class MinimalMarquisePainter extends MinimalShapePainter {
     canvas.drawLine(
       Offset(center.dx, center.dy + h / 2),
       Offset(center.dx, center.dy + th / 2),
+      paint,
+    );
+    // Table sides to outer curve (approximate meeting points)
+    canvas.drawLine(
+      Offset(center.dx + tw / 2, center.dy),
+      Offset(center.dx + w / 2 * 0.9, center.dy),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx - tw / 2, center.dy),
+      Offset(center.dx - w / 2 * 0.9, center.dy),
+      paint,
+    );
+
+    // 4. Star / Brilliant Facet lines (The angled lines from your reference)
+    // Connecting table corners to crown points
+    canvas.drawLine(
+      Offset(center.dx - tw / 4, center.dy - th / 4),
+      Offset(center.dx - w / 2 * 0.6, center.dy - h / 4),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx + tw / 4, center.dy - th / 4),
+      Offset(center.dx + w / 2 * 0.6, center.dy - h / 4),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx - tw / 4, center.dy + th / 4),
+      Offset(center.dx - w / 2 * 0.6, center.dy + h / 4),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx + tw / 4, center.dy + th / 4),
+      Offset(center.dx + w / 2 * 0.6, center.dy + h / 4),
       paint,
     );
   }
@@ -520,47 +593,48 @@ class MinimalHeartPainter extends MinimalShapePainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
     final center = Offset(size.width / 2, size.height / 2);
-    final double h = size.height * 0.7;
-    final double w = h / 1.1;
-    final Path heart = Path();
-    double cleftY = center.dy - h * 0.2;
-    heart.moveTo(center.dx, cleftY);
-    heart.cubicTo(
+    final double h = size.height * 0.75;
+    final double w = size.width * 0.85;
+    double cleftY = center.dy - h * 0.18;
+    double bottomY = center.dy + h * 0.45;
+    double lobeTopY = center.dy - h * 0.5;
+    final Path heartPath = Path();
+    heartPath.moveTo(center.dx, cleftY);
+    heartPath.cubicTo(
       center.dx - w * 0.5,
-      center.dy - h * 0.5,
-      center.dx - w * 0.7,
+      lobeTopY,
+      center.dx - w * 0.65,
       center.dy + h * 0.1,
       center.dx,
-      center.dy + h * 0.5,
+      bottomY,
     );
-    heart.moveTo(center.dx, cleftY);
-    heart.cubicTo(
+    heartPath.moveTo(center.dx, cleftY);
+    heartPath.cubicTo(
       center.dx + w * 0.5,
-      center.dy - h * 0.5,
-      center.dx + w * 0.7,
+      lobeTopY,
+      center.dx + w * 0.65,
       center.dy + h * 0.1,
       center.dx,
-      center.dy + h * 0.5,
+      bottomY,
     );
-    canvas.drawPath(heart, paint);
+    canvas.drawPath(heartPath, paint);
+    final double tw = w * 0.4;
+    final double th = h * 0.35;
+    final Path table = Path();
+    table.moveTo(center.dx, center.dy - th * 0.45);
+    table.lineTo(center.dx + tw * 0.5, center.dy - th * 0.1);
+    table.lineTo(center.dx, center.dy + th * 0.65);
+    table.lineTo(center.dx - tw * 0.5, center.dy - th * 0.1);
+    table.close();
+    canvas.drawPath(table, paint);
     canvas.drawLine(
-      Offset(center.dx, center.dy - h * 0.05),
-      Offset(center.dx + w * 0.15, center.dy + h * 0.1),
+      Offset(center.dx, cleftY),
+      Offset(center.dx, center.dy - th * 0.45),
       paint,
     );
     canvas.drawLine(
-      Offset(center.dx + w * 0.15, center.dy + h * 0.1),
-      Offset(center.dx, center.dy + h * 0.3),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx, center.dy + h * 0.3),
-      Offset(center.dx - w * 0.15, center.dy + h * 0.1),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx - w * 0.15, center.dy + h * 0.1),
-      Offset(center.dx, center.dy - h * 0.05),
+      Offset(center.dx, bottomY),
+      Offset(center.dx, center.dy + th * 0.65),
       paint,
     );
   }

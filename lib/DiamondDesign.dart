@@ -212,9 +212,187 @@ class RoundTopViewPainter extends CustomPainter {
 }
 
 //Princess
+// class PrincessTopViewPainter extends CustomPainter {
+//   final GmssStone stone;
+//   PrincessTopViewPainter({required this.stone});
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()
+//       ..color = Colors.grey.shade600
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 1.2;
+//     final infoPaint = Paint()
+//       ..color = const Color(0xFF008080)
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 1.0;
+//     final guidePaint = Paint()
+//       ..color = Colors.grey.shade300
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 0.8;
+//     final center = Offset(size.width / 2, size.height / 2);
+//     final double h = 160.0;
+//     final double w = 160.0;
+//     Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
+//     canvas.drawRect(outerRect, paint);
+//     final double tableW = w * 0.65;
+//     final double tableH = h * 0.65;
+//     Rect tableRect = Rect.fromCenter(
+//       center: center,
+//       width: tableW,
+//       height: tableH,
+//     );
+//     canvas.drawRect(tableRect, paint);
+//     _drawPrincessFacets(canvas, outerRect, tableRect, paint);
+//     _drawDimensions(canvas, center, w, h, infoPaint, guidePaint);
+//   }
+//
+//   void _drawPrincessFacets(Canvas canvas, Rect outer, Rect inner, Paint paint) {
+//     canvas.drawLine(outer.topLeft, inner.topLeft, paint);
+//     canvas.drawLine(outer.topRight, inner.topRight, paint);
+//     canvas.drawLine(outer.bottomLeft, inner.bottomLeft, paint);
+//     canvas.drawLine(outer.bottomRight, inner.bottomRight, paint);
+//     Offset topMid = Offset(outer.center.dx, outer.top);
+//     Offset bottomMid = Offset(outer.center.dx, outer.bottom);
+//     Offset leftMid = Offset(outer.left, outer.center.dy);
+//     Offset rightMid = Offset(outer.right, outer.center.dy);
+//     canvas.drawLine(inner.topLeft, topMid, paint);
+//     canvas.drawLine(inner.topRight, topMid, paint);
+//     canvas.drawLine(inner.bottomLeft, bottomMid, paint);
+//     canvas.drawLine(inner.bottomRight, bottomMid, paint);
+//     canvas.drawLine(inner.topLeft, leftMid, paint);
+//     canvas.drawLine(inner.bottomLeft, leftMid, paint);
+//     canvas.drawLine(inner.topRight, rightMid, paint);
+//     canvas.drawLine(inner.bottomRight, rightMid, paint);
+//   }
+//
+//   void _drawDimensions(
+//     Canvas canvas,
+//     Offset center,
+//     double w,
+//     double h,
+//     Paint infoPaint,
+//     Paint guidePaint,
+//   ) {
+//     double widthY = center.dy - h / 2 - 35;
+//     Offset startW = Offset(center.dx - w / 2, widthY);
+//     Offset endW = Offset(center.dx + w / 2, widthY);
+//     canvas.drawLine(startW, endW, infoPaint);
+//     _drawDashedLine(
+//       canvas,
+//       Offset(startW.dx, startW.dy + 5),
+//       Offset(startW.dx, center.dy - h / 2),
+//       guidePaint,
+//     );
+//     _drawDashedLine(
+//       canvas,
+//       Offset(endW.dx, endW.dy + 5),
+//       Offset(endW.dx, center.dy - h / 2),
+//       guidePaint,
+//     );
+//     canvas.drawLine(startW, endW, infoPaint);
+//     _drawArrowHead(canvas, startW, 0, infoPaint);
+//     _drawArrowHead(canvas, endW, 180, infoPaint);
+//     _drawText(
+//       canvas,
+//       "Width: ${stone.width} mm",
+//       Offset(center.dx, widthY - 10),
+//     );
+//     double lengthX = center.dx + w / 2 + 35;
+//     Offset topL = Offset(lengthX, center.dy - h / 2);
+//     Offset bottomL = Offset(lengthX, center.dy + h / 2);
+//     _drawDashedLine(
+//       canvas,
+//       Offset(topL.dx - 5, topL.dy),
+//       Offset(center.dx + w / 2, topL.dy),
+//       guidePaint,
+//     );
+//     _drawDashedLine(
+//       canvas,
+//       Offset(bottomL.dx - 5, bottomL.dy),
+//       Offset(center.dx + w / 2, bottomL.dy),
+//       guidePaint,
+//     );
+//     canvas.drawLine(topL, bottomL, infoPaint);
+//     _drawText(
+//       canvas,
+//       "Length: ${stone.length} mm",
+//       Offset(lengthX + 50, center.dy),
+//     );
+//     _drawText(
+//       canvas,
+//       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
+//       Offset(center.dx, center.dy + h / 2 + 45),
+//       isGrey: true,
+//     );
+//   }
+//
+//   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
+//     double dashWidth = 4, dashSpace = 4;
+//     double distance = (p2 - p1).distance;
+//     for (double i = 0; i < distance; i += dashWidth + dashSpace) {
+//       canvas.drawLine(
+//         Offset(
+//           p1.dx + (p2.dx - p1.dx) * i / distance,
+//           p1.dy + (p2.dy - p1.dy) * i / distance,
+//         ),
+//         Offset(
+//           p1.dx + (p2.dx - p1.dx) * (i + dashWidth) / distance,
+//           p1.dy + (p2.dy - p1.dy) * (i + dashWidth) / distance,
+//         ),
+//         paint,
+//       );
+//     }
+//   }
+//
+//   void _drawArrowHead(
+//     Canvas canvas,
+//     Offset point,
+//     double angleDegrees,
+//     Paint paint,
+//   ) {
+//     final double arrowSize = 6.0;
+//     final double angle = angleDegrees * (3.14159 / 180);
+//     Path path = Path()
+//       ..moveTo(point.dx, point.dy)
+//       ..lineTo(
+//         point.dx + arrowSize * math.cos(angle - 0.5),
+//         point.dy + arrowSize * math.sin(angle - 0.5),
+//       )
+//       ..moveTo(point.dx, point.dy)
+//       ..lineTo(
+//         point.dx + arrowSize * math.cos(angle + 0.5),
+//         point.dy + arrowSize * math.sin(angle + 0.5),
+//       );
+//     canvas.drawPath(path, paint);
+//   }
+//
+//   void _drawText(
+//     Canvas canvas,
+//     String text,
+//     Offset pos, {
+//     bool isGrey = false,
+//   }) {
+//     final tp = TextPainter(
+//       text: TextSpan(
+//         text: text,
+//         style: TextStyle(
+//           color: isGrey ? Colors.grey.shade700 : const Color(0xFF008080),
+//           fontSize: 11,
+//           fontWeight: FontWeight.bold,
+//         ),
+//       ),
+//       textDirection: TextDirection.ltr,
+//     )..layout();
+//     tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
+//   }
+//
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
 class PrincessTopViewPainter extends CustomPainter {
   final GmssStone stone;
   PrincessTopViewPainter({required this.stone});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -229,40 +407,58 @@ class PrincessTopViewPainter extends CustomPainter {
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-    final center = Offset(size.width / 2, size.height / 2);
-    final double h = 160.0;
-    final double w = 160.0;
-    Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
-    canvas.drawRect(outerRect, paint);
-    final double tableW = w * 0.65;
-    final double tableH = h * 0.65;
-    Rect tableRect = Rect.fromCenter(
-      center: center,
-      width: tableW,
-      height: tableH,
-    );
-    canvas.drawRect(tableRect, paint);
-    _drawPrincessFacets(canvas, outerRect, tableRect, paint);
-    _drawDimensions(canvas, center, w, h, infoPaint, guidePaint);
-  }
 
-  void _drawPrincessFacets(Canvas canvas, Rect outer, Rect inner, Paint paint) {
-    canvas.drawLine(outer.topLeft, inner.topLeft, paint);
-    canvas.drawLine(outer.topRight, inner.topRight, paint);
-    canvas.drawLine(outer.bottomLeft, inner.bottomLeft, paint);
-    canvas.drawLine(outer.bottomRight, inner.bottomRight, paint);
-    Offset topMid = Offset(outer.center.dx, outer.top);
-    Offset bottomMid = Offset(outer.center.dx, outer.bottom);
-    Offset leftMid = Offset(outer.left, outer.center.dy);
-    Offset rightMid = Offset(outer.right, outer.center.dy);
-    canvas.drawLine(inner.topLeft, topMid, paint);
-    canvas.drawLine(inner.topRight, topMid, paint);
-    canvas.drawLine(inner.bottomLeft, bottomMid, paint);
-    canvas.drawLine(inner.bottomRight, bottomMid, paint);
-    canvas.drawLine(inner.topLeft, leftMid, paint);
-    canvas.drawLine(inner.bottomLeft, leftMid, paint);
-    canvas.drawLine(inner.topRight, rightMid, paint);
-    canvas.drawLine(inner.bottomRight, rightMid, paint);
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // --- SHAPE DESIGN FROM MinimalPrincessPainter ---
+    // Use a responsive side length based on the container size
+    final double side =
+        size.width * 0.4; // Adjust this 0.4 to decrease/increase size
+
+    Rect outer = Rect.fromCenter(center: center, width: side, height: side);
+    canvas.drawRect(outer, paint);
+
+    final double tableSide = side * 0.58;
+    Rect table = Rect.fromCenter(
+      center: center,
+      width: tableSide,
+      height: tableSide,
+    );
+    canvas.drawRect(table, paint);
+
+    // Diagonal Corner Lines
+    canvas.drawLine(outer.topLeft, table.topLeft, paint);
+    canvas.drawLine(outer.topRight, table.topRight, paint);
+    canvas.drawLine(outer.bottomLeft, table.bottomLeft, paint);
+    canvas.drawLine(outer.bottomRight, table.bottomRight, paint);
+
+    // Facet Star Logic
+    Offset topMid = Offset(center.dx, outer.top);
+    canvas.drawLine(table.topLeft, topMid, paint);
+    canvas.drawLine(table.topRight, topMid, paint);
+
+    Offset bottomMid = Offset(center.dx, outer.bottom);
+    canvas.drawLine(table.bottomLeft, bottomMid, paint);
+    canvas.drawLine(table.bottomRight, bottomMid, paint);
+
+    Offset leftMid = Offset(outer.left, center.dy);
+    canvas.drawLine(table.topLeft, leftMid, paint);
+    canvas.drawLine(table.bottomLeft, leftMid, paint);
+
+    Offset rightMid = Offset(outer.right, center.dy);
+    canvas.drawLine(table.topRight, rightMid, paint);
+    canvas.drawLine(table.bottomRight, rightMid, paint);
+
+    // Internal Kite Connections
+    canvas.drawLine(topMid, Offset(center.dx, table.top), paint);
+    canvas.drawLine(bottomMid, Offset(center.dx, table.bottom), paint);
+    canvas.drawLine(leftMid, Offset(table.left, center.dy), paint);
+    canvas.drawLine(rightMid, Offset(table.right, center.dy), paint);
+    // -------------------------------------------------
+
+    // DRAW DIMENSIONS (Using your arrow logic)
+    // We pass 'side' as both width and height since Princess is square
+    _drawDimensions(canvas, center, side, side, infoPaint, guidePaint);
   }
 
   void _drawDimensions(
@@ -273,10 +469,14 @@ class PrincessTopViewPainter extends CustomPainter {
     Paint infoPaint,
     Paint guidePaint,
   ) {
-    double widthY = center.dy - h / 2 - 35;
+    // Spacing proportional to the shape size
+    double spacing = w * 0.4;
+
+    // Horizontal Width
+    double widthY = center.dy - h / 2 - spacing;
     Offset startW = Offset(center.dx - w / 2, widthY);
     Offset endW = Offset(center.dx + w / 2, widthY);
-    canvas.drawLine(startW, endW, infoPaint);
+
     _drawDashedLine(
       canvas,
       Offset(startW.dx, startW.dy + 5),
@@ -289,17 +489,21 @@ class PrincessTopViewPainter extends CustomPainter {
       Offset(endW.dx, center.dy - h / 2),
       guidePaint,
     );
+
     canvas.drawLine(startW, endW, infoPaint);
     _drawArrowHead(canvas, startW, 0, infoPaint);
     _drawArrowHead(canvas, endW, 180, infoPaint);
     _drawText(
       canvas,
-      "Width: ${stone.width} mm",
+      "Width: ${stone.width.toStringAsFixed(2)} mm",
       Offset(center.dx, widthY - 10),
     );
-    double lengthX = center.dx + w / 2 + 35;
+
+    // Vertical Length
+    double lengthX = center.dx + w / 2 + spacing;
     Offset topL = Offset(lengthX, center.dy - h / 2);
     Offset bottomL = Offset(lengthX, center.dy + h / 2);
+
     _drawDashedLine(
       canvas,
       Offset(topL.dx - 5, topL.dy),
@@ -312,20 +516,26 @@ class PrincessTopViewPainter extends CustomPainter {
       Offset(center.dx + w / 2, bottomL.dy),
       guidePaint,
     );
+
     canvas.drawLine(topL, bottomL, infoPaint);
+    _drawArrowHead(canvas, topL, 90, infoPaint);
+    _drawArrowHead(canvas, bottomL, 270, infoPaint);
     _drawText(
       canvas,
-      "Length: ${stone.length} mm",
+      "Length: ${stone.length.toStringAsFixed(2)} mm",
       Offset(lengthX + 50, center.dy),
     );
+
+    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
-      Offset(center.dx, center.dy + h / 2 + 45),
+      Offset(center.dx, center.dy + h / 2 + spacing + 10),
       isGrey: true,
     );
   }
 
+  // Helper methods (_drawDashedLine, _drawArrowHead, _drawText) remain identical to your current code
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
     double dashWidth = 4, dashSpace = 4;
     double distance = (p2 - p1).distance;
@@ -394,6 +604,7 @@ class PrincessTopViewPainter extends CustomPainter {
 class EmeraldTopViewPainter extends CustomPainter {
   final GmssStone stone;
   EmeraldTopViewPainter({required this.stone});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -408,50 +619,46 @@ class EmeraldTopViewPainter extends CustomPainter {
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
+
     final center = Offset(size.width / 2, size.height / 2);
-    const double visualH = 180.0;
-    const double visualW = 130.0;
-    Rect outerRect = Rect.fromCenter(
-      center: center,
-      width: visualW,
-      height: visualH,
-    );
-    _drawEmeraldRect(canvas, outerRect, 15, paint);
-    _drawEmeraldRect(canvas, outerRect.deflate(10), 12, paint);
-    _drawEmeraldRect(canvas, outerRect.deflate(20), 8, paint);
-    _drawEmeraldRect(canvas, outerRect.deflate(35), 5, paint);
-    _drawCornerLines(canvas, outerRect, outerRect.deflate(35), paint);
-    _drawDimensions(canvas, center, visualW, visualH, infoPaint, guidePaint);
-  }
 
-  void _drawEmeraldRect(Canvas canvas, Rect rect, double radius, Paint paint) {
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, Radius.circular(radius)),
-      paint,
-    );
-  }
+    // --- SHAPE DESIGN FROM MinimalEmeraldPainter ---
+    // Use responsive sizes instead of fixed 180/130
+    final double outerW = size.width * 0.35;
+    final double outerH = size.height * 0.55;
 
-  void _drawCornerLines(Canvas canvas, Rect outer, Rect inner, Paint paint) {
-    canvas.drawLine(
-      Offset(outer.left + 15, outer.top),
-      Offset(inner.left + 5, inner.top),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(outer.right - 15, outer.top),
-      Offset(inner.right - 5, inner.top),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(outer.left + 15, outer.bottom),
-      Offset(inner.left + 5, inner.bottom),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(outer.right - 15, outer.bottom),
-      Offset(inner.right - 5, inner.bottom),
-      paint,
-    );
+    List<double> scales = [1.0, 0.84, 0.68, 0.48];
+    List<List<Offset>> layers = [];
+
+    for (var scale in scales) {
+      double w = outerW * scale;
+      double h = outerH * scale;
+      double c = 8.0 * scale; // Corner clipping
+
+      List<Offset> points = [
+        Offset(center.dx - w / 2 + c, center.dy - h / 2),
+        Offset(center.dx + w / 2 - c, center.dy - h / 2),
+        Offset(center.dx + w / 2, center.dy - h / 2 + c),
+        Offset(center.dx + w / 2, center.dy + h / 2 - c),
+        Offset(center.dx + w / 2 - c, center.dy + h / 2),
+        Offset(center.dx - w / 2 + c, center.dy + h / 2),
+        Offset(center.dx - w / 2, center.dy + h / 2 - c),
+        Offset(center.dx - w / 2, center.dy - h / 2 + c),
+      ];
+      layers.add(points);
+      canvas.drawPath(Path()..addPolygon(points, true), paint);
+    }
+
+    // Draw the Step-Cut connecting lines
+    for (int i = 0; i < layers.length - 1; i++) {
+      for (int j = 0; j < 8; j++) {
+        canvas.drawLine(layers[i][j], layers[i + 1][j], paint);
+      }
+    }
+    // ------------------------------------------------
+
+    // DRAW DIMENSIONS (Using your arrow logic)
+    _drawDimensions(canvas, center, outerW, outerH, infoPaint, guidePaint);
   }
 
   void _drawDimensions(
@@ -462,9 +669,14 @@ class EmeraldTopViewPainter extends CustomPainter {
     Paint infoPaint,
     Paint guidePaint,
   ) {
-    double widthY = center.dy - h / 2 - 35;
+    // Dynamic spacing based on shape size
+    double spacing = h * 0.25;
+
+    // Horizontal Width
+    double widthY = center.dy - h / 2 - spacing;
     Offset startW = Offset(center.dx - w / 2, widthY);
     Offset endW = Offset(center.dx + w / 2, widthY);
+
     _drawDashedLine(
       canvas,
       Offset(startW.dx, startW.dy + 5),
@@ -477,6 +689,7 @@ class EmeraldTopViewPainter extends CustomPainter {
       Offset(endW.dx, center.dy - h / 2),
       guidePaint,
     );
+
     canvas.drawLine(startW, endW, infoPaint);
     _drawArrowHead(canvas, startW, 0, infoPaint);
     _drawArrowHead(canvas, endW, 180, infoPaint);
@@ -485,9 +698,12 @@ class EmeraldTopViewPainter extends CustomPainter {
       "Width: ${stone.width.toStringAsFixed(2)} mm",
       Offset(center.dx, widthY - 10),
     );
-    double lengthX = center.dx + w / 2 + 35;
+
+    // Vertical Length
+    double lengthX = center.dx + w / 2 + spacing;
     Offset topL = Offset(lengthX, center.dy - h / 2);
     Offset bottomL = Offset(lengthX, center.dy + h / 2);
+
     _drawDashedLine(
       canvas,
       Offset(topL.dx - 5, topL.dy),
@@ -500,6 +716,7 @@ class EmeraldTopViewPainter extends CustomPainter {
       Offset(center.dx + w / 2, bottomL.dy),
       guidePaint,
     );
+
     canvas.drawLine(topL, bottomL, infoPaint);
     _drawArrowHead(canvas, topL, 90, infoPaint);
     _drawArrowHead(canvas, bottomL, 270, infoPaint);
@@ -508,14 +725,17 @@ class EmeraldTopViewPainter extends CustomPainter {
       "Length: ${stone.length.toStringAsFixed(2)} mm",
       Offset(lengthX + 55, center.dy),
     );
+
+    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
-      Offset(center.dx, center.dy + h / 2 + 45),
+      Offset(center.dx, center.dy + h / 2 + spacing + 10),
       isGrey: true,
     );
   }
 
+  // --- Helper Methods remain as they were ---
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
     double dashWidth = 4, dashSpace = 4;
     double distance = (p2 - p1).distance;
@@ -541,7 +761,7 @@ class EmeraldTopViewPainter extends CustomPainter {
     Paint paint,
   ) {
     final double arrowSize = 6.0;
-    final double angle = angleDegrees * math.pi / 180;
+    final double angle = angleDegrees * (3.14159 / 180);
     Path path = Path()
       ..moveTo(point.dx, point.dy)
       ..lineTo(
@@ -584,6 +804,7 @@ class EmeraldTopViewPainter extends CustomPainter {
 class CushionTopViewPainter extends CustomPainter {
   final GmssStone stone;
   CushionTopViewPainter({required this.stone});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -598,143 +819,78 @@ class CushionTopViewPainter extends CustomPainter {
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
+
     final center = Offset(size.width / 2, size.height / 2);
-    const double visualH = 160.0;
-    const double visualW = 160.0;
+
+    // --- SHAPE DESIGN FROM MinimalCushionPainter ---
+    // Responsive size based on container
+    final double h = size.height * 0.55;
+    final double w = h * 0.95;
+
     RRect outerRRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: center, width: visualW, height: visualH),
-      const Radius.circular(35),
+      Rect.fromCenter(center: center, width: w, height: h),
+      const Radius.circular(20),
     );
     canvas.drawRRect(outerRRect, paint);
-    final double tableW = visualW * 0.55;
-    final double tableH = visualH * 0.55;
+
+    final double tableW = w * 0.55;
+    final double tableH = h * 0.55;
     RRect tableRRect = RRect.fromRectAndRadius(
       Rect.fromCenter(center: center, width: tableW, height: tableH),
-      const Radius.circular(10),
+      const Radius.circular(8),
     );
     canvas.drawRRect(tableRRect, paint);
-    _drawCushionFacets(canvas, center, outerRRect, tableRRect, paint);
-    _drawDimensions(canvas, center, visualW, visualH, infoPaint, guidePaint);
-  }
 
-  Offset _getPointOnBezier(Offset p0, Offset p1, Offset p2, double t) {
-    double u = 1 - t;
-    double tt = t * t;
-    double uu = u * u;
-    return Offset(
-      (uu * p0.dx) + (2 * u * t * p1.dx) + (tt * p2.dx),
-      (uu * p0.dy) + (2 * u * t * p1.dy) + (tt * p2.dy),
-    );
-  }
+    // Manual corner offsets to ensure lines start from the curves correctly
+    const double cornerOffset = 10.0;
 
-  void _drawCushionFacets(
-    Canvas canvas,
-    Offset center,
-    RRect outer,
-    RRect inner,
-    Paint paint,
-  ) {
-    final Path mainPavilionPath = Path();
-    Offset mainMeetingPoint = Offset(
-      center.dx,
-      outer.top + (inner.top - outer.top) / 2.0,
+    // Corner diagonal lines
+    canvas.drawLine(
+      Offset(outerRRect.left + cornerOffset, outerRRect.top + cornerOffset),
+      Offset(tableRRect.left, tableRRect.top),
+      paint,
     );
-    Offset pavilionMainMeetingPoint = Offset(
-      center.dx,
-      outer.bottom - (outer.bottom - inner.bottom) / 2.0,
+    canvas.drawLine(
+      Offset(outerRRect.right - cornerOffset, outerRRect.top + cornerOffset),
+      Offset(tableRRect.right, tableRRect.top),
+      paint,
     );
-    mainPavilionPath.moveTo(inner.center.dx, inner.top);
-    mainPavilionPath.lineTo(mainMeetingPoint.dx, mainMeetingPoint.dy);
-    mainPavilionPath.lineTo(center.dx, outer.top);
-    mainPavilionPath.moveTo(inner.center.dx, inner.bottom);
-    mainPavilionPath.lineTo(
-      pavilionMainMeetingPoint.dx,
-      pavilionMainMeetingPoint.dy,
+    canvas.drawLine(
+      Offset(outerRRect.left + cornerOffset, outerRRect.bottom - cornerOffset),
+      Offset(tableRRect.left, tableRRect.bottom),
+      paint,
     );
-    mainPavilionPath.lineTo(center.dx, outer.bottom);
-    Offset rightMainMeetingPoint = Offset(
-      outer.right - (outer.right - inner.right) / 2.0,
-      center.dy,
+    canvas.drawLine(
+      Offset(outerRRect.right - cornerOffset, outerRRect.bottom - cornerOffset),
+      Offset(tableRRect.right, tableRRect.bottom),
+      paint,
     );
-    Offset leftMainMeetingPoint = Offset(
-      outer.left + (inner.left - outer.left) / 2.0,
-      center.dy,
+
+    // Mid-point facet lines
+    canvas.drawLine(
+      Offset(center.dx, outerRRect.top),
+      Offset(center.dx, tableRRect.top),
+      paint,
     );
-    mainPavilionPath.moveTo(inner.right, inner.center.dy);
-    mainPavilionPath.lineTo(rightMainMeetingPoint.dx, rightMainMeetingPoint.dy);
-    mainPavilionPath.lineTo(outer.right, center.dy);
-    mainPavilionPath.moveTo(inner.left, inner.center.dy);
-    mainPavilionPath.lineTo(leftMainMeetingPoint.dx, leftMainMeetingPoint.dy);
-    mainPavilionPath.lineTo(outer.left, center.dy);
-    for (int i = 0; i < 4; i++) {
-      bool isTop = i < 2;
-      bool isLeft = i % 2 == 0;
-      Offset bezierP0 = isLeft
-          ? Offset(outer.left + 35, outer.top)
-          : Offset(outer.right - 35, outer.top);
-      Offset bezierP1 = isLeft
-          ? Offset(outer.left, outer.top)
-          : Offset(outer.right, outer.top);
-      Offset bezierP2 = isLeft
-          ? Offset(outer.left, outer.top + 35)
-          : Offset(outer.right, outer.top + 35);
-      if (!isTop) {
-        bezierP0 = isLeft
-            ? Offset(outer.left + 35, outer.bottom)
-            : Offset(outer.right - 35, outer.bottom);
-        bezierP1 = isLeft
-            ? Offset(outer.left, outer.bottom)
-            : Offset(outer.right, outer.bottom);
-        bezierP2 = isLeft
-            ? Offset(outer.left, outer.bottom - 35)
-            : Offset(outer.right, outer.bottom - 35);
-      }
-      Offset curveMeetingPoint = _getPointOnBezier(
-        bezierP0,
-        bezierP1,
-        bezierP2,
-        0.5,
-      );
-      Offset curveStarPoint = _getPointOnBezier(
-        bezierP0,
-        bezierP1,
-        bezierP2,
-        0.3,
-      );
-      Offset curveStarMeetingPoint = _getPointOnBezier(
-        bezierP0,
-        bezierP1,
-        bezierP2,
-        0.7,
-      );
-      Offset tableCorner;
-      if (isTop) {
-        tableCorner = isLeft
-            ? Offset(inner.left, inner.top)
-            : Offset(inner.right, inner.top);
-      } else {
-        tableCorner = isLeft
-            ? Offset(inner.left, inner.bottom)
-            : Offset(inner.right, inner.bottom);
-      }
-      Offset horizontalMainPoint = isLeft
-          ? leftMainMeetingPoint
-          : rightMainMeetingPoint;
-      Offset verticalMainPoint = isTop
-          ? mainMeetingPoint
-          : pavilionMainMeetingPoint;
-      mainPavilionPath.moveTo(tableCorner.dx, tableCorner.dy);
-      mainPavilionPath.lineTo(curveMeetingPoint.dx, curveMeetingPoint.dy);
-      mainPavilionPath.moveTo(curveStarPoint.dx, curveStarPoint.dy);
-      mainPavilionPath.lineTo(verticalMainPoint.dx, verticalMainPoint.dy);
-      mainPavilionPath.lineTo(tableCorner.dx, tableCorner.dy);
-      mainPavilionPath.lineTo(horizontalMainPoint.dx, horizontalMainPoint.dy);
-      mainPavilionPath.lineTo(
-        curveStarMeetingPoint.dx,
-        curveStarMeetingPoint.dy,
-      );
-    }
-    canvas.drawPath(mainPavilionPath, paint);
+    canvas.drawLine(
+      Offset(center.dx, outerRRect.bottom),
+      Offset(center.dx, tableRRect.bottom),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(outerRRect.left, center.dy),
+      Offset(tableRRect.left, center.dy),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(outerRRect.right, center.dy),
+      Offset(tableRRect.right, center.dy),
+      paint,
+    );
+    // -----------------------------------------------
+
+    // DRAW DIMENSIONS (Using your arrow logic)
+    _drawDimensions(canvas, center, w, h, infoPaint, guidePaint);
   }
 
   void _drawDimensions(
@@ -745,9 +901,14 @@ class CushionTopViewPainter extends CustomPainter {
     Paint infoPaint,
     Paint guidePaint,
   ) {
-    double widthY = center.dy - h / 2 - 35;
+    // Proportional spacing
+    double spacing = h * 0.3;
+
+    // Horizontal Width
+    double widthY = center.dy - h / 2 - spacing;
     Offset startW = Offset(center.dx - w / 2, widthY);
     Offset endW = Offset(center.dx + w / 2, widthY);
+
     _drawDashedLine(
       canvas,
       Offset(startW.dx, startW.dy + 5),
@@ -760,17 +921,21 @@ class CushionTopViewPainter extends CustomPainter {
       Offset(endW.dx, center.dy - h / 2),
       guidePaint,
     );
+
     canvas.drawLine(startW, endW, infoPaint);
     _drawArrowHead(canvas, startW, 0, infoPaint);
     _drawArrowHead(canvas, endW, 180, infoPaint);
     _drawText(
       canvas,
-      "Width: ${stone.width} mm",
+      "Width: ${stone.width.toStringAsFixed(2)} mm",
       Offset(center.dx, widthY - 10),
     );
-    double lengthX = center.dx + w / 2 + 35;
+
+    // Vertical Length
+    double lengthX = center.dx + w / 2 + spacing;
     Offset topL = Offset(lengthX, center.dy - h / 2);
     Offset bottomL = Offset(lengthX, center.dy + h / 2);
+
     _drawDashedLine(
       canvas,
       Offset(topL.dx - 5, topL.dy),
@@ -783,20 +948,42 @@ class CushionTopViewPainter extends CustomPainter {
       Offset(center.dx + w / 2, bottomL.dy),
       guidePaint,
     );
+
     canvas.drawLine(topL, bottomL, infoPaint);
     _drawArrowHead(canvas, topL, 90, infoPaint);
     _drawArrowHead(canvas, bottomL, 270, infoPaint);
     _drawText(
       canvas,
-      "Length: ${stone.length} mm",
+      "Length: ${stone.length.toStringAsFixed(2)} mm",
       Offset(lengthX + 50, center.dy),
     );
+
+    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
-      Offset(center.dx, center.dy + h / 2 + 45),
+      Offset(center.dx, center.dy + h / 2 + spacing + 10),
       isGrey: true,
     );
+  }
+
+  // --- Helper Methods remain as they were ---
+  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
+    double dashWidth = 4, dashSpace = 4;
+    double distance = (p2 - p1).distance;
+    for (double i = 0; i < distance; i += dashWidth + dashSpace) {
+      canvas.drawLine(
+        Offset(
+          p1.dx + (p2.dx - p1.dx) * i / distance,
+          p1.dy + (p2.dy - p1.dy) * i / distance,
+        ),
+        Offset(
+          p1.dx + (p2.dx - p1.dx) * (i + dashWidth) / distance,
+          p1.dy + (p2.dy - p1.dy) * (i + dashWidth) / distance,
+        ),
+        paint,
+      );
+    }
   }
 
   void _drawArrowHead(
@@ -819,24 +1006,6 @@ class CushionTopViewPainter extends CustomPainter {
         point.dy + arrowSize * math.sin(angle + 0.5),
       );
     canvas.drawPath(path, paint);
-  }
-
-  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
-    double dashWidth = 4, dashSpace = 4;
-    double distance = (p2 - p1).distance;
-    for (double i = 0; i < distance; i += dashWidth + dashSpace) {
-      canvas.drawLine(
-        Offset(
-          p1.dx + (p2.dx - p1.dx) * i / distance,
-          p1.dy + (p2.dy - p1.dy) * i / distance,
-        ),
-        Offset(
-          p1.dx + (p2.dx - p1.dx) * (i + dashWidth) / distance,
-          p1.dy + (p2.dy - p1.dy) * (i + dashWidth) / distance,
-        ),
-        paint,
-      );
-    }
   }
 
   void _drawText(
@@ -1361,6 +1530,7 @@ class MarquiseTopViewPainter extends CustomPainter {
 class PearTopViewPainter extends CustomPainter {
   final GmssStone stone;
   PearTopViewPainter({required this.stone});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1371,280 +1541,129 @@ class PearTopViewPainter extends CustomPainter {
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-    final dashedPaint = Paint()
-      ..color = Colors.grey.shade300
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-    final center = Offset(size.width / 2, size.height / 2);
-    const double visualH = 200.0;
-    const double visualW = 130.0;
-    _drawDashedBoundary(canvas, center, visualW, visualH, dashedPaint);
-    final Path outerPath = Path();
-    double headRadius = visualW / 2;
-    double headCenterY = center.dy - (visualH * 0.18);
-    outerPath.addArc(
-      Rect.fromCircle(
-        center: Offset(center.dx, headCenterY),
-        radius: headRadius,
-      ),
-      math.pi,
-      math.pi,
-    );
-    outerPath.moveTo(center.dx - headRadius, headCenterY);
-    outerPath.cubicTo(
-      center.dx - headRadius,
-      center.dy + (visualH * 0.15),
-      center.dx - (visualW * 0.1),
-      center.dy + (visualH * 0.45),
-      center.dx,
-      center.dy + (visualH * 0.5),
-    );
-    outerPath.cubicTo(
-      center.dx + (visualW * 0.1),
-      center.dy + (visualH * 0.45),
-      center.dx + headRadius,
-      center.dy + (visualH * 0.15),
-      center.dx + headRadius,
-      headCenterY,
-    );
-    canvas.drawPath(outerPath, paint);
-    _drawPearFacets(canvas, center, visualW, visualH, headCenterY, paint);
-    _drawDimensions(canvas, center, visualW, visualH, infoPaint);
-  }
-
-  void _drawPearFacets(
-    Canvas canvas,
-    Offset center,
-    double w,
-    double h,
-    double headY,
-    Paint paint,
-  ) {
-    double tableR = w * 0.22;
-    Offset tableCenter = Offset(center.dx, headY);
-    canvas.drawCircle(tableCenter, tableR, paint);
-    for (int i = 0; i < 6; i++) {
-      double angle = (180 + i * 36) * math.pi / 180;
-      canvas.drawLine(
-        Offset(
-          tableCenter.dx + tableR * math.cos(angle),
-          tableCenter.dy + tableR * math.sin(angle),
-        ),
-        Offset(
-          tableCenter.dx + (w / 2) * math.cos(angle),
-          tableCenter.dy + (w / 2) * math.sin(angle),
-        ),
-        paint,
-      );
-    }
-    canvas.drawLine(
-      Offset(center.dx, headY + tableR),
-      Offset(center.dx, center.dy + h * 0.45),
-      paint,
-    );
-  }
-
-  void _drawDashedBoundary(
-    Canvas canvas,
-    Offset center,
-    double w,
-    double h,
-    Paint paint,
-  ) {
-    double top = center.dy - h * 0.4;
-    double bottom = center.dy + h * 0.45;
-    double left = center.dx - w / 2;
-    double right = center.dx + w / 2;
-    void drawD(Offset p1, Offset p2) {
-      double dist = (p2 - p1).distance;
-      for (double i = 0; i < dist; i += 8) {
-        canvas.drawLine(
-          Offset(
-            p1.dx + (p2.dx - p1.dx) * i / dist,
-            p1.dy + (p2.dy - p1.dy) * i / dist,
-          ),
-          Offset(
-            p1.dx + (p2.dx - p1.dx) * (i + 4) / dist,
-            p1.dy + (p2.dy - p1.dy) * (i + 4) / dist,
-          ),
-          paint,
-        );
-      }
-    }
-
-    drawD(Offset(left, top), Offset(right + 40, top));
-    drawD(Offset(right, top - 40), Offset(right, bottom));
-  }
-
-  void _drawDimensions(
-    Canvas canvas,
-    Offset center,
-    double w,
-    double h,
-    Paint infoPaint,
-  ) {
-    double widthY = center.dy - (h * 0.45) - 35;
-    Offset startLine = Offset(center.dx - w / 2, widthY);
-    Offset endLine = Offset(center.dx + w / 2, widthY);
-    canvas.drawLine(startLine, endLine, infoPaint);
-    _drawArrowHead(canvas, startLine, 0, infoPaint);
-    _drawArrowHead(canvas, endLine, 180, infoPaint);
-    _drawText(
-      canvas,
-      "Width: ${stone.width.toStringAsFixed(2)} mm",
-      Offset(center.dx, widthY - 10),
-    );
-    double lengthX = center.dx + w / 2 + 35;
-    Offset topLPoint = Offset(lengthX, center.dy - h * 0.45);
-    Offset bottomLPoint = Offset(lengthX, center.dy + h * 0.5);
-    canvas.drawLine(topLPoint, bottomLPoint, infoPaint);
-    _drawArrowHead(canvas, topLPoint, 90, infoPaint);
-    _drawArrowHead(canvas, bottomLPoint, 270, infoPaint);
-    _drawText(
-      canvas,
-      "Length: ${stone.length.toStringAsFixed(2)} mm",
-      Offset(lengthX + 55, center.dy),
-    );
-    _drawText(
-      canvas,
-      "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
-      Offset(center.dx, center.dy + h * 0.5 + 45),
-      isGrey: true,
-    );
-  }
-
-  void _drawArrowHead(
-    Canvas canvas,
-    Offset point,
-    double angleDegrees,
-    Paint paint,
-  ) {
-    final double arrowSize = 6.0;
-    final double angle = angleDegrees * math.pi / 180;
-    Path path = Path();
-    path.moveTo(point.dx, point.dy);
-    path.lineTo(
-      point.dx + arrowSize * math.cos(angle - 0.5),
-      point.dy + arrowSize * math.sin(angle - 0.5),
-    );
-    path.moveTo(point.dx, point.dy);
-    path.lineTo(
-      point.dx + arrowSize * math.cos(angle + 0.5),
-      point.dy + arrowSize * math.sin(angle + 0.5),
-    );
-    canvas.drawPath(path, paint);
-  }
-
-  void _drawText(
-    Canvas canvas,
-    String text,
-    Offset pos, {
-    bool isGrey = false,
-  }) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          color: isGrey ? Colors.grey.shade700 : const Color(0xFF008080),
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
-}
-
-//Oval
-class OvalTopViewPainter extends CustomPainter {
-  final GmssStone stone;
-  OvalTopViewPainter({required this.stone});
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.shade600
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
-    final infoPaint = Paint()
-      ..color = const Color(0xFF008080)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-    final dashedPaint = Paint()
-      ..color = Colors.grey.shade300
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
     final guidePaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-    final center = Offset(size.width / 2, size.height / 2);
-    const double visualH = 180.0;
-    const double visualW = 130.0;
-    Rect ovalRect = Rect.fromCenter(
-      center: center,
-      width: visualW,
-      height: visualH,
-    );
-    canvas.drawOval(ovalRect, paint);
-    _drawOvalBrilliantFacets(canvas, center, visualW, visualH, paint);
-    _drawDimensions(canvas, center, visualW, visualH, infoPaint, guidePaint);
-  }
 
-  void _drawOvalBrilliantFacets(
-    Canvas canvas,
-    Offset center,
-    double w,
-    double h,
-    Paint paint,
-  ) {
-    double tableW = w * 0.55;
-    double tableH = h * 0.55;
-    canvas.drawOval(
-      Rect.fromCenter(center: center, width: tableW, height: tableH),
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // --- SHAPE DESIGN FROM MinimalPearPainter ---
+    // Proportional sizing to fit the container
+    final double h = size.height * 0.6;
+    final double w = h * 0.65;
+
+    final double topY = center.dy - h * 0.45;
+    final double bottomY = center.dy + h * 0.45;
+
+    // 1. Draw Outer Girdle (Teardrop shape)
+    final Path girdle = Path();
+    girdle.moveTo(center.dx, topY);
+    girdle.cubicTo(
+      center.dx + w * 0.5,
+      topY + h * 0.3,
+      center.dx + w * 0.6,
+      bottomY,
+      center.dx,
+      bottomY,
+    );
+    girdle.cubicTo(
+      center.dx - w * 0.6,
+      bottomY,
+      center.dx - w * 0.5,
+      topY + h * 0.3,
+      center.dx,
+      topY,
+    );
+    canvas.drawPath(girdle, paint);
+
+    // 2. Define Facet Points
+    final double tw = w * 0.35;
+    final double th = h * 0.4;
+    final double tTopY = topY + h * 0.25;
+    final double tBottomY = tTopY + th;
+
+    final Offset tableTop = Offset(center.dx, tTopY);
+    final Offset tableBottom = Offset(center.dx, tBottomY);
+    final Offset tableRight = Offset(
+      center.dx + tw * 0.45,
+      center.dy + h * 0.05,
+    );
+    final Offset tableLeft = Offset(
+      center.dx - tw * 0.45,
+      center.dy + h * 0.05,
+    );
+
+    final Offset girdleMidRight = Offset(
+      center.dx + w * 0.38,
+      center.dy + h * 0.05,
+    );
+    final Offset girdleMidLeft = Offset(
+      center.dx - w * 0.38,
+      center.dy + h * 0.05,
+    );
+    final Offset girdleBottomRight = Offset(
+      center.dx + w * 0.25,
+      bottomY - h * 0.1,
+    );
+    final Offset girdleBottomLeft = Offset(
+      center.dx - w * 0.25,
+      bottomY - h * 0.1,
+    );
+
+    // 3. Draw Table Path
+    final Path tablePath = Path();
+    tablePath.moveTo(tableTop.dx, tableTop.dy);
+    tablePath.quadraticBezierTo(
+      tableRight.dx + 5,
+      tableTop.dy + th * 0.5,
+      tableBottom.dx,
+      tableBottom.dy,
+    );
+    tablePath.quadraticBezierTo(
+      tableLeft.dx - 5,
+      tableTop.dy + th * 0.5,
+      tableTop.dx,
+      tableTop.dy,
+    );
+    canvas.drawPath(tablePath, paint);
+
+    // 4. Draw Facet Lines
+    canvas.drawLine(tableTop, Offset(center.dx, topY), paint); // To Point
+    canvas.drawLine(tableBottom, Offset(center.dx, bottomY), paint); // To Base
+
+    // Star and Bezel lines
+    canvas.drawLine(
+      tableTop,
+      Offset(center.dx + w * 0.2, topY + h * 0.15),
       paint,
     );
-    for (int i = 0; i < 8; i++) {
-      double angle = (i * 45) * math.pi / 180;
-      double nextAngle = ((i + 1) * 45) * math.pi / 180;
-      double midAngle = (i * 45 + 22.5) * math.pi / 180;
-      canvas.drawLine(
-        Offset(
-          center.dx + (tableW / 2) * math.cos(angle),
-          center.dy + (tableH / 2) * math.sin(angle),
-        ),
-        Offset(
-          center.dx + (w / 2) * math.cos(angle),
-          center.dy + (h / 2) * math.sin(angle),
-        ),
-        paint,
-      );
-      canvas.drawLine(
-        Offset(
-          center.dx + (tableW / 2) * math.cos(angle),
-          center.dy + (tableH / 2) * math.sin(angle),
-        ),
-        Offset(
-          center.dx + (w / 2) * math.cos(midAngle),
-          center.dy + (h / 2) * math.sin(midAngle),
-        ),
-        paint,
-      );
-      canvas.drawLine(
-        Offset(
-          center.dx + (tableW / 2) * math.cos(nextAngle),
-          center.dy + (tableH / 2) * math.sin(nextAngle),
-        ),
-        Offset(
-          center.dx + (w / 2) * math.cos(midAngle),
-          center.dy + (h / 2) * math.sin(midAngle),
-        ),
-        paint,
-      );
-    }
+    canvas.drawLine(
+      tableTop,
+      Offset(center.dx - w * 0.2, topY + h * 0.15),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx + w * 0.2, topY + h * 0.15),
+      tableRight,
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx - w * 0.2, topY + h * 0.15),
+      tableLeft,
+      paint,
+    );
+
+    canvas.drawLine(tableRight, girdleMidRight, paint);
+    canvas.drawLine(tableLeft, girdleMidLeft, paint);
+    canvas.drawLine(tableRight, girdleBottomRight, paint);
+    canvas.drawLine(tableLeft, girdleBottomLeft, paint);
+    canvas.drawLine(tableBottom, girdleBottomRight, paint);
+    canvas.drawLine(tableBottom, girdleBottomLeft, paint);
+    // ---------------------------------------------
+
+    // DRAW DIMENSIONS (Using your arrow logic)
+    _drawDimensions(canvas, center, w, h, infoPaint, guidePaint);
   }
 
   void _drawDimensions(
@@ -1655,21 +1674,26 @@ class OvalTopViewPainter extends CustomPainter {
     Paint infoPaint,
     Paint guidePaint,
   ) {
-    double widthY = center.dy - h / 2 - 35;
-    Offset startW = Offset(center.dx - w / 2, widthY);
-    Offset endW = Offset(center.dx + w / 2, widthY);
+    double spacing = h * 0.2;
+
+    // Width Dimension (Horizontal)
+    double widthY = center.dy - h * 0.45 - spacing;
+    Offset startW = Offset(center.dx - w * 0.5, widthY);
+    Offset endW = Offset(center.dx + w * 0.5, widthY);
+
     _drawDashedLine(
       canvas,
       Offset(startW.dx, startW.dy + 5),
-      Offset(startW.dx, center.dy - h / 4),
+      Offset(startW.dx, center.dy - h * 0.3),
       guidePaint,
     );
     _drawDashedLine(
       canvas,
       Offset(endW.dx, endW.dy + 5),
-      Offset(endW.dx, center.dy - h / 4),
+      Offset(endW.dx, center.dy - h * 0.3),
       guidePaint,
     );
+
     canvas.drawLine(startW, endW, infoPaint);
     _drawArrowHead(canvas, startW, 0, infoPaint);
     _drawArrowHead(canvas, endW, 180, infoPaint);
@@ -1678,21 +1702,25 @@ class OvalTopViewPainter extends CustomPainter {
       "Width: ${stone.width.toStringAsFixed(2)} mm",
       Offset(center.dx, widthY - 10),
     );
-    double lengthX = center.dx + w / 2 + 35;
-    Offset topL = Offset(lengthX, center.dy - h / 2);
-    Offset bottomL = Offset(lengthX, center.dy + h / 2);
+
+    // Length Dimension (Vertical)
+    double lengthX = center.dx + w * 0.5 + spacing;
+    Offset topL = Offset(lengthX, center.dy - h * 0.45);
+    Offset bottomL = Offset(lengthX, center.dy + h * 0.45);
+
     _drawDashedLine(
       canvas,
       Offset(topL.dx - 5, topL.dy),
-      Offset(center.dx + w / 4, topL.dy),
+      Offset(center.dx, topL.dy),
       guidePaint,
     );
     _drawDashedLine(
       canvas,
       Offset(bottomL.dx - 5, bottomL.dy),
-      Offset(center.dx + w / 4, bottomL.dy),
+      Offset(center.dx, bottomL.dy),
       guidePaint,
     );
+
     canvas.drawLine(topL, bottomL, infoPaint);
     _drawArrowHead(canvas, topL, 90, infoPaint);
     _drawArrowHead(canvas, bottomL, 270, infoPaint);
@@ -1701,14 +1729,17 @@ class OvalTopViewPainter extends CustomPainter {
       "Length: ${stone.length.toStringAsFixed(2)} mm",
       Offset(lengthX + 55, center.dy),
     );
+
+    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
-      Offset(center.dx, center.dy + h / 2 + 45),
+      Offset(center.dx, center.dy + h * 0.45 + 40),
       isGrey: true,
     );
   }
 
+  // --- Helper Methods ---
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
     double dashWidth = 4, dashSpace = 4;
     double distance = (p2 - p1).distance;
@@ -1734,18 +1765,239 @@ class OvalTopViewPainter extends CustomPainter {
     Paint paint,
   ) {
     final double arrowSize = 6.0;
-    final double angle = angleDegrees * math.pi / 180;
-    Path path = Path();
-    path.moveTo(point.dx, point.dy);
-    path.lineTo(
-      point.dx + arrowSize * math.cos(angle - 0.5),
-      point.dy + arrowSize * math.sin(angle - 0.5),
+    final double angle = angleDegrees * (math.pi / 180);
+    Path path = Path()
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle - 0.5),
+        point.dy + arrowSize * math.sin(angle - 0.5),
+      )
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle + 0.5),
+        point.dy + arrowSize * math.sin(angle + 0.5),
+      );
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawText(
+    Canvas canvas,
+    String text,
+    Offset pos, {
+    bool isGrey = false,
+  }) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: isGrey ? Colors.grey.shade700 : const Color(0xFF008080),
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+//Oval
+class OvalTopViewPainter extends CustomPainter {
+  final GmssStone stone;
+  OvalTopViewPainter({required this.stone});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.shade600
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+    final infoPaint = Paint()
+      ..color = const Color(0xFF008080)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    final guidePaint = Paint()
+      ..color = Colors.grey.shade300
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // --- SHAPE DESIGN FROM MinimalOvalPainter ---
+    // Proportional sizing based on the gray box container
+    final double h = size.height * 0.58;
+    final double w = h * 0.7; // Standard oval ratio
+
+    final Rect outerRect = Rect.fromCenter(center: center, width: w, height: h);
+    final Rect tableRect = Rect.fromCenter(
+      center: center,
+      width: w * 0.45,
+      height: h * 0.55,
     );
-    path.moveTo(point.dx, point.dy);
-    path.lineTo(
-      point.dx + arrowSize * math.cos(angle + 0.5),
-      point.dy + arrowSize * math.sin(angle + 0.5),
+
+    // 1. Draw Girdle and Table Ovals
+    canvas.drawOval(outerRect, paint);
+    canvas.drawOval(tableRect, paint);
+
+    // 2. Calculate Facet Points
+    List<Offset> girdlePts = [];
+    List<Offset> tablePts = [];
+    List<Offset> starPts = [];
+
+    for (int i = 0; i < 8; i++) {
+      double angle = (i * 45 - 90) * math.pi / 180;
+      girdlePts.add(
+        Offset(
+          center.dx + (w / 2) * math.cos(angle),
+          center.dy + (h / 2) * math.sin(angle),
+        ),
+      );
+      tablePts.add(
+        Offset(
+          center.dx + (tableRect.width / 2) * math.cos(angle),
+          center.dy + (tableRect.height / 2) * math.sin(angle),
+        ),
+      );
+
+      // Star facets midpoint logic
+      double midAngle = (i * 45 - 67.5) * math.pi / 180;
+      starPts.add(
+        Offset(
+          center.dx + (w * 0.42) * math.cos(midAngle),
+          center.dy + (h * 0.42) * math.sin(midAngle),
+        ),
+      );
+    }
+
+    // 3. Draw Facet Lines (Star & Bezel Pattern)
+    for (int i = 0; i < 8; i++) {
+      int next = (i + 1) % 8;
+      canvas.drawLine(tablePts[i], girdlePts[i], paint);
+      canvas.drawLine(girdlePts[i], starPts[i], paint);
+      canvas.drawLine(girdlePts[next], starPts[i], paint);
+      canvas.drawLine(tablePts[i], starPts[i], paint);
+      canvas.drawLine(tablePts[next], starPts[i], paint);
+    }
+    // ---------------------------------------------
+
+    // DRAW DIMENSIONS (Using your arrow logic)
+    _drawDimensions(canvas, center, w, h, infoPaint, guidePaint);
+  }
+
+  void _drawDimensions(
+    Canvas canvas,
+    Offset center,
+    double w,
+    double h,
+    Paint infoPaint,
+    Paint guidePaint,
+  ) {
+    double spacing = h * 0.25;
+
+    // Width (Horizontal)
+    double widthY = center.dy - h / 2 - spacing;
+    Offset startW = Offset(center.dx - w / 2, widthY);
+    Offset endW = Offset(center.dx + w / 2, widthY);
+
+    _drawDashedLine(
+      canvas,
+      Offset(startW.dx, startW.dy + 5),
+      Offset(startW.dx, center.dy - h / 3),
+      guidePaint,
     );
+    _drawDashedLine(
+      canvas,
+      Offset(endW.dx, endW.dy + 5),
+      Offset(endW.dx, center.dy - h / 3),
+      guidePaint,
+    );
+
+    canvas.drawLine(startW, endW, infoPaint);
+    _drawArrowHead(canvas, startW, 0, infoPaint);
+    _drawArrowHead(canvas, endW, 180, infoPaint);
+    _drawText(
+      canvas,
+      "Width: ${stone.width.toStringAsFixed(2)} mm",
+      Offset(center.dx, widthY - 10),
+    );
+
+    // Length (Vertical)
+    double lengthX = center.dx + w / 2 + spacing;
+    Offset topL = Offset(lengthX, center.dy - h / 2);
+    Offset bottomL = Offset(lengthX, center.dy + h / 2);
+
+    _drawDashedLine(
+      canvas,
+      Offset(topL.dx - 5, topL.dy),
+      Offset(center.dx + w / 3, topL.dy),
+      guidePaint,
+    );
+    _drawDashedLine(
+      canvas,
+      Offset(bottomL.dx - 5, bottomL.dy),
+      Offset(center.dx + w / 3, bottomL.dy),
+      guidePaint,
+    );
+
+    canvas.drawLine(topL, bottomL, infoPaint);
+    _drawArrowHead(canvas, topL, 90, infoPaint);
+    _drawArrowHead(canvas, bottomL, 270, infoPaint);
+    _drawText(
+      canvas,
+      "Length: ${stone.length.toStringAsFixed(2)} mm",
+      Offset(lengthX + 55, center.dy),
+    );
+
+    // Ratio
+    _drawText(
+      canvas,
+      "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
+      Offset(center.dx, center.dy + h / 2 + 45),
+      isGrey: true,
+    );
+  }
+
+  // --- Helper Methods (_drawDashedLine, _drawArrowHead, _drawText) remain same ---
+  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
+    double dashWidth = 4, dashSpace = 4;
+    double distance = (p2 - p1).distance;
+    for (double i = 0; i < distance; i += dashWidth + dashSpace) {
+      canvas.drawLine(
+        Offset(
+          p1.dx + (p2.dx - p1.dx) * i / distance,
+          p1.dy + (p2.dy - p1.dy) * i / distance,
+        ),
+        Offset(
+          p1.dx + (p2.dx - p1.dx) * (i + dashWidth) / distance,
+          p1.dy + (p2.dy - p1.dy) * (i + dashWidth) / distance,
+        ),
+        paint,
+      );
+    }
+  }
+
+  void _drawArrowHead(
+    Canvas canvas,
+    Offset point,
+    double angleDegrees,
+    Paint paint,
+  ) {
+    final double arrowSize = 6.0;
+    final double angle = angleDegrees * (3.14159 / 180);
+    Path path = Path()
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle - 0.5),
+        point.dy + arrowSize * math.sin(angle - 0.5),
+      )
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle + 0.5),
+        point.dy + arrowSize * math.sin(angle + 0.5),
+      );
     canvas.drawPath(path, paint);
   }
 
