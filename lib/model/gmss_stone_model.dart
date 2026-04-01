@@ -150,7 +150,7 @@ class GmssStone {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'isLab': isLab, // ADD TO JSON
+      'isLab': isLab,
       'stockNo': stockNo,
       'shapeStr': shapeStr,
       'shapeIcon': shapeIcon,
