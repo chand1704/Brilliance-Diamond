@@ -18,6 +18,8 @@ class GmssScreen extends StatefulWidget {
 
 class _GmssScreenState extends State<GmssScreen>
     with SingleTickerProviderStateMixin {
+  // Add this at the top of your state class
+  String? _expandedStoneStockNo;
   late AnimationController _shimmerController;
   final Map<int, List<GmssStone>> _cachedLabGrownMap = {};
   final Map<int, List<GmssStone>> _cachedNaturalMap = {};
@@ -930,94 +932,250 @@ class _GmssScreenState extends State<GmssScreen>
 
   Widget _buildDiamondRow(GmssStone stone, Color themeColor) {
     bool isFavorite = _savedStones.any((s) => s.id == stone.id);
+    bool isCompareTab = _currentTab == 2;
+    bool isExpanded = _expandedStoneStockNo == stone.stockNo;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      margin: const EdgeInsets.only(bottom: 1),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
         color: Colors.white,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: InkWell(
-              onTap: () => _toggleSave(stone),
-              child: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? themeColor : Colors.grey.shade400,
-                size: 20,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CustomPaint(
-                    painter: DiamondPainterUtils.getPainterForShapeName(
-                      stone.shapeStr,
-                      false,
+      child: InkWell(
+        onTap: () {
+          if (isCompareTab) {
+            setState(() {
+              _expandedStoneStockNo = isExpanded ? null : stone.stockNo;
+            });
+          } else {
+            _handleCardTap(stone);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: InkWell(
+                      onTap: () => _toggleSave(stone),
+                      child: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? themeColor : Colors.grey.shade400,
+                        size: 20,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  stone.shapeStr.toUpperCase(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: Color(0xFF2D3142),
+                  Expanded(
+                    flex: 2,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CustomPaint(
+                            painter: DiamondPainterUtils.getPainterForShapeName(
+                              stone.shapeStr,
+                              false,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          stone.shapeStr.toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: Color(0xFF2D3142),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(stone.weight.toStringAsFixed(2)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      stone.cut.length >= 2
+                          ? stone.cut.substring(0, 2).toUpperCase()
+                          : (stone.cut.isEmpty ? "-" : stone.cut.toUpperCase()),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  Expanded(flex: 1, child: Text(stone.colorStr)),
+                  Expanded(flex: 1, child: Text(stone.clarityStr)),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      stone.lab,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      "\$${stone.total_price.toInt()}",
+                      style: const TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: InkWell(
+                      onTap: () => _handleCardTap(stone),
+                      child: Text(
+                        "Details",
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: themeColor,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (isCompareTab && isExpanded) ...[
+                const SizedBox(height: 20),
+                const Divider(),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(left: 40, right: 20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSubDetail("Stock #: ", stone.stockNo),
+                            _buildSubDetail(
+                              "Report:",
+                              "${stone.lab} Certificate",
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: themeColor,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                stone.isLab ? "Lab Grown" : "Natural Diamond",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSubDetail("Depth:", "${stone.depth}%"),
+                            _buildSubDetail("Table:", "${stone.table}%"),
+                            _buildSubDetail("Cut Grade:", stone.cut),
+                            _buildSubDetail(
+                              "Measurements:",
+                              "${stone.length}x${stone.width}x${stone.depth} mm",
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Column 3: Finish
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSubDetail("Polish:", stone.polish),
+                            _buildSubDetail("Symmetry:", stone.symmetry),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF005AAB),
+                                minimumSize: const Size(double.infinity, 40),
+                                shape: const RoundedRectangleBorder(),
+                              ),
+                              child: const Text(
+                                "ADD TO CART",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            OutlinedButton(
+                              onPressed: () => _handleCardTap(stone),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: Color(0xFF005AAB),
+                                ),
+                                minimumSize: const Size(double.infinity, 40),
+                                shape: const RoundedRectangleBorder(),
+                              ),
+
+                              child: const Text(
+                                "FULL DETAILS",
+                                style: TextStyle(
+                                  color: Color(0xFF005AAB),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
+            ],
           ),
-          Expanded(flex: 1, child: Text(stone.weight.toStringAsFixed(2))),
-          Expanded(
-            flex: 1,
-            child: Text(
-              stone.cut.length >= 2
-                  ? stone.cut.substring(0, 2).toUpperCase()
-                  : (stone.cut.isEmpty ? "-" : stone.cut.toUpperCase()),
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
-          Expanded(flex: 1, child: Text(stone.colorStr)),
-          Expanded(flex: 1, child: Text(stone.clarityStr)),
-          Expanded(
-            flex: 1,
-            child: Text(
-              stone.lab,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              "\$${stone.total_price.toInt()}",
-              style: const TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: InkWell(
-              onTap: () => _handleCardTap(stone),
-              child: Text(
-                "Details",
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: themeColor,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline,
-                  fontSize: 12,
-                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubDetail(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: RichText(
+        text: TextSpan(
+          style: const TextStyle(fontSize: 12, color: Colors.black),
+          children: [
+            TextSpan(
+              text: "$label",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
               ),
             ),
-          ),
-        ],
+            TextSpan(text: value),
+          ],
+        ),
       ),
     );
   }
