@@ -131,42 +131,60 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   void _registerVideoFactory() {
     if (_currentStone == null) return;
     final String viewId = 'embedded-diamond-video-${_currentStone!.id}';
-    const String videoUrl =
-        "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
+    const String videoUrl = "assets/images/video.webm";
+    // "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-      return html.VideoElement()
+      final videoElement = html.VideoElement()
         ..src = videoUrl
         ..autoplay = true
         ..loop = true
         ..muted = true
+        ..controls = false
+        ..setAttribute('playsinline', 'true')
         ..style.width = '100%'
         ..style.height = '100%'
         ..style.objectFit = 'cover';
+
+      videoElement.load(); // Force the browser to start loading
+      return videoElement;
     });
   }
 
   void _showVideoPopup(String videoUrl) {
-    if (videoUrl.isEmpty || videoUrl == "null") {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("360 Video not available")));
-      return;
-    }
-    final String viewId = 'diamond-video-${widget.stone!.id}';
+    if (_currentStone == null) return;
+
+    final String popupViewId =
+        'popup-video-${_currentStone!.id}-${DateTime.now().millisecondsSinceEpoch}';
+
+    // 3. FIX THE URL LOGIC
+
+    // if (videoUrl.isEmpty || videoUrl == "null") {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(const SnackBar(content: Text("360 Video not available")));
+    //   return;
+    // }
+    // final String viewId = 'diamond-video-${_currentStone!.id}';
+    final String finalUrl = (videoUrl.isEmpty || videoUrl == "null")
+        ? "assets/assets/images/video.webm" // Note the double 'assets' for web builds
+        : videoUrl;
     ui.platformViewRegistry.registerViewFactory(
-      viewId,
-      (int viewId) => html.IFrameElement()
-        ..src = videoUrl
-        ..style.border = 'none'
-        ..width = '100%'
-        ..height = '100%'
-        ..allowFullscreen = true,
+      popupViewId,
+      (int viewId) => html.VideoElement()
+        ..src = finalUrl
+        ..autoplay = true
+        ..controls = true
+        ..loop = true
+        ..setAttribute('playsinline', 'true')
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.border = 'none',
     );
     showDialog(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(10),
+        // insetPadding: const EdgeInsets.all(10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -193,7 +211,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: HtmlElementView(viewType: viewId),
+                child: HtmlElementView(key: UniqueKey(), viewType: popupViewId),
               ),
             ),
           ],
