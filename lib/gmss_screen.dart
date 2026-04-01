@@ -214,12 +214,17 @@ class _GmssScreenState extends State<GmssScreen>
   ];
   Future<List<GmssStone>> _getSmartData() async {
     int shapeId = selectedShapeId;
+
+    // Choose the correct cache based on origin
     Map<int, List<GmssStone>> targetCache = (selectedOrigin == 1)
         ? _cachedLabGrownMap
         : _cachedNaturalMap;
+
     if (targetCache.containsKey(shapeId)) {
       return targetCache[shapeId]!;
     }
+
+    // Fetch fresh data
     final data = (selectedOrigin == 1)
         ? await GmssApiService.fetchLabGrownData()
         : await GmssApiService.fetchNaturalData();
@@ -522,6 +527,8 @@ class _GmssScreenState extends State<GmssScreen>
                 onOriginChanged: (val) {
                   setState(() {
                     selectedOrigin = val;
+                    _cachedLabGrownMap.clear();
+                    _cachedNaturalMap.clear();
                     _future = _getSmartData();
                   });
                 },

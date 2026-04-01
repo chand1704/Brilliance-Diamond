@@ -28,6 +28,7 @@ class GmssStone {
   final double width;
   final double table;
   final double total_price;
+  final bool isLab; // ADD THIS FIELD
   GmssStone({
     required this.id,
     required this.stockNo,
@@ -55,6 +56,7 @@ class GmssStone {
     required this.width,
     required this.table,
     required this.total_price,
+    required this.isLab, // ADD THIS
   });
 
   factory GmssStone.fromJson(Map<String, dynamic> json, {required bool isLab}) {
@@ -142,11 +144,13 @@ class GmssStone {
       width: safeDouble(json['width'] ?? json['table']),
       table: safeDouble(json['table']),
       total_price: safeDouble(json['totalPrice'] ?? json['total_price']),
+      isLab: isLab, // ASSIGN THE PARAMETER HERE
     );
   }
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'isLab': isLab, // ADD TO JSON
       'stockNo': stockNo,
       'shapeStr': shapeStr,
       'shapeIcon': shapeIcon,

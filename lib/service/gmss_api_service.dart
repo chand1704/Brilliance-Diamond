@@ -8,34 +8,47 @@ class GmssApiService {
   static const String baseUrl = 'https://app.prajesh.co/apis/api/getStockN';
   static const String labAuthKey = 'nigtw54xafke';
   static const String naturalAuthKey = 'wwoy95kxfwll';
-  static List<GmssStone>? _cachedStones;
-  static List<GmssStone>? getCachedStones() => _cachedStones;
+  // static List<GmssStone>? _cachedStones;
+  static List<GmssStone>? _cachedLabStones;
+  static List<GmssStone>? _cachedNaturalStones;
+  // static List<GmssStone>? getCachedStones() => _cachedStones;
 
   static Future<List<GmssStone>> fetchLabGrownData() async {
-    if (_cachedStones != null && _cachedStones!.isNotEmpty) {
-      return _cachedStones!;
+    if (_cachedLabStones != null && _cachedLabStones!.isNotEmpty) {
+      return _cachedLabStones!;
     }
     final uri = Uri.parse('$baseUrl?auth_key=$labAuthKey');
     final response = await http.post(uri);
     if (response.statusCode == 200) {
       final List<dynamic> decoded = jsonDecode(response.body);
-      _cachedStones = decoded
+      _cachedLabStones = decoded
           .map((e) => GmssStone.fromJson(e, isLab: true))
           .toList();
-      return _cachedStones!;
+      return _cachedLabStones!;
     }
     return [];
   }
 
   static Future<List<GmssStone>> fetchNaturalData() async {
+    if (_cachedNaturalStones != null && _cachedNaturalStones!.isNotEmpty) {
+      return _cachedNaturalStones!;
+    }
     final uri = Uri.parse('$baseUrl?auth_key=$naturalAuthKey');
     final response = await http.post(uri);
     if (response.statusCode == 200) {
       final List<dynamic> decoded = jsonDecode(response.body);
-      return decoded.map((e) => GmssStone.fromJson(e, isLab: false)).toList();
+      _cachedNaturalStones = decoded
+          .map((e) => GmssStone.fromJson(e, isLab: false))
+          .toList();
+      return _cachedNaturalStones!;
     } else {
       throw Exception('Failed to load Natural data');
     }
+  }
+
+  static void clearCache() {
+    _cachedLabStones = null;
+    _cachedNaturalStones = null;
   }
 }
 

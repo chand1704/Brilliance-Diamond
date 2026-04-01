@@ -92,7 +92,10 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     if (savedJson != null) {
       try {
         final Map<String, dynamic> stoneMap = jsonDecode(savedJson);
-        final stone = GmssStone.fromJson(stoneMap, isLab: true);
+        final stone = GmssStone.fromJson(
+          stoneMap,
+          isLab: stoneMap['isLab'] ?? false,
+        );
         if (stone.id.toString() == widget.stoneId) {
           _updateUI(stone);
           return;
@@ -224,10 +227,10 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          "Lab Grown Diamond: Specifications",
-                          style: TextStyle(
+                          "${_currentStone!.isLab ? 'Lab Grown' : 'Natural'} Diamond: Specifications",
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
                             height: 1.3,
@@ -675,11 +678,12 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildProductInfoPanel() {
+    final String originText = _currentStone!.isLab ? "Lab Grown" : "Natural";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "${_currentStone!.weight} Carat ${_currentStone!.shapeStr} Lab Grown Diamond",
+          "${_currentStone!.weight} Carat ${_currentStone!.shapeStr} $originText Diamond",
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w800,
