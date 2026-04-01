@@ -937,6 +937,9 @@ class _GmssScreenState extends State<GmssScreen>
     bool isFavorite = _savedStones.any((s) => s.id == stone.id);
     bool isCompareTab = _currentTab == 2;
     bool isExpanded = _expandedStoneStockNos.contains(stone.stockNo);
+    final Color rowThemeColor = stone.isLab
+        ? Colors.teal
+        : Colors.blue.shade700;
     return Container(
       margin: const EdgeInsets.only(bottom: 1),
       decoration: BoxDecoration(
@@ -969,7 +972,9 @@ class _GmssScreenState extends State<GmssScreen>
                       onTap: () => _toggleSave(stone),
                       child: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? themeColor : Colors.grey.shade400,
+                        color: isFavorite
+                            ? rowThemeColor
+                            : Colors.grey.shade400,
                         size: 20,
                       ),
                     ),
@@ -1037,7 +1042,7 @@ class _GmssScreenState extends State<GmssScreen>
                         "Details",
                         textAlign: TextAlign.right,
                         style: TextStyle(
-                          color: themeColor,
+                          color: rowThemeColor,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
                           fontSize: 12,
@@ -1073,7 +1078,7 @@ class _GmssScreenState extends State<GmssScreen>
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: themeColor,
+                                color: rowThemeColor,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -1121,7 +1126,7 @@ class _GmssScreenState extends State<GmssScreen>
                             ElevatedButton(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF005AAB),
+                                backgroundColor: rowThemeColor,
                                 minimumSize: const Size(double.infinity, 40),
                                 shape: const RoundedRectangleBorder(),
                               ),
@@ -1137,17 +1142,15 @@ class _GmssScreenState extends State<GmssScreen>
                             OutlinedButton(
                               onPressed: () => _handleCardTap(stone),
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                  color: Color(0xFF005AAB),
-                                ),
+                                side: BorderSide(color: rowThemeColor),
                                 minimumSize: const Size(double.infinity, 40),
                                 shape: const RoundedRectangleBorder(),
                               ),
 
-                              child: const Text(
+                              child: Text(
                                 "FULL DETAILS",
                                 style: TextStyle(
-                                  color: Color(0xFF005AAB),
+                                  color: rowThemeColor,
                                   fontSize: 12,
                                 ),
                               ),
