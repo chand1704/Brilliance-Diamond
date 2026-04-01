@@ -18,6 +18,9 @@ class GmssScreen extends StatefulWidget {
 
 class _GmssScreenState extends State<GmssScreen>
     with SingleTickerProviderStateMixin {
+  // REPLACE: String? _expandedStoneStockNo;
+  // WITH THIS:
+  final Set<String> _expandedStoneStockNos = {};
   // Add this at the top of your state class
   String? _expandedStoneStockNo;
   late AnimationController _shimmerController;
@@ -933,7 +936,7 @@ class _GmssScreenState extends State<GmssScreen>
   Widget _buildDiamondRow(GmssStone stone, Color themeColor) {
     bool isFavorite = _savedStones.any((s) => s.id == stone.id);
     bool isCompareTab = _currentTab == 2;
-    bool isExpanded = _expandedStoneStockNo == stone.stockNo;
+    bool isExpanded = _expandedStoneStockNos.contains(stone.stockNo);
     return Container(
       margin: const EdgeInsets.only(bottom: 1),
       decoration: BoxDecoration(
@@ -944,7 +947,11 @@ class _GmssScreenState extends State<GmssScreen>
         onTap: () {
           if (isCompareTab) {
             setState(() {
-              _expandedStoneStockNo = isExpanded ? null : stone.stockNo;
+              if (_expandedStoneStockNos.contains(stone.stockNo)) {
+                _expandedStoneStockNos.remove(stone.stockNo);
+              } else {
+                _expandedStoneStockNos.add(stone.stockNo);
+              }
             });
           } else {
             _handleCardTap(stone);
