@@ -1285,25 +1285,29 @@ class _GmssScreenState extends State<GmssScreen>
               ],
             ),
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.grid_view_rounded,
-                  color: isGridView ? Colors.black : Colors.grey,
+
+          if (_currentTab == 0)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.grid_view_rounded,
+                    color: isGridView ? Colors.black : Colors.grey,
+                  ),
+                  onPressed: () => setState(() => isGridView = true),
                 ),
-                onPressed: () => setState(() => isGridView = true),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.view_list_rounded,
-                  color: !isGridView ? Colors.black : Colors.grey,
+                IconButton(
+                  icon: Icon(
+                    Icons.view_list_rounded,
+                    color: !isGridView ? Colors.black : Colors.grey,
+                  ),
+                  onPressed: () => setState(() => isGridView = false),
                 ),
-                onPressed: () => setState(() => isGridView = false),
-              ),
-            ],
-          ),
+              ],
+            )
+          else
+            const SizedBox(width: 96),
         ],
       ),
     );
@@ -1313,12 +1317,20 @@ class _GmssScreenState extends State<GmssScreen>
     bool active = _currentTab == index;
     return InkWell(
       onTap: () {
-        if (index == 1) {
-          _loadHistoryFromStorage();
-        } else if (index == 2) {
-          _loadSavedFromStorage();
-        }
-        setState(() => _currentTab = index);
+        setState(() {
+          _currentTab = index;
+
+          if (index == 0) {
+            isGridView = true;
+          } else {
+            isGridView = false;
+          }
+          if (index == 1) {
+            _loadHistoryFromStorage();
+          } else if (index == 2) {
+            _loadSavedFromStorage();
+          }
+        });
       },
       child: Column(
         children: [
