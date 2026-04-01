@@ -155,18 +155,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
     final String popupViewId =
         'popup-video-${_currentStone!.id}-${DateTime.now().millisecondsSinceEpoch}';
-
-    // 3. FIX THE URL LOGIC
-
-    // if (videoUrl.isEmpty || videoUrl == "null") {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text("360 Video not available")));
-    //   return;
-    // }
-    // final String viewId = 'diamond-video-${_currentStone!.id}';
     final String finalUrl = (videoUrl.isEmpty || videoUrl == "null")
-        ? "assets/assets/images/video.webm" // Note the double 'assets' for web builds
+        ? "assets/assets/images/video.webm"
         : videoUrl;
     ui.platformViewRegistry.registerViewFactory(
       popupViewId,
