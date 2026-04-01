@@ -8,12 +8,13 @@ import 'model/gmss_stone_model.dart';
 class RoundTopViewPainter extends CustomPainter {
   final GmssStone stone;
   RoundTopViewPainter({required this.stone});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.grey.shade600
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 1.2; // Matched to MinimalRoundPainter
     final infoPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
@@ -22,33 +23,55 @@ class RoundTopViewPainter extends CustomPainter {
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
+
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = 80.0;
+
+    // --- SHAPE LOGIC FROM MinimalRoundPainter ---
+    final radius = (size.width < size.height ? size.width : size.height) * 0.26;
     canvas.drawCircle(center, radius, paint);
-    final double tableRadius = radius * 0.55;
-    List<Offset> tablePoints = List.generate(8, (i) {
-      double angle = (i * 45 - 22.5) * math.pi / 180;
-      return Offset(
-        center.dx + tableRadius * math.cos(angle),
-        center.dy + tableRadius * math.sin(angle),
-      );
-    });
-    canvas.drawPath(Path()..addPolygon(tablePoints, true), paint);
+
+    final double tableRadius = radius * 0.48;
+    List<Offset> tablePoints = [];
     for (int i = 0; i < 8; i++) {
-      double bezelAngle = (i * 45 - 22.5) * math.pi / 180;
-      Offset girdlePoint = Offset(
-        center.dx + radius * math.cos(bezelAngle),
-        center.dy + radius * math.sin(bezelAngle),
+      double angle = (i * 45 + 22.5) * math.pi / 180;
+      tablePoints.add(
+        Offset(
+          center.dx + tableRadius * math.cos(angle),
+          center.dy + tableRadius * math.sin(angle),
+        ),
       );
-      canvas.drawLine(tablePoints[i], girdlePoint, paint);
-      double starAngle = (i * 45 + 22.5) * math.pi / 180;
-      Offset starPoint = Offset(
-        center.dx + radius * math.cos(starAngle),
-        center.dy + radius * math.sin(starAngle),
-      );
-      canvas.drawLine(tablePoints[i], starPoint, paint);
-      canvas.drawLine(tablePoints[(i + 1) % 8], starPoint, paint);
     }
+
+    final double middleRadius = radius * 0.75;
+    List<Offset> outerPoints = [];
+    for (int i = 0; i < 16; i++) {
+      double angle = (i * 22.5 + 22.5) * math.pi / 180;
+      outerPoints.add(
+        Offset(
+          center.dx + radius * math.cos(angle),
+          center.dy + radius * math.sin(angle),
+        ),
+      );
+    }
+
+    canvas.drawPath(Path()..addPolygon(tablePoints, true), paint);
+
+    for (int i = 0; i < 8; i++) {
+      double starAngle = (i * 45 + 45 + 22.5) * math.pi / 180;
+      Offset starMid = Offset(
+        center.dx + middleRadius * math.cos(starAngle - (22.5 * math.pi / 180)),
+        center.dy + middleRadius * math.sin(starAngle - (22.5 * math.pi / 180)),
+      );
+      canvas.drawLine(tablePoints[i], starMid, paint);
+      canvas.drawLine(tablePoints[(i + 1) % 8], starMid, paint);
+      canvas.drawLine(tablePoints[i], outerPoints[i * 2], paint);
+      canvas.drawLine(starMid, outerPoints[i * 2], paint);
+      canvas.drawLine(starMid, outerPoints[(i * 2 + 1) % 16], paint);
+      canvas.drawLine(starMid, outerPoints[(i * 2 + 2) % 16], paint);
+    }
+    // ---------------------------------------------
+
+    // DRAW DIMENSIONS (Using your arrow logic)
     _drawDimensions(canvas, center, radius, infoPaint, guidePaint);
   }
 
@@ -59,9 +82,13 @@ class RoundTopViewPainter extends CustomPainter {
     Paint infoPaint,
     Paint guidePaint,
   ) {
-    double widthY = center.dy - radius - 35;
+    final double spacing = radius * 0.4;
+    final double textPadding = radius * 0.12;
+    // Horizontal Width
+    double widthY = center.dy - radius - spacing;
     Offset startW = Offset(center.dx - radius, widthY);
     Offset endW = Offset(center.dx + radius, widthY);
+
     _drawDashedLine(
       canvas,
       Offset(startW.dx, startW.dy + 5),
@@ -74,17 +101,21 @@ class RoundTopViewPainter extends CustomPainter {
       Offset(endW.dx, center.dy - radius),
       guidePaint,
     );
+
     canvas.drawLine(startW, endW, infoPaint);
     _drawArrowHead(canvas, startW, 0, infoPaint);
     _drawArrowHead(canvas, endW, 180, infoPaint);
     _drawText(
       canvas,
-      "Width: ${stone.width} mm",
-      Offset(center.dx, widthY - 10),
+      "Width: ${stone.width.toStringAsFixed(2)} mm",
+      Offset(center.dx, widthY - textPadding),
     );
-    double lengthX = center.dx + radius + 35;
+
+    // Vertical Length
+    double lengthX = center.dx + radius + spacing;
     Offset topL = Offset(lengthX, center.dy - radius);
     Offset bottomL = Offset(lengthX, center.dy + radius);
+
     _drawDashedLine(
       canvas,
       Offset(topL.dx - 5, topL.dy),
@@ -97,18 +128,21 @@ class RoundTopViewPainter extends CustomPainter {
       Offset(center.dx + radius, bottomL.dy),
       guidePaint,
     );
+
     canvas.drawLine(topL, bottomL, infoPaint);
     _drawArrowHead(canvas, topL, 90, infoPaint);
     _drawArrowHead(canvas, bottomL, 270, infoPaint);
     _drawText(
       canvas,
-      "Length: ${stone.length} mm",
+      "Length: ${stone.length.toStringAsFixed(2)} mm",
       Offset(lengthX + 55, center.dy),
     );
+
+    // Ratio Label
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
-      Offset(center.dx, center.dy + radius + 40),
+      Offset(center.dx, center.dy + radius + 45),
       isGrey: true,
     );
   }
@@ -138,18 +172,18 @@ class RoundTopViewPainter extends CustomPainter {
     Paint paint,
   ) {
     final double arrowSize = 6.0;
-    final double angle = angleDegrees * math.pi / 180;
-    Path path = Path();
-    path.moveTo(point.dx, point.dy);
-    path.lineTo(
-      point.dx + arrowSize * math.cos(angle - 0.5),
-      point.dy + arrowSize * math.sin(angle - 0.5),
-    );
-    path.moveTo(point.dx, point.dy);
-    path.lineTo(
-      point.dx + arrowSize * math.cos(angle + 0.5),
-      point.dy + arrowSize * math.sin(angle + 0.5),
-    );
+    final double angle = angleDegrees * (3.14159 / 180);
+    Path path = Path()
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle - 0.5),
+        point.dy + arrowSize * math.sin(angle - 0.5),
+      )
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle + 0.5),
+        point.dy + arrowSize * math.sin(angle + 0.5),
+      );
     canvas.drawPath(path, paint);
   }
 

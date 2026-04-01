@@ -152,7 +152,7 @@ class MinimalPrincessPainter extends MinimalShapePainter {
   }
 }
 
-// 4. CUSHION
+//4. Cushion
 class MinimalCushionPainter extends MinimalShapePainter {
   MinimalCushionPainter({super.color});
   @override
