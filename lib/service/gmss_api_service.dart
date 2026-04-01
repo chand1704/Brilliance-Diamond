@@ -8,10 +8,8 @@ class GmssApiService {
   static const String baseUrl = 'https://app.prajesh.co/apis/api/getStockN';
   static const String labAuthKey = 'nigtw54xafke';
   static const String naturalAuthKey = 'wwoy95kxfwll';
-  // static List<GmssStone>? _cachedStones;
   static List<GmssStone>? _cachedLabStones;
   static List<GmssStone>? _cachedNaturalStones;
-  // static List<GmssStone>? getCachedStones() => _cachedStones;
 
   static Future<List<GmssStone>> fetchLabGrownData() async {
     if (_cachedLabStones != null && _cachedLabStones!.isNotEmpty) {
