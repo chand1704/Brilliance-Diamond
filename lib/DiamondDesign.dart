@@ -1690,7 +1690,6 @@ class HeartTopViewPainter extends CustomPainter {
       ..color = Colors.grey.shade700
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final dimensionPaint = Paint()
       ..color = const Color(0xFF008080)
       ..style = PaintingStyle.stroke
@@ -1904,7 +1903,6 @@ class HeartTopViewPainter extends CustomPainter {
 class TriangularTopViewPainter extends CustomPainter {
   final GmssStone stone;
   TriangularTopViewPainter({required this.stone});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1919,41 +1917,29 @@ class TriangularTopViewPainter extends CustomPainter {
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Responsive sizing
     final double side = size.width * 0.45;
     final double triangleHeight = (math.sqrt(3) / 2) * side;
-
     final double topY = center.dy - (triangleHeight * 0.4);
     final double bottomY = center.dy + (triangleHeight * 0.6);
-
-    // 1. Draw Outer Girdle
     final List<Offset> girdle = [
-      Offset(center.dx - side / 2, topY), // Index 0: Top Left
-      Offset(center.dx + side / 2, topY), // Index 1: Top Right
-      Offset(center.dx, bottomY), // Index 2: Bottom Tip
+      Offset(center.dx - side / 2, topY),
+      Offset(center.dx + side / 2, topY),
+      Offset(center.dx, bottomY),
     ];
     canvas.drawPath(Path()..addPolygon(girdle, true), paint);
-
-    // 2. Draw Inner Table
     final double tw = side * 0.45;
     final double th = triangleHeight * 0.45;
     final double tableTopY = center.dy - (th * 0.2);
     final List<Offset> table = [
-      Offset(center.dx - tw / 2, tableTopY), // Index 0: Table TL
-      Offset(center.dx + tw / 2, tableTopY), // Index 1: Table TR
-      Offset(center.dx, tableTopY + th), // Index 2: Table Bottom
+      Offset(center.dx - tw / 2, tableTopY),
+      Offset(center.dx + tw / 2, tableTopY),
+      Offset(center.dx, tableTopY + th),
     ];
     canvas.drawPath(Path()..addPolygon(table, true), paint);
-
-    // 3. Main Facet Lines (FIXED: Added specific list indices)
     canvas.drawLine(table as Offset, girdle as Offset, paint);
     canvas.drawLine(table as Offset, girdle as Offset, paint);
     canvas.drawLine(table as Offset, girdle as Offset, paint);
-
-    // Star connections
     final Offset topMid = Offset(center.dx, topY);
     final Offset leftMid = Offset(
       center.dx - side * 0.25,
@@ -1963,21 +1949,15 @@ class TriangularTopViewPainter extends CustomPainter {
       center.dx + side * 0.25,
       center.dy + triangleHeight * 0.1,
     );
-
-    // Facet Star Logic (FIXED: Added specific list indices)
     canvas.drawLine(table as Offset, topMid, paint);
     canvas.drawLine(table as Offset, topMid, paint);
     canvas.drawLine(table as Offset, leftMid, paint);
     canvas.drawLine(table as Offset, leftMid, paint);
     canvas.drawLine(table as Offset, rightMid, paint);
     canvas.drawLine(table as Offset, rightMid, paint);
-
-    // Center Meeting Points (FIXED: Added specific list indices)
     canvas.drawLine(table as Offset, center, paint);
     canvas.drawLine(table as Offset, center, paint);
     canvas.drawLine(table as Offset, center, paint);
-
-    // DRAW DIMENSIONS
     _drawDimensions(
       canvas,
       center,
@@ -1997,12 +1977,9 @@ class TriangularTopViewPainter extends CustomPainter {
     Paint guidePaint,
   ) {
     final double spacing = w * 0.25;
-
-    // Horizontal Width (Arrow at the top)
     double widthY = center.dy - h * 0.6;
     Offset startW = Offset(center.dx - w / 2, widthY);
     Offset endW = Offset(center.dx + w / 2, widthY);
-
     _drawDashedLine(
       canvas,
       startW,
@@ -2015,7 +1992,6 @@ class TriangularTopViewPainter extends CustomPainter {
       Offset(endW.dx, center.dy - h * 0.4),
       guidePaint,
     );
-
     canvas.drawLine(startW, endW, infoPaint);
     _drawArrowHead(canvas, startW, 0, infoPaint);
     _drawArrowHead(canvas, endW, 180, infoPaint);
@@ -2024,15 +2000,11 @@ class TriangularTopViewPainter extends CustomPainter {
       "Width: ${stone.width.toStringAsFixed(2)} mm",
       Offset(center.dx, widthY - 15),
     );
-
-    // Vertical Length (Arrow on the right)
     double lengthX = center.dx + w / 2 + spacing;
     Offset topL = Offset(lengthX, center.dy - h * 0.4);
     Offset bottomL = Offset(lengthX, center.dy + h * 0.6);
-
     _drawDashedLine(canvas, topL, Offset(center.dx, topL.dy), guidePaint);
     _drawDashedLine(canvas, bottomL, Offset(center.dx, bottomL.dy), guidePaint);
-
     canvas.drawLine(topL, bottomL, infoPaint);
     _drawArrowHead(canvas, topL, 90, infoPaint);
     _drawArrowHead(canvas, bottomL, 270, infoPaint);
@@ -2041,8 +2013,6 @@ class TriangularTopViewPainter extends CustomPainter {
       "Length: ${stone.length.toStringAsFixed(2)} mm",
       Offset(lengthX + 55, center.dy),
     );
-
-    // Ratio Label (Text at bottom)
     _drawText(
       canvas,
       "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
@@ -2051,7 +2021,6 @@ class TriangularTopViewPainter extends CustomPainter {
     );
   }
 
-  // --- Helper Methods ---
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
     double dashWidth = 4, dashSpace = 4;
     double distance = (p2 - p1).distance;
