@@ -686,7 +686,6 @@ class _GmssScreenState extends State<GmssScreen>
                         bool matchesShape = stone.shapeStr
                             .toLowerCase()
                             .contains(selectedShape.toLowerCase().trim());
-
                         final String stoneName = stone.stoneName.toUpperCase();
                         bool matchesOrigin = (selectedOrigin == 1)
                             ? (stoneName.contains("LAB") ||
@@ -1158,7 +1157,6 @@ class _GmssScreenState extends State<GmssScreen>
                           ],
                         ),
                       ),
-                      // Column 3: Finish
                       Expanded(
                         flex: 2,
                         child: Column(
@@ -1196,7 +1194,6 @@ class _GmssScreenState extends State<GmssScreen>
                                 minimumSize: const Size(double.infinity, 40),
                                 shape: const RoundedRectangleBorder(),
                               ),
-
                               child: Text(
                                 "FULL DETAILS",
                                 style: TextStyle(
@@ -1225,14 +1222,6 @@ class _GmssScreenState extends State<GmssScreen>
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.start,
         children: [
-          // Container(
-          //   width: 4,
-          //   height: 4,
-          //   decoration: const BoxDecoration(
-          //     color: Colors.teal, // Or your theme color
-          //     shape: BoxShape.circle,
-          //   ),
-          // ),
           const SizedBox(width: 8),
           Text(
             label,
@@ -1254,25 +1243,6 @@ class _GmssScreenState extends State<GmssScreen>
         ],
       ),
     );
-
-    // return Padding(
-    //   padding: const EdgeInsets.only(bottom: 4),
-    //   child: RichText(
-    //     text: TextSpan(
-    //       style: const TextStyle(fontSize: 12, color: Colors.black),
-    //       children: [
-    //         TextSpan(
-    //           text: "$label",
-    //           style: const TextStyle(
-    //             fontWeight: FontWeight.bold,
-    //             color: Colors.grey,
-    //           ),
-    //         ),
-    //         TextSpan(text: value),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 
   Widget _buildHeader() {
