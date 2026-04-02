@@ -1034,7 +1034,10 @@ class _GmssScreenState extends State<GmssScreen>
                   ),
                   Expanded(
                     flex: 1,
-                    child: Text(stone.weight.toStringAsFixed(2)),
+                    child: Text(
+                      stone.weight.toStringAsFixed(2),
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
                   Expanded(
                     flex: 1,
@@ -1042,11 +1045,23 @@ class _GmssScreenState extends State<GmssScreen>
                       stone.cut.length >= 2
                           ? stone.cut.substring(0, 2).toUpperCase()
                           : (stone.cut.isEmpty ? "-" : stone.cut.toUpperCase()),
-                      style: const TextStyle(fontSize: 13),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ),
-                  Expanded(flex: 1, child: Text(stone.colorStr)),
-                  Expanded(flex: 1, child: Text(stone.clarityStr)),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      stone.colorStr,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      stone.clarityStr,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
                   Expanded(
                     flex: 1,
                     child: Text(
@@ -1084,7 +1099,7 @@ class _GmssScreenState extends State<GmssScreen>
                 const Divider(),
                 const SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.only(left: 40, right: 20),
+                  padding: const EdgeInsets.only(left: 20, right: 20),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1114,7 +1129,7 @@ class _GmssScreenState extends State<GmssScreen>
                                     : "Natural Diamond",
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -1133,6 +1148,12 @@ class _GmssScreenState extends State<GmssScreen>
                             _buildSubDetail(
                               "Measurements: ",
                               "${stone.length}x${stone.width}x${stone.depth} mm",
+                            ),
+                            _buildSubDetail(
+                              "Girdle: ",
+                              stone.gridle_condition.isEmpty
+                                  ? "-"
+                                  : stone.gridle_condition,
                             ),
                           ],
                         ),
@@ -1201,7 +1222,8 @@ class _GmssScreenState extends State<GmssScreen>
   Widget _buildSubDetail(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.start,
         children: [
           // Container(
           //   width: 4,
@@ -1215,7 +1237,7 @@ class _GmssScreenState extends State<GmssScreen>
           Text(
             label,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Colors.grey,
             ),
@@ -1224,7 +1246,7 @@ class _GmssScreenState extends State<GmssScreen>
           Text(
             value,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
