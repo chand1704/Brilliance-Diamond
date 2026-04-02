@@ -148,7 +148,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         ..style.height = '100%'
         ..style.objectFit = 'cover';
 
-      videoElement.load(); // Force the browser to start loading
+      videoElement.load();
       return videoElement;
     });
   }
@@ -179,10 +179,8 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
     showDialog(
       context: context,
-      // barrierDismissible: true,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        // insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -199,15 +197,12 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                // boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 20)],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Stack(
-                  // alignment: Alignment.center,
                   children: [
                     HtmlElementView(key: UniqueKey(), viewType: popupViewId),
-
                     FutureBuilder(
                       future: Future.delayed(const Duration(milliseconds: 2)),
                       builder: (context, snapshot) {
@@ -241,46 +236,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                         );
                       },
                     ),
-                    // StatefulBuilder(
-                    //   builder: (context, setOverlayState) {
-                    //     Future.delayed(const Duration(milliseconds: 2), () {
-                    //       if (context.mounted) setOverlayState(() {});
-                    //     });
-                    //     return FutureBuilder(
-                    //       future: Future.delayed(
-                    //         const Duration(milliseconds: 2),
-                    //       ),
-                    //       builder: (context, snapshot) {
-                    //         if (snapshot.connectionState ==
-                    //             ConnectionState.done) {
-                    //           return const SizedBox.shrink();
-                    //         }
-                    //         return Container(
-                    //           color: Colors.white,
-                    //           child: Column(
-                    //             mainAxisAlignment: MainAxisAlignment.center,
-                    //             children: [
-                    //               CircularProgressIndicator(
-                    //                 strokeWidth: 2,
-                    //                 valueColor: AlwaysStoppedAnimation<Color>(
-                    //                   Theme.of(context).primaryColor,
-                    //                 ),
-                    //               ),
-                    //               const SizedBox(height: 20),
-                    //               const Text(
-                    //                 "Loading 360° View...",
-                    //                 style: TextStyle(
-                    //                   color: Colors.grey,
-                    //                   fontSize: 12,
-                    //                 ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //         );
-                    //       },
-                    //     );
-                    //   },
-                    // ),
                   ],
                 ),
               ),
