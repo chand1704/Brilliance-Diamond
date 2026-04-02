@@ -131,15 +131,18 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   void _registerVideoFactory() {
     if (_currentStone == null) return;
     final String viewId = 'embedded-diamond-video-${_currentStone!.id}';
-    const String videoUrl = "assets/images/video.webm";
-    // "https://www.brilliance.com/sites/default/files/vue/products/diamonds_1.mp4";
+
+    String videoUrl = _currentStone!.video_link;
+    if (videoUrl.isNotEmpty || videoUrl == "null") {
+      videoUrl = "assets/images/video.webm";
+    }
     ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
       final videoElement = html.VideoElement()
         ..src = videoUrl
         ..autoplay = true
         ..loop = true
         ..muted = true
-        ..controls = false
+        // ..controls = false
         ..setAttribute('playsinline', 'true')
         ..style.width = '100%'
         ..style.height = '100%'
@@ -153,55 +156,133 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   void _showVideoPopup(String videoUrl) {
     if (_currentStone == null) return;
 
+    if (videoUrl.isEmpty || videoUrl == "null") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("360 Video is not available for this diamond."),
+        ),
+      );
+      return;
+    }
+
     final String popupViewId =
-        'popup-video-${_currentStone!.id}-${DateTime.now().millisecondsSinceEpoch}';
-    final String finalUrl = (videoUrl.isEmpty || videoUrl == "null")
-        ? "assets/assets/images/video.webm"
-        : videoUrl;
+        'diamond-iframe-${_currentStone!.id}-${DateTime.now().millisecondsSinceEpoch}';
+
     ui.platformViewRegistry.registerViewFactory(
       popupViewId,
-      (int viewId) => html.VideoElement()
-        ..src = finalUrl
-        ..autoplay = true
-        ..controls = true
-        ..loop = true
-        ..setAttribute('playsinline', 'true')
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..style.border = 'none',
+      (int viewId) => html.IFrameElement()
+        ..src = videoUrl
+        ..style.border = 'none'
+        ..width = '100%'
+        ..height = '100%'
+        ..setAttribute('allowfullscreen', 'true'),
     );
     showDialog(
       context: context,
+      // barrierDismissible: true,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        // insetPadding: const EdgeInsets.all(10),
+        // insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Align(
               alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 20,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 35),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
             Container(
-              width: MediaQuery.of(context).size.width * 0.85,
-              height: MediaQuery.of(context).size.height * 0.75,
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.8,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
+                // boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 20)],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: HtmlElementView(key: UniqueKey(), viewType: popupViewId),
+                child: Stack(
+                  // alignment: Alignment.center,
+                  children: [
+                    HtmlElementView(key: UniqueKey(), viewType: popupViewId),
+
+                    FutureBuilder(
+                      future: Future.delayed(const Duration(milliseconds: 2)),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          return const SizedBox.shrink();
+                        }
+                        return Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: Colors.white,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF005AAB),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                "Initializing 360° View...",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    // StatefulBuilder(
+                    //   builder: (context, setOverlayState) {
+                    //     Future.delayed(const Duration(milliseconds: 2), () {
+                    //       if (context.mounted) setOverlayState(() {});
+                    //     });
+                    //     return FutureBuilder(
+                    //       future: Future.delayed(
+                    //         const Duration(milliseconds: 2),
+                    //       ),
+                    //       builder: (context, snapshot) {
+                    //         if (snapshot.connectionState ==
+                    //             ConnectionState.done) {
+                    //           return const SizedBox.shrink();
+                    //         }
+                    //         return Container(
+                    //           color: Colors.white,
+                    //           child: Column(
+                    //             mainAxisAlignment: MainAxisAlignment.center,
+                    //             children: [
+                    //               CircularProgressIndicator(
+                    //                 strokeWidth: 2,
+                    //                 valueColor: AlwaysStoppedAnimation<Color>(
+                    //                   Theme.of(context).primaryColor,
+                    //                 ),
+                    //               ),
+                    //               const SizedBox(height: 20),
+                    //               const Text(
+                    //                 "Loading 360° View...",
+                    //                 style: TextStyle(
+                    //                   color: Colors.grey,
+                    //                   fontSize: 12,
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         );
+                    //       },
+                    //     );
+                    //   },
+                    // ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -264,7 +345,10 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                         _buildTechRow("Color :", _currentStone!.colorStr),
                         _buildTechRow("Clarity :", _currentStone!.clarityStr),
                         _buildTechRow("Cut :", _currentStone!.cut_code),
-                        _buildTechRow("Measurements :", "4.78x3.45x2.42 mm"),
+                        _buildTechRow(
+                          "Measurements :",
+                          "${_currentStone!.length}x${_currentStone!.width}x${_currentStone!.depth} mm",
+                        ),
                         _buildTechRow(
                           "Length of Width :",
                           "${_currentStone!.width}",
