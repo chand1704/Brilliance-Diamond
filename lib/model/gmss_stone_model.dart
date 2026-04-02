@@ -28,7 +28,7 @@ class GmssStone {
   final double width;
   final double table;
   final double total_price;
-  final bool isLab; // ADD THIS FIELD
+  final bool isLab;
   GmssStone({
     required this.id,
     required this.stockNo,
@@ -56,7 +56,7 @@ class GmssStone {
     required this.width,
     required this.table,
     required this.total_price,
-    required this.isLab, // ADD THIS
+    required this.isLab,
   });
 
   factory GmssStone.fromJson(Map<String, dynamic> json, {required bool isLab}) {
@@ -73,10 +73,8 @@ class GmssStone {
     } else {
       len = safeDouble(json['length']);
     }
-
     String actualShape =
         json['shape']?.toString() ?? json['shapeStr']?.toString() ?? 'ROUND';
-
     // return GmssStone(
     //   id: 0, // New API doesn't seem to have a unique numeric ID, using 0 or use stockNo.hashCode
     //   stockNo: json['stockNo']?.toString() ?? '',
@@ -106,7 +104,6 @@ class GmssStone {
     //   table: safeDouble(json['table']),
     //   total_price: safeDouble(json['totalPrice']),
     // );
-
     return GmssStone(
       id: json['id'] ?? json['stockNo']?.hashCode ?? 0,
       stockNo: json['stockNo']?.toString() ?? '',
@@ -144,7 +141,7 @@ class GmssStone {
       width: safeDouble(json['width'] ?? json['table']),
       table: safeDouble(json['table']),
       total_price: safeDouble(json['totalPrice'] ?? json['total_price']),
-      isLab: isLab, // ASSIGN THE PARAMETER HERE
+      isLab: isLab,
     );
   }
   Map<String, dynamic> toJson() {
@@ -181,17 +178,13 @@ class GmssStone {
   static void addToHistory(GmssStone stone) {
     final String? existingHistory = html.window.localStorage['recent_history'];
     List<dynamic> historyList = [];
-
     if (existingHistory != null) {
       try {
         historyList = jsonDecode(existingHistory);
       } catch (_) {}
     }
-    // Remove if duplicate exists
     historyList.removeWhere((item) => item['stockNo'] == stone.stockNo);
-    // Add to top
     historyList.insert(0, stone.toJson());
-    // Limit to 20
     if (historyList.length > 20) {
       historyList = historyList.sublist(0, 20);
     }
