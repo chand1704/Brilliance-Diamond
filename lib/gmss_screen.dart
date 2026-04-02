@@ -695,50 +695,46 @@ class _GmssScreenState extends State<GmssScreen>
                       displayStones = searchResults;
                     }
                     return SliverPadding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 20,
+                      padding: const EdgeInsets.only(
+                        left: 24,
+                        right: 24,
+                        bottom: 20,
+                        top: 0,
                       ),
                       sliver: displayStones.isEmpty
                           ? const SliverToBoxAdapter(
                               child: Center(child: Text("No data found")),
                             )
                           : isGridView
-                          ? SliverPadding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 20,
-                              ),
-                              sliver: SliverGrid(
-                                gridDelegate:
-                                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 300,
-                                      childAspectRatio: 0.78,
-                                      crossAxisSpacing: 15,
-                                      mainAxisSpacing: 15,
+                          ? SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 300,
+                                    childAspectRatio: 0.78,
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
+                                  ),
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                final stone = displayStones[index];
+                                return AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 2),
+                                  child: DiamondCard(
+                                    key: ValueKey(
+                                      "diamond-${stone.stockNo}-${_currentTab}",
                                     ),
-                                delegate: SliverChildBuilderDelegate((
-                                  context,
-                                  index,
-                                ) {
-                                  final stone = displayStones[index];
-                                  return AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 2),
-                                    child: DiamondCard(
-                                      key: ValueKey(
-                                        "diamond-${stone.stockNo}-${_currentTab}",
-                                      ),
-                                      stone: stone,
-                                      isFavorite: _savedStones.any(
-                                        (s) => s.stockNo == stone.stockNo,
-                                      ),
-                                      onFavoriteTap: () => _toggleSave(stone),
-                                      onCardTap: () => _handleCardTap(stone),
-                                      themeColor: themeColor,
+                                    stone: stone,
+                                    isFavorite: _savedStones.any(
+                                      (s) => s.stockNo == stone.stockNo,
                                     ),
-                                  );
-                                }, childCount: displayStones.length),
-                              ),
+                                    onFavoriteTap: () => _toggleSave(stone),
+                                    onCardTap: () => _handleCardTap(stone),
+                                    themeColor: themeColor,
+                                  ),
+                                );
+                              }, childCount: displayStones.length),
                             )
                           : SliverMainAxisGroup(
                               slivers: [
@@ -1282,7 +1278,7 @@ class _GmssScreenState extends State<GmssScreen>
   Widget _buildShapeSelector(dynamic shapeCategories) {
     return Container(
       height: 110,
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 0),
       alignment: Alignment.center,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -1451,7 +1447,7 @@ class _GmssScreenState extends State<GmssScreen>
       },
       borderRadius: BorderRadius.circular(15),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 2),
+        duration: const Duration(milliseconds: 1),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.teal.withValues(alpha: 0.05)
