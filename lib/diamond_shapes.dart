@@ -222,26 +222,19 @@ class MinimalCushionPainter extends MinimalShapePainter {
 // 5. RADIANT
 class MinimalRadiantPainter extends MinimalShapePainter {
   MinimalRadiantPainter({super.color});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Proportions
     final double w = size.width * 0.65;
     final double h = size.height * 0.85;
-    final double cropOuter = 10.0; // Corner clipping for outer girdle
-
-    final double tw = w * 0.5; // Table Width
-    final double th = h * 0.5; // Table Height
-    final double cropInner = 5.0; // Corner clipping for inner table
-
-    // Helper to generate the clipped rectangle path
+    final double cropOuter = 10.0;
+    final double tw = w * 0.5;
+    final double th = h * 0.5;
+    final double cropInner = 5.0;
     Path getRadiantPath(
       Offset center,
       double width,
@@ -260,15 +253,8 @@ class MinimalRadiantPainter extends MinimalShapePainter {
         ..close();
     }
 
-    // 1. Draw Outer Girdle
     canvas.drawPath(getRadiantPath(center, w, h, cropOuter), paint);
-
-    // 2. Draw Inner Table
     canvas.drawPath(getRadiantPath(center, tw, th, cropInner), paint);
-
-    // 3. Draw Facet Lines (Connections)
-
-    // Diagonal Corner Connections
     canvas.drawLine(
       Offset(center.dx - w / 2 + cropOuter, center.dy - h / 2),
       Offset(center.dx - tw / 2 + cropInner, center.dy - th / 2),
@@ -289,8 +275,6 @@ class MinimalRadiantPainter extends MinimalShapePainter {
       Offset(center.dx + tw / 2 - cropInner, center.dy + th / 2),
       paint,
     );
-
-    // Midpoint Side Connections
     canvas.drawLine(
       Offset(center.dx - w / 2, center.dy),
       Offset(center.dx - tw / 2, center.dy),
@@ -317,38 +301,30 @@ class MinimalRadiantPainter extends MinimalShapePainter {
 // 6. MARQUISE
 class MinimalMarquisePainter extends MinimalShapePainter {
   MinimalMarquisePainter({super.color});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-
     final center = Offset(size.width / 2, size.height / 2);
-
-    // Proportions: Narrow and long for the icon look
     final double h = size.height * 0.85;
     final double w = size.width * 0.45;
-
-    // 1. Draw Outer Girdle (The curved Marquise path)
     final Path outer = Path();
     outer.moveTo(center.dx, center.dy - h / 2);
     outer.quadraticBezierTo(
-      center.dx + w, // Control point for curve
+      center.dx + w,
       center.dy,
       center.dx,
       center.dy + h / 2,
     );
     outer.quadraticBezierTo(
-      center.dx - w, // Control point for curve
+      center.dx - w,
       center.dy,
       center.dx,
       center.dy - h / 2,
     );
     canvas.drawPath(outer, paint);
-
-    // 2. Draw Table (Inner Diamond Shape)
     final double tw = w * 0.45;
     final double th = h * 0.45;
     final Path tablePath = Path()
@@ -358,9 +334,6 @@ class MinimalMarquisePainter extends MinimalShapePainter {
       ..lineTo(center.dx - tw / 2, center.dy)
       ..close();
     canvas.drawPath(tablePath, paint);
-
-    // 3. Main Vertical & Horizontal Facets
-    // Top & Bottom points to table
     canvas.drawLine(
       Offset(center.dx, center.dy - h / 2),
       Offset(center.dx, center.dy - th / 2),
@@ -371,7 +344,6 @@ class MinimalMarquisePainter extends MinimalShapePainter {
       Offset(center.dx, center.dy + th / 2),
       paint,
     );
-    // Table sides to outer curve (approximate meeting points)
     canvas.drawLine(
       Offset(center.dx + tw / 2, center.dy),
       Offset(center.dx + w / 2 * 0.9, center.dy),
@@ -382,9 +354,6 @@ class MinimalMarquisePainter extends MinimalShapePainter {
       Offset(center.dx - w / 2 * 0.9, center.dy),
       paint,
     );
-
-    // 4. Star / Brilliant Facet lines (The angled lines from your reference)
-    // Connecting table corners to crown points
     canvas.drawLine(
       Offset(center.dx - tw / 4, center.dy - th / 4),
       Offset(center.dx - w / 2 * 0.6, center.dy - h / 4),
