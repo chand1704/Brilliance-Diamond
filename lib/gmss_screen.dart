@@ -1068,7 +1068,7 @@ class _GmssScreenState extends State<GmssScreen>
                           children: [
                             _buildSubDetail("Stock #: ", stone.stockNo),
                             _buildSubDetail(
-                              "Report:",
+                              "Report: ",
                               "${stone.lab} Certificate",
                             ),
                             const SizedBox(height: 8),
@@ -1082,7 +1082,9 @@ class _GmssScreenState extends State<GmssScreen>
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                stone.isLab ? "Lab Grown" : "Natural Diamond",
+                                stone.isLab
+                                    ? "Lab Grown Diamond"
+                                    : "Natural Diamond",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -1098,11 +1100,11 @@ class _GmssScreenState extends State<GmssScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSubDetail("Depth:", "${stone.depth}%"),
-                            _buildSubDetail("Table:", "${stone.table}%"),
-                            _buildSubDetail("Cut Grade:", stone.cut),
+                            _buildSubDetail("Depth: ", "${stone.depth}%"),
+                            _buildSubDetail("Table: ", "${stone.table}%"),
+                            _buildSubDetail("Cut Grade: ", stone.cut),
                             _buildSubDetail(
-                              "Measurements:",
+                              "Measurements: ",
                               "${stone.length}x${stone.width}x${stone.depth} mm",
                             ),
                           ],
@@ -1114,8 +1116,8 @@ class _GmssScreenState extends State<GmssScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSubDetail("Polish:", stone.polish),
-                            _buildSubDetail("Symmetry:", stone.symmetry),
+                            _buildSubDetail("Polish: ", stone.polish),
+                            _buildSubDetail("Symmetry: ", stone.symmetry),
                           ],
                         ),
                       ),
