@@ -2067,7 +2067,223 @@ class HeartTopViewPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
+
 //Triangular (Trillion)
+class TriangularTopViewPainter extends CustomPainter {
+  final GmssStone stone;
+  TriangularTopViewPainter({required this.stone});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.shade600
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.3;
+    final infoPaint = Paint()
+      ..color = const Color(0xFF008080)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+    final guidePaint = Paint()
+      ..color = Colors.grey.shade300
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Responsive sizing
+    final double side = size.width * 0.45;
+    final double triangleHeight = (math.sqrt(3) / 2) * side;
+
+    final double topY = center.dy - (triangleHeight * 0.4);
+    final double bottomY = center.dy + (triangleHeight * 0.6);
+
+    // 1. Draw Outer Girdle
+    final List<Offset> girdle = [
+      Offset(center.dx - side / 2, topY), // Index 0: Top Left
+      Offset(center.dx + side / 2, topY), // Index 1: Top Right
+      Offset(center.dx, bottomY), // Index 2: Bottom Tip
+    ];
+    canvas.drawPath(Path()..addPolygon(girdle, true), paint);
+
+    // 2. Draw Inner Table
+    final double tw = side * 0.45;
+    final double th = triangleHeight * 0.45;
+    final double tableTopY = center.dy - (th * 0.2);
+    final List<Offset> table = [
+      Offset(center.dx - tw / 2, tableTopY), // Index 0: Table TL
+      Offset(center.dx + tw / 2, tableTopY), // Index 1: Table TR
+      Offset(center.dx, tableTopY + th), // Index 2: Table Bottom
+    ];
+    canvas.drawPath(Path()..addPolygon(table, true), paint);
+
+    // 3. Main Facet Lines (FIXED: Added specific list indices)
+    canvas.drawLine(table as Offset, girdle as Offset, paint);
+    canvas.drawLine(table as Offset, girdle as Offset, paint);
+    canvas.drawLine(table as Offset, girdle as Offset, paint);
+
+    // Star connections
+    final Offset topMid = Offset(center.dx, topY);
+    final Offset leftMid = Offset(
+      center.dx - side * 0.25,
+      center.dy + triangleHeight * 0.1,
+    );
+    final Offset rightMid = Offset(
+      center.dx + side * 0.25,
+      center.dy + triangleHeight * 0.1,
+    );
+
+    // Facet Star Logic (FIXED: Added specific list indices)
+    canvas.drawLine(table as Offset, topMid, paint);
+    canvas.drawLine(table as Offset, topMid, paint);
+    canvas.drawLine(table as Offset, leftMid, paint);
+    canvas.drawLine(table as Offset, leftMid, paint);
+    canvas.drawLine(table as Offset, rightMid, paint);
+    canvas.drawLine(table as Offset, rightMid, paint);
+
+    // Center Meeting Points (FIXED: Added specific list indices)
+    canvas.drawLine(table as Offset, center, paint);
+    canvas.drawLine(table as Offset, center, paint);
+    canvas.drawLine(table as Offset, center, paint);
+
+    // DRAW DIMENSIONS
+    _drawDimensions(
+      canvas,
+      center,
+      side,
+      triangleHeight,
+      infoPaint,
+      guidePaint,
+    );
+  }
+
+  void _drawDimensions(
+    Canvas canvas,
+    Offset center,
+    double w,
+    double h,
+    Paint infoPaint,
+    Paint guidePaint,
+  ) {
+    final double spacing = w * 0.25;
+
+    // Horizontal Width (Arrow at the top)
+    double widthY = center.dy - h * 0.6;
+    Offset startW = Offset(center.dx - w / 2, widthY);
+    Offset endW = Offset(center.dx + w / 2, widthY);
+
+    _drawDashedLine(
+      canvas,
+      startW,
+      Offset(startW.dx, center.dy - h * 0.4),
+      guidePaint,
+    );
+    _drawDashedLine(
+      canvas,
+      endW,
+      Offset(endW.dx, center.dy - h * 0.4),
+      guidePaint,
+    );
+
+    canvas.drawLine(startW, endW, infoPaint);
+    _drawArrowHead(canvas, startW, 0, infoPaint);
+    _drawArrowHead(canvas, endW, 180, infoPaint);
+    _drawText(
+      canvas,
+      "Width: ${stone.width.toStringAsFixed(2)} mm",
+      Offset(center.dx, widthY - 15),
+    );
+
+    // Vertical Length (Arrow on the right)
+    double lengthX = center.dx + w / 2 + spacing;
+    Offset topL = Offset(lengthX, center.dy - h * 0.4);
+    Offset bottomL = Offset(lengthX, center.dy + h * 0.6);
+
+    _drawDashedLine(canvas, topL, Offset(center.dx, topL.dy), guidePaint);
+    _drawDashedLine(canvas, bottomL, Offset(center.dx, bottomL.dy), guidePaint);
+
+    canvas.drawLine(topL, bottomL, infoPaint);
+    _drawArrowHead(canvas, topL, 90, infoPaint);
+    _drawArrowHead(canvas, bottomL, 270, infoPaint);
+    _drawText(
+      canvas,
+      "Length: ${stone.length.toStringAsFixed(2)} mm",
+      Offset(lengthX + 55, center.dy),
+    );
+
+    // Ratio Label (Text at bottom)
+    _drawText(
+      canvas,
+      "Length to Width: ${stone.ratio.toStringAsFixed(2)} to 1",
+      Offset(center.dx, center.dy + h * 0.8),
+      isGrey: true,
+    );
+  }
+
+  // --- Helper Methods ---
+  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
+    double dashWidth = 4, dashSpace = 4;
+    double distance = (p2 - p1).distance;
+    if (distance <= 0) return;
+    for (double i = 0; i < distance; i += dashWidth + dashSpace) {
+      canvas.drawLine(
+        Offset(
+          p1.dx + (p2.dx - p1.dx) * i / distance,
+          p1.dy + (p2.dy - p1.dy) * i / distance,
+        ),
+        Offset(
+          p1.dx + (p2.dx - p1.dx) * (i + dashWidth) / distance,
+          p1.dy + (p2.dy - p1.dy) * (i + dashWidth) / distance,
+        ),
+        paint,
+      );
+    }
+  }
+
+  void _drawArrowHead(
+    Canvas canvas,
+    Offset point,
+    double angleDegrees,
+    Paint paint,
+  ) {
+    final double arrowSize = 6.0;
+    final double angle = angleDegrees * (math.pi / 180);
+    Path path = Path()
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle - 0.5),
+        point.dy + arrowSize * math.sin(angle - 0.5),
+      )
+      ..moveTo(point.dx, point.dy)
+      ..lineTo(
+        point.dx + arrowSize * math.cos(angle + 0.5),
+        point.dy + arrowSize * math.sin(angle + 0.5),
+      );
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawText(
+    Canvas canvas,
+    String text,
+    Offset pos, {
+    bool isGrey = false,
+  }) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: isGrey ? Colors.grey.shade700 : const Color(0xFF008080),
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
 
 class BaguetteTopViewPainter extends CustomPainter {
   final GmssStone stone;
