@@ -18,12 +18,7 @@ class GmssScreen extends StatefulWidget {
 
 class _GmssScreenState extends State<GmssScreen>
     with SingleTickerProviderStateMixin {
-  // REPLACE: String? _expandedStoneStockNo;
-  // WITH THIS:
   final Set<String> _expandedStoneStockNos = {};
-  // Add this at the top of your state class
-  // String? _expandedStoneStockNo;
-  // final Set<String> _expandedStoneStockNos = {};
   late AnimationController _shimmerController;
   final Map<int, List<GmssStone>> _cachedLabGrownMap = {};
   final Map<int, List<GmssStone>> _cachedNaturalMap = {};
@@ -497,7 +492,6 @@ class _GmssScreenState extends State<GmssScreen>
                 clarityRange: _clarityRange,
                 showOnlyWithImages: showOnlyWithImages,
                 quickShipping: quickShipping,
-                // Advanced Filter Props
                 showAdvancedFilters: showAdvancedFilters,
                 cutRange: _cutRange,
                 polishRange: _polishRange,
@@ -506,14 +500,12 @@ class _GmssScreenState extends State<GmssScreen>
                 symRange: _symRange,
                 depthRange: _depthRange,
                 tableRange: _tableRange,
-                // Fancy Filter Props
                 selectedFancyColorId: selectedFancyColorId,
                 isFancyExpanded: isFancyExpanded,
                 saturationRange: _saturationRange,
                 fancyColors: fancyColors,
                 saturationLabels: saturationLabels,
                 selectedShape: selectedShape,
-                // Labels
                 shadeLabels: shadeLabels,
                 clarityLabels: clarityLabels,
                 cutLabels: cutLabels,
@@ -521,7 +513,6 @@ class _GmssScreenState extends State<GmssScreen>
                 flLabels: flLabels,
                 certLabels: certLabels,
                 symLabels: symLabels,
-                // Callbacks
                 onOriginChanged: (val) {
                   setState(() {
                     selectedOrigin = val;
@@ -546,7 +537,6 @@ class _GmssScreenState extends State<GmssScreen>
                 onSymChanged: (val) => setState(() => _symRange = val),
                 onDepthChanged: (val) => setState(() => _depthRange = val),
                 onTableChanged: (val) => setState(() => _tableRange = val),
-                // Fancy Callbacks
                 onFancyColorTap: (id, name) {
                   setState(() {
                     selectedFancyColorId = id;
@@ -627,7 +617,6 @@ class _GmssScreenState extends State<GmssScreen>
                   builder: (context, snapshot) {
                     final allStones = snapshot.data ?? [];
                     final filteredCount = _applyFiltering(allStones).length;
-
                     final filteredCompareCount = _savedStones.where((stone) {
                       bool matchesShape = stone.shapeStr.toLowerCase().contains(
                         selectedShape.toLowerCase().trim(),
@@ -692,7 +681,6 @@ class _GmssScreenState extends State<GmssScreen>
                                   stoneName.contains("LGD"))
                             : (stoneName.contains("NATURAL") ||
                                   stoneName.contains("NAT"));
-
                         return matchesShape && matchesOrigin;
                       }).toList();
                     } else {
