@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class SidebarFilters extends StatelessWidget {
   final Color themeColor;
-  // Basic Filter States
   final int selectedOrigin;
   final bool isFancySearch;
   final RangeValues caratRange;
@@ -11,7 +10,6 @@ class SidebarFilters extends StatelessWidget {
   final RangeValues clarityRange;
   final bool showOnlyWithImages;
   final bool quickShipping;
-  // Advanced Filter States
   final bool showAdvancedFilters;
   final RangeValues cutRange;
   final RangeValues polishRange;
@@ -20,14 +18,12 @@ class SidebarFilters extends StatelessWidget {
   final RangeValues symRange;
   final RangeValues depthRange;
   final RangeValues tableRange;
-  // Fancy Color States
   final int? selectedFancyColorId;
   final bool isFancyExpanded;
   final RangeValues saturationRange;
   final List<Map<String, dynamic>> fancyColors;
   final List<String> saturationLabels;
   final String selectedShape;
-  // Labels
   final List<String> shadeLabels;
   final List<String> clarityLabels;
   final List<String> cutLabels;
@@ -35,7 +31,6 @@ class SidebarFilters extends StatelessWidget {
   final List<String> flLabels;
   final List<String> certLabels;
   final List<String> symLabels;
-  // Callbacks
   final Function(int) onOriginChanged;
   final Function(RangeValues) onCaratChanged;
   final Function(RangeValues) onPriceChanged;
@@ -44,7 +39,6 @@ class SidebarFilters extends StatelessWidget {
   final Function(bool) onImageToggle;
   final Function(bool) onShippingToggle;
   final VoidCallback onReset;
-  // Advanced Callbacks
   final VoidCallback onAdvancedToggle;
   final Function(RangeValues) onCutChanged;
   final Function(RangeValues) onPolishChanged;
@@ -53,7 +47,6 @@ class SidebarFilters extends StatelessWidget {
   final Function(RangeValues) onSymChanged;
   final Function(RangeValues) onDepthChanged;
   final Function(RangeValues) onTableChanged;
-  // Fancy Callbacks
   final Function(int?, String?) onFancyColorTap;
   final VoidCallback onFancyExpandToggle;
   final Function(RangeValues) onSaturationChanged;
@@ -99,7 +92,6 @@ class SidebarFilters extends StatelessWidget {
     required this.onSymChanged,
     required this.onDepthChanged,
     required this.onTableChanged,
-    // Fancy Color Props
     required this.selectedFancyColorId,
     required this.isFancyExpanded,
     required this.saturationRange,
@@ -576,7 +568,6 @@ class SidebarFilters extends StatelessWidget {
                 .toList(),
           ),
         ),
-
         const SizedBox(height: 20),
       ],
     );
