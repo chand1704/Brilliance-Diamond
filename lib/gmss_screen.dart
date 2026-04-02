@@ -622,11 +622,24 @@ class _GmssScreenState extends State<GmssScreen>
                   builder: (context, snapshot) {
                     final allStones = snapshot.data ?? [];
                     final filteredCount = _applyFiltering(allStones).length;
+
+                    final filteredCompareCount = _savedStones.where((stone) {
+                      bool matchesShape = stone.shapeStr.toLowerCase().contains(
+                        selectedShape.toLowerCase().trim(),
+                      );
+                      final String stoneName = stone.stoneName.toUpperCase();
+                      bool matchesOrigin = (selectedOrigin == 1)
+                          ? (stoneName.contains("LAB") ||
+                                stoneName.contains("LGD"))
+                          : (stoneName.contains("NATURAL") ||
+                                stoneName.contains("NAT"));
+                      return matchesShape && matchesOrigin;
+                    }).length;
                     return SliverToBoxAdapter(
                       child: _buildUnifiedInventoryToolbar(
                         mainCount: filteredCount,
                         historyCount: _recentlyViewed.length,
-                        compareCount: _savedStones.length,
+                        compareCount: filteredCompareCount,
                         themeColor: themeColor,
                       ),
                     );
@@ -664,7 +677,20 @@ class _GmssScreenState extends State<GmssScreen>
                     if (_currentTab == 1) {
                       displayStones = _recentlyViewed;
                     } else if (_currentTab == 2) {
-                      displayStones = _savedStones;
+                      displayStones = _savedStones.where((stone) {
+                        bool matchesShape = stone.shapeStr
+                            .toLowerCase()
+                            .contains(selectedShape.toLowerCase().trim());
+
+                        final String stoneName = stone.stoneName.toUpperCase();
+                        bool matchesOrigin = (selectedOrigin == 1)
+                            ? (stoneName.contains("LAB") ||
+                                  stoneName.contains("LGD"))
+                            : (stoneName.contains("NATURAL") ||
+                                  stoneName.contains("NAT"));
+
+                        return matchesShape && matchesOrigin;
+                      }).toList();
                     } else {
                       displayStones = searchResults;
                     }
