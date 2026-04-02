@@ -22,7 +22,8 @@ class _GmssScreenState extends State<GmssScreen>
   // WITH THIS:
   final Set<String> _expandedStoneStockNos = {};
   // Add this at the top of your state class
-  String? _expandedStoneStockNo;
+  // String? _expandedStoneStockNo;
+  // final Set<String> _expandedStoneStockNos = {};
   late AnimationController _shimmerController;
   final Map<int, List<GmssStone>> _cachedLabGrownMap = {};
   final Map<int, List<GmssStone>> _cachedNaturalMap = {};
@@ -565,9 +566,13 @@ class _GmssScreenState extends State<GmssScreen>
                     _priceRange = const RangeValues(0.0, 100000.0);
                     selectedOrigin = 1;
                     _colorRange = const RangeValues(0, 8);
+                    selectedShape = 'Round';
+                    selectedShapeId = 1;
                     selectedFancyColorId = null;
                     selectedFancyColor = null;
                     isFancySearch = false;
+                    _expandedStoneStockNos.clear();
+                    _future = _getSmartData();
                   });
                 },
               ),
