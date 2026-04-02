@@ -1199,23 +1199,57 @@ class _GmssScreenState extends State<GmssScreen>
 
   Widget _buildSubDetail(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(fontSize: 12, color: Colors.black),
-          children: [
-            TextSpan(
-              text: "$label",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          // Container(
+          //   width: 4,
+          //   height: 4,
+          //   decoration: const BoxDecoration(
+          //     color: Colors.teal, // Or your theme color
+          //     shape: BoxShape.circle,
+          //   ),
+          // ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey,
             ),
-            TextSpan(text: value),
-          ],
-        ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
+
+    // return Padding(
+    //   padding: const EdgeInsets.only(bottom: 4),
+    //   child: RichText(
+    //     text: TextSpan(
+    //       style: const TextStyle(fontSize: 12, color: Colors.black),
+    //       children: [
+    //         TextSpan(
+    //           text: "$label",
+    //           style: const TextStyle(
+    //             fontWeight: FontWeight.bold,
+    //             color: Colors.grey,
+    //           ),
+    //         ),
+    //         TextSpan(text: value),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
   Widget _buildHeader() {
