@@ -549,7 +549,12 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildMainImageCard() {
-    bool isFavorite = widget.isFavorite;
+    bool isFavorite = GmssStone.loadSavedStones().any(
+      (s) => s.stockNo == _currentStone!.stockNo,
+    );
+    final Color originThemeColor = _currentStone!.isLab
+        ? Colors.teal
+        : Colors.blue.shade700;
     return Container(
       height: 500,
       width: double.infinity,
@@ -570,20 +575,41 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             top: 20,
             right: 20,
             child: IconButton(
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.teal : Colors.grey,
-                size: 30,
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  key: ValueKey<bool>(isFavorite),
+                  color: isFavorite ? originThemeColor : Colors.grey.shade400,
+                  size: 30,
+                ),
               ),
               onPressed: () {
+                // 1. Update the LocalStorage
                 GmssStone.toggleSaveStone(_currentStone!);
+
+                // 2. Trigger a local rebuild to flip the heart immediately
+                setState(() {});
+
+                // 3. Notify the parent/callback
                 widget.onFavoriteToggle(!isFavorite);
+
+                // 4. Show Feedback
+                ScaffoldMessenger.of(
+                  context,
+                ).clearSnackBars(); // Clear existing ones
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
                       isFavorite ? "Removed from Compare" : "Added to Compare",
                     ),
-                    duration: const Duration(seconds: 2),
+                    backgroundColor: !isFavorite
+                        ? originThemeColor
+                        : Colors.grey.shade700,
+                    duration: const Duration(seconds: 1),
                   ),
                 );
               },
