@@ -698,6 +698,13 @@ class _GmssScreenState extends State<GmssScreen>
                           ? const SliverToBoxAdapter(
                               child: Center(child: Text("No data found")),
                             )
+                          : (_currentTab == 2)
+                          ? SliverToBoxAdapter(
+                              child: _buildVerticalComparison(
+                                displayStones,
+                                themeColor,
+                              ),
+                            )
                           : isGridView
                           ? SliverGrid(
                               gridDelegate:
@@ -761,6 +768,259 @@ class _GmssScreenState extends State<GmssScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildVerticalComparison(List<GmssStone> stones, Color themeColor) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+        // border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection:
+            Axis.horizontal, // Allows comparing many diamonds side-by-side
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Sticky Label Column
+            // _buildCompareLabelColumn(),
+
+            // Diamond Data Columns
+            ...stones.map((stone) => _buildCompareDataColumn(stone)).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget _buildCompareLabelColumn() {
+  //   final labelStyle = TextStyle(
+  //     fontWeight: FontWeight.w800,
+  //     color: Colors.grey.shade500,
+  //     fontSize: 11,
+  //     letterSpacing: 1.1,
+  //   );
+  //   return Container(
+  //     width: 150,
+  //     decoration: BoxDecoration(
+  //       border: Border(right: BorderSide(color: Colors.grey.shade100)),
+  //       color: const Color(0xFFF8FAFB),
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         const SizedBox(height: 220), // Space for image/header
+  //         _compareLabelTile("Shape", labelStyle),
+  //         _compareLabelTile("Carat", labelStyle),
+  //         _compareLabelTile("Color", labelStyle),
+  //         _compareLabelTile("Clarity", labelStyle),
+  //         _compareLabelTile("Cut", labelStyle),
+  //         _compareLabelTile("Polish", labelStyle),
+  //         _compareLabelTile("Symmetry", labelStyle),
+  //         _compareLabelTile("Depth %", labelStyle),
+  //         _compareLabelTile("Table %", labelStyle),
+  //         _compareLabelTile("Price", labelStyle),
+  //         const SizedBox(height: 100), // Space for buttons
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _compareLabelTile(String label, TextStyle style) {
+  //   return Container(
+  //     height: 55,
+  //     alignment: Alignment.centerLeft,
+  //     padding: const EdgeInsets.only(left: 24),
+  //     // decoration: BoxDecoration(
+  //     //   border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+  //     // ),
+  //     child: Text(label, style: style),
+  //   );
+  // }
+
+  Widget _buildCompareDataColumn(GmssStone stone) {
+    final rowColor = stone.isLab ? Colors.teal : Colors.blue.shade700;
+    final dataStyle = const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+      color: Color(0xFF2D3142),
+    );
+
+    return Container(
+      width: 260,
+      decoration: BoxDecoration(
+        border: Border(right: BorderSide(color: Colors.grey.shade100)),
+      ),
+      child: Column(
+        children: [
+          // Diamond Header (Image & Stock No)
+          Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Container(
+                  height: 140,
+                  width: 140,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      stone.image_link,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, e, s) => Icon(
+                        Icons.diamond_outlined,
+                        size: 40,
+                        color: rowColor.withOpacity(0.2),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: rowColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    stone.isLab ? "LAB GROWN" : "NATURAL",
+                    style: TextStyle(
+                      color: rowColor,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Stock #: ${stone.stockNo}",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade400,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Data Rows
+          // _compareDataTile("${stone.shapeStr}".toUpperCase(), dataStyle),
+          _compareDataTile(
+            "Carat: ${stone.weight.toStringAsFixed(2)}",
+            dataStyle,
+          ),
+          _compareDataTile("Color: ${stone.colorStr}", dataStyle),
+          _compareDataTile("Clarity: ${stone.clarityStr}", dataStyle),
+          _compareDataTile(
+            "Cut Grade: ${stone.cut.isEmpty ? " - " : stone.cut}",
+            dataStyle,
+          ),
+          _compareDataTile("Polish: ${stone.polish}", dataStyle),
+          _compareDataTile("Symmetry: ${stone.symmetry}", dataStyle),
+          _compareDataTile("Depth:${stone.depth}%", dataStyle),
+          _compareDataTile("Table: ${stone.table}%", dataStyle),
+          _compareDataTile(
+            "Gridle: ${stone.gridle_condition.isEmpty ? " - " : stone.gridle_condition}",
+            dataStyle,
+          ),
+
+          Container(
+            height: 55,
+            alignment: Alignment.center,
+            child: Text(
+              "\$${stone.total_price}",
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 20,
+                color: rowColor,
+              ),
+            ),
+          ),
+
+          // Action Buttons
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: rowColor,
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    "ADD TO CART",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: () => _handleCardTap(stone),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: rowColor.withOpacity(0.5)),
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    "VIEW DETAILS",
+                    style: TextStyle(
+                      color: rowColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _toggleSave(stone),
+                  child: Text(
+                    "Remove",
+                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _compareDataTile(String value, TextStyle style) {
+    return Container(
+      height: 50,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade50)),
+      ),
+      child: Text("${value}", style: style),
     );
   }
 
