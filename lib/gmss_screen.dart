@@ -238,8 +238,9 @@ class _GmssScreenState extends State<GmssScreen>
     _future = _getSmartData();
     _loadHistoryFromStorage();
     html.window.onStorage.listen((html.StorageEvent e) {
-      if (e.key == 'recent_history') {
+      if (e.key == 'recent_history' || e.key == 'saved_stones') {
         _loadHistoryFromStorage();
+        _loadSavedFromStorage();
       }
     });
   }

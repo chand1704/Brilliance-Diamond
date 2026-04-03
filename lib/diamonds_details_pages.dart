@@ -549,6 +549,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _buildMainImageCard() {
+    bool isFavorite = widget.isFavorite;
     return Container(
       height: 500,
       width: double.infinity,
@@ -563,6 +564,29 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
               url: _currentStone!.image_link,
               size: 450,
               stone: _currentStone!,
+            ),
+          ),
+          Positioned(
+            top: 20,
+            right: 20,
+            child: IconButton(
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.teal : Colors.grey,
+                size: 30,
+              ),
+              onPressed: () {
+                GmssStone.toggleSaveStone(_currentStone!);
+                widget.onFavoriteToggle(!isFavorite);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isFavorite ? "Removed from Compare" : "Added to Compare",
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
             ),
           ),
           Positioned(
