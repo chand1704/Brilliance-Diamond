@@ -703,7 +703,7 @@ class _GmssScreenState extends State<GmssScreen>
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
-                                    childAspectRatio: 0.79,
+                                    childAspectRatio: 0.87,
                                     crossAxisSpacing: 20,
                                     mainAxisSpacing: 20,
                                   ),
@@ -886,92 +886,162 @@ class _GmssScreenState extends State<GmssScreen>
                     stone.gridle_condition,
                     isLast: true,
                   ),
+                  Text(
+                    "\$${stone.total_price.toStringAsFixed(2)}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 26,
+                      color: rowColor,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: rowColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            minimumSize: const Size(0, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            "ADD TO CART",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => _handleCardTap(stone),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: rowColor.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                            foregroundColor: rowColor,
+                            minimumSize: const Size(0, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            "DETAILS",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+                  InkWell(
+                    onTap: () => _toggleSave(stone),
+                    child: Text(
+                      "Remove from comparison",
+                      style: TextStyle(
+                        color: Colors.red.shade400,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: Colors.grey.shade50)),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  "\$${stone.total_price.toStringAsFixed(2)}",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 26,
-                    color: rowColor,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: rowColor,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          minimumSize: const Size(0, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "ADD TO CART",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _handleCardTap(stone),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: rowColor.withOpacity(0.5),
-                            width: 1.5,
-                          ),
-                          foregroundColor: rowColor,
-                          minimumSize: const Size(0, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "DETAILS",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  onTap: () => _toggleSave(stone),
-                  child: Text(
-                    "Remove from comparison",
-                    style: TextStyle(
-                      color: Colors.red.shade400,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          //   decoration: BoxDecoration(
+          //     border: Border(top: BorderSide(color: Colors.grey.shade50)),
+          //   ),
+          //   child: Column(
+          //     children: [
+          //       Text(
+          //         "\$${stone.total_price.toStringAsFixed(2)}",
+          //         style: TextStyle(
+          //           fontWeight: FontWeight.w900,
+          //           fontSize: 26,
+          //           color: rowColor,
+          //           letterSpacing: -0.5,
+          //         ),
+          //       ),
+          //       const SizedBox(height: 16),
+          //       Row(
+          //         children: [
+          //           Expanded(
+          //             child: ElevatedButton(
+          //               onPressed: () {},
+          //               style: ElevatedButton.styleFrom(
+          //                 backgroundColor: rowColor,
+          //                 foregroundColor: Colors.white,
+          //                 elevation: 0,
+          //                 minimumSize: const Size(0, 40),
+          //                 shape: RoundedRectangleBorder(
+          //                   borderRadius: BorderRadius.circular(10),
+          //                 ),
+          //               ),
+          //               child: const Text(
+          //                 "ADD TO CART",
+          //                 style: TextStyle(
+          //                   fontWeight: FontWeight.bold,
+          //                   fontSize: 10,
+          //                 ),
+          //               ),
+          //             ),
+          //           ),
+          //           const SizedBox(width: 10),
+          //           Expanded(
+          //             child: OutlinedButton(
+          //               onPressed: () => _handleCardTap(stone),
+          //               style: OutlinedButton.styleFrom(
+          //                 side: BorderSide(
+          //                   color: rowColor.withOpacity(0.5),
+          //                   width: 1.5,
+          //                 ),
+          //                 foregroundColor: rowColor,
+          //                 minimumSize: const Size(0, 40),
+          //                 shape: RoundedRectangleBorder(
+          //                   borderRadius: BorderRadius.circular(10),
+          //                 ),
+          //               ),
+          //               child: const Text(
+          //                 "DETAILS",
+          //                 style: TextStyle(
+          //                   fontWeight: FontWeight.bold,
+          //                   fontSize: 10,
+          //                 ),
+          //               ),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       const SizedBox(height: 12),
+          //       InkWell(
+          //         onTap: () => _toggleSave(stone),
+          //         child: Text(
+          //           "Remove from comparison",
+          //           style: TextStyle(
+          //             color: Colors.red.shade400,
+          //             fontSize: 10,
+          //             fontWeight: FontWeight.w500,
+          //           ),
+          //         ),
+          //       ),
+          //       const SizedBox(height: 10),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

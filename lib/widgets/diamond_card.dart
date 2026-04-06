@@ -32,14 +32,14 @@ class DiamondCardState extends State<DiamondCard> {
       child: GestureDetector(
         onTap: widget.onCardTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 10),
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: (_isHovered || widget.isFavorite)
                   ? widget.themeColor
-                  : Colors.transparent,
+                  : Colors.grey.shade100,
               width: 1.5,
             ),
             boxShadow: [
@@ -50,93 +50,184 @@ class DiamondCardState extends State<DiamondCard> {
               ),
             ],
           ),
-          child: AnimatedScale(
-            scale: _isHovered ? 1.02 : 1.0,
-            duration: const Duration(milliseconds: 10),
-            curve: Curves.easeOut,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 200,
-                  width: double.infinity,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            top: 12.0,
-                            left: 12,
-                            right: 12,
-                          ),
-                          child: SafeImage(
-                            url: widget.stone.image_link,
-                            size: 200,
-                            stone: widget.stone,
-                          ),
+          // child: AnimatedScale(
+          //   scale: _isHovered ? 1.02 : 1.0,
+          //   duration: const Duration(milliseconds: 10),
+          //   curve: Curves.easeOut,
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [
+          //       SizedBox(
+          //         height: 200,
+          //         width: double.infinity,
+          //         child: Stack(
+          //           children: [
+          //             Align(
+          //               alignment: Alignment.topCenter,
+          //               child: Padding(
+          //                 padding: const EdgeInsets.only(
+          //                   top: 12.0,
+          //                   left: 12,
+          //                   right: 12,
+          //                 ),
+          //                 child: SafeImage(
+          //                   url: widget.stone.image_link,
+          //                   size: 200,
+          //                   stone: widget.stone,
+          //                 ),
+          //               ),
+          //             ),
+          //             Positioned(
+          //               top: 8,
+          //               right: 8,
+          //               child: IconButton(
+          //                 icon: Icon(
+          //                   widget.isFavorite
+          //                       ? Icons.favorite
+          //                       : Icons.favorite_border,
+          //                   color: widget.isFavorite
+          //                       ? widget.themeColor
+          //                       : Colors.grey.shade300,
+          //                 ),
+          //                 onPressed: widget.onFavoriteTap,
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       Flexible(
+          //         child: Padding(
+          //           padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+          //           child: Column(
+          //             crossAxisAlignment: CrossAxisAlignment.start,
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               Text(
+          //                 "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
+          //                 maxLines: 1,
+          //                 overflow: TextOverflow.ellipsis,
+          //                 style: const TextStyle(
+          //                   fontWeight: FontWeight.w900,
+          //                   fontSize: 15,
+          //                 ),
+          //               ),
+          //               const SizedBox(height: 4),
+          //               Text(
+          //                 "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
+          //                 style: TextStyle(
+          //                   color: Colors.grey.shade600,
+          //                   fontSize: 11,
+          //                 ),
+          //               ),
+          //               const SizedBox(height: 4),
+          //               Text(
+          //                 "\$${widget.stone.total_price.toStringAsFixed(2)}",
+          //                 style: const TextStyle(
+          //                   fontWeight: FontWeight.w900,
+          //                   fontSize: 14,
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // IMAGE SECTION - Using Expanded to be flexible
+              Expanded(
+                flex: 3, // Takes 3 parts of the height
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return SafeImage(
+                              url: widget.stone.image_link,
+                              // Use the smaller of width/height available in the grid cell
+                              size: constraints.maxHeight,
+                              stone: widget.stone,
+                            );
+                          },
                         ),
                       ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: IconButton(
-                          icon: Icon(
-                            widget.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: widget.isFavorite
-                                ? widget.themeColor
-                                : Colors.grey.shade300,
-                          ),
-                          onPressed: widget.onFavoriteTap,
+                    ),
+                    Positioned(
+                      top: 5,
+                      right: 5,
+                      child: IconButton(
+                        icon: Icon(
+                          widget.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: widget.isFavorite
+                              ? widget.themeColor
+                              : Colors.grey.shade300,
+                          size: 20,
+                        ),
+                        onPressed: widget.onFavoriteTap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // DATA SECTION - Using Flexible to wrap text
+              Flexible(
+                flex: 1, // Takes 1 part of the height
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 10,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "\$${widget.stone.total_price.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          color: Colors.black87,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "${widget.stone.weight} CARAT ${widget.stone.shapeStr.toUpperCase()}",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "${widget.stone.colorStr} • ${widget.stone.clarityStr} • ${widget.stone.lab}",
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 11,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "\$${widget.stone.total_price.toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+
+  //       ),
+  //     ),
+  //   );
+  // }
 }
