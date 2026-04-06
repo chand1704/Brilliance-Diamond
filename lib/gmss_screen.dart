@@ -963,11 +963,12 @@ class _GmssScreenState extends State<GmssScreen>
                     "Remove from comparison",
                     style: TextStyle(
                       color: Colors.red.shade400,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
+                const SizedBox(height: 14),
               ],
             ),
           ),
