@@ -854,10 +854,10 @@ class _GmssScreenState extends State<GmssScreen>
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
-                    stone.isLab ? "LAB GROWN" : "NATURAL",
+                    stone.isLab ? "Lab Grown Diamonds" : "Natural Diamonds",
                     style: TextStyle(
                       color: rowColor,
-                      fontSize: 9,
+                      fontSize: 10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
                     ),
@@ -868,7 +868,7 @@ class _GmssScreenState extends State<GmssScreen>
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               child: Column(
                 children: [
                   _compareDataTile("Color: ", stone.colorStr),
@@ -891,7 +891,7 @@ class _GmssScreenState extends State<GmssScreen>
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: Colors.grey.shade50)),
             ),
