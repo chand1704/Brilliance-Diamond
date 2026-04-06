@@ -654,7 +654,7 @@ class _GmssScreenState extends State<GmssScreen>
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
-                                childAspectRatio: 0.85,
+                                childAspectRatio: 0.87,
                                 crossAxisSpacing: 15,
                                 mainAxisSpacing: 15,
                               ),
@@ -699,11 +699,21 @@ class _GmssScreenState extends State<GmssScreen>
                               child: Center(child: Text("No data found")),
                             )
                           : (_currentTab == 2)
-                          ? SliverToBoxAdapter(
-                              child: _buildVerticalComparison(
-                                displayStones,
-                                themeColor,
-                              ),
+                          ? SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.79, //aaaaaaaaaaa
+                                    crossAxisSpacing: 20,
+                                    mainAxisSpacing: 20,
+                                  ),
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                final stone = displayStones[index];
+                                return _buildVerticalComparison(stone);
+                              }, childCount: displayStones.length),
                             )
                           : isGridView
                           ? SliverGrid(
@@ -771,238 +781,200 @@ class _GmssScreenState extends State<GmssScreen>
     );
   }
 
-  Widget _buildVerticalComparison(List<GmssStone> stones, Color themeColor) {
+  Widget _buildVerticalComparison(GmssStone stone) {
+    final rowColor = stone.isLab ? Colors.teal : Colors.blue.shade700;
+
     return Container(
-      margin: const EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
+        // Subtle themed border adds a premium touch
+        border: Border.all(color: rowColor.withOpacity(0.08), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 30,
+            offset: const Offset(0, 12),
           ),
         ],
-        // border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection:
-            Axis.horizontal, // Allows comparing many diamonds side-by-side
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Sticky Label Column
-            // _buildCompareLabelColumn(),
-
-            // Diamond Data Columns
-            ...stones.map((stone) => _buildCompareDataColumn(stone)).toList(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Widget _buildCompareLabelColumn() {
-  //   final labelStyle = TextStyle(
-  //     fontWeight: FontWeight.w800,
-  //     color: Colors.grey.shade500,
-  //     fontSize: 11,
-  //     letterSpacing: 1.1,
-  //   );
-  //   return Container(
-  //     width: 150,
-  //     decoration: BoxDecoration(
-  //       border: Border(right: BorderSide(color: Colors.grey.shade100)),
-  //       color: const Color(0xFFF8FAFB),
-  //     ),
-  //     child: Column(
-  //       children: [
-  //         const SizedBox(height: 220), // Space for image/header
-  //         _compareLabelTile("Shape", labelStyle),
-  //         _compareLabelTile("Carat", labelStyle),
-  //         _compareLabelTile("Color", labelStyle),
-  //         _compareLabelTile("Clarity", labelStyle),
-  //         _compareLabelTile("Cut", labelStyle),
-  //         _compareLabelTile("Polish", labelStyle),
-  //         _compareLabelTile("Symmetry", labelStyle),
-  //         _compareLabelTile("Depth %", labelStyle),
-  //         _compareLabelTile("Table %", labelStyle),
-  //         _compareLabelTile("Price", labelStyle),
-  //         const SizedBox(height: 100), // Space for buttons
-  //       ],
-  //     ),
-  //   );
-  // }
-  //
-  // Widget _compareLabelTile(String label, TextStyle style) {
-  //   return Container(
-  //     height: 55,
-  //     alignment: Alignment.centerLeft,
-  //     padding: const EdgeInsets.only(left: 24),
-  //     // decoration: BoxDecoration(
-  //     //   border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-  //     // ),
-  //     child: Text(label, style: style),
-  //   );
-  // }
-
-  Widget _buildCompareDataColumn(GmssStone stone) {
-    final rowColor = stone.isLab ? Colors.teal : Colors.blue.shade700;
-    final dataStyle = const TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-      color: Color(0xFF2D3142),
-    );
-
-    return Container(
-      width: 260,
-      decoration: BoxDecoration(
-        border: Border(right: BorderSide(color: Colors.grey.shade100)),
       ),
       child: Column(
         children: [
-          // Diamond Header (Image & Stock No)
+          // 1. Themed Image Header Section
           Container(
             padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: rowColor.withOpacity(0.02), // Subtle background color
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(22),
+              ),
+            ),
             child: Column(
               children: [
                 Container(
-                  height: 140,
-                  width: 140,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 10,
+                      ),
+                    ],
                   ),
+
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
                       stone.image_link,
+                      height: 130,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, e, s) => Icon(
+                      errorBuilder: (c, e, s) => Icon(
                         Icons.diamond_outlined,
-                        size: 40,
+                        size: 50,
                         color: rowColor.withOpacity(0.2),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 16),
+                Text(
+                  "${stone.weight.toStringAsFixed(2)} CT ${stone.shapeStr}"
+                      .toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    letterSpacing: 0.8,
+                    color: Color(0xFF2D3142),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Origin Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
+                    horizontal: 12,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: rowColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
                     stone.isLab ? "LAB GROWN" : "NATURAL",
                     style: TextStyle(
                       color: rowColor,
                       fontSize: 9,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Stock #: ${stone.stockNo}",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade400,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
 
-          // Data Rows
-          // _compareDataTile("${stone.shapeStr}".toUpperCase(), dataStyle),
-          _compareDataTile(
-            "Carat: ${stone.weight.toStringAsFixed(2)}",
-            dataStyle,
-          ),
-          _compareDataTile("Color: ${stone.colorStr}", dataStyle),
-          _compareDataTile("Clarity: ${stone.clarityStr}", dataStyle),
-          _compareDataTile(
-            "Cut Grade: ${stone.cut.isEmpty ? " - " : stone.cut}",
-            dataStyle,
-          ),
-          _compareDataTile("Polish: ${stone.polish}", dataStyle),
-          _compareDataTile("Symmetry: ${stone.symmetry}", dataStyle),
-          _compareDataTile("Depth:${stone.depth}%", dataStyle),
-          _compareDataTile("Table: ${stone.table}%", dataStyle),
-          _compareDataTile(
-            "Gridle: ${stone.gridle_condition.isEmpty ? " - " : stone.gridle_condition}",
-            dataStyle,
-          ),
-
-          Container(
-            height: 55,
-            alignment: Alignment.center,
-            child: Text(
-              "\$${stone.total_price}",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 20,
-                color: rowColor,
+          // 2. Specifications Section
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                children: [
+                  _compareDataTile("Color: ", stone.colorStr),
+                  _compareDataTile("Clarity: ", stone.clarityStr),
+                  _compareDataTile(
+                    "Cut: ",
+                    stone.cut.isEmpty ? "-" : stone.cut,
+                  ),
+                  _compareDataTile("Polish: ", stone.polish),
+                  _compareDataTile("Symmetry: ", stone.symmetry),
+                  _compareDataTile("Depth: ", "${stone.depth}%"),
+                  _compareDataTile("Table: ", "${stone.table}%"),
+                  _compareDataTile(
+                    "Girdle: ",
+                    stone.gridle_condition,
+                    isLast: true,
+                  ),
+                ],
               ),
             ),
           ),
 
-          // Action Buttons
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          // 3. Bottom Price and Action Area
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey.shade50)),
+            ),
             child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: rowColor,
-                    minimumSize: const Size(double.infinity, 45),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    "ADD TO CART",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  "\$${stone.total_price.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 26,
+                    color: rowColor,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 10),
-                OutlinedButton(
-                  onPressed: () => _handleCardTap(stone),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: rowColor.withOpacity(0.5)),
-                    minimumSize: const Size(double.infinity, 45),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: rowColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          minimumSize: const Size(0, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          "ADD TO CART",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    "VIEW DETAILS",
-                    style: TextStyle(
-                      color: rowColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => _handleCardTap(stone),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: rowColor.withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                          foregroundColor: rowColor,
+                          minimumSize: const Size(0, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          "DETAILS",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => _toggleSave(stone),
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: () => _toggleSave(stone),
                   child: Text(
-                    "Remove",
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                    "Remove from comparison",
+                    style: TextStyle(
+                      color: Colors.red.shade400,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
@@ -1013,14 +985,41 @@ class _GmssScreenState extends State<GmssScreen>
     );
   }
 
-  Widget _compareDataTile(String value, TextStyle style) {
+  Widget _compareDataTile(String label, String value, {bool isLast = false}) {
     return Container(
-      height: 50,
-      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(vertical: 8.5),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade50)),
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: Colors.grey.shade50, width: 1)),
       ),
-      child: Text("${value}", style: style),
+      child: Row(
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Color(0xFF2D3142),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              value.isEmpty ? "-" : value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF2D3142),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1320,7 +1319,7 @@ class _GmssScreenState extends State<GmssScreen>
                   Expanded(
                     flex: 1,
                     child: Text(
-                      "\$${stone.total_price.toInt()}",
+                      "\$${stone.total_price.toStringAsFixed(2)}",
                       style: const TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
@@ -1660,7 +1659,7 @@ class _GmssScreenState extends State<GmssScreen>
                     crossAxisCount: 3,
                     mainAxisSpacing: 15,
                     crossAxisSpacing: 15,
-                    childAspectRatio: 0.9,
+                    childAspectRatio: 0.50,
                   ),
                   itemCount: otherShapes.length,
                   itemBuilder: (context, index) {

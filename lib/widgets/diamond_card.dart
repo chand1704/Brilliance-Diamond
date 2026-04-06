@@ -122,7 +122,7 @@ class DiamondCardState extends State<DiamondCard> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "\$${widget.stone.total_price.toStringAsFixed(0)}.00",
+                          "\$${widget.stone.total_price.toStringAsFixed(2)}",
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 14,
