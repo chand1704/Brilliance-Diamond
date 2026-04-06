@@ -703,7 +703,7 @@ class _GmssScreenState extends State<GmssScreen>
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
-                                    childAspectRatio: 0.79, //aaaaaaaaaaa
+                                    childAspectRatio: 0.79,
                                     crossAxisSpacing: 20,
                                     mainAxisSpacing: 20,
                                   ),
@@ -783,12 +783,10 @@ class _GmssScreenState extends State<GmssScreen>
 
   Widget _buildVerticalComparison(GmssStone stone) {
     final rowColor = stone.isLab ? Colors.teal : Colors.blue.shade700;
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        // Subtle themed border adds a premium touch
         border: Border.all(color: rowColor.withOpacity(0.08), width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -800,11 +798,10 @@ class _GmssScreenState extends State<GmssScreen>
       ),
       child: Column(
         children: [
-          // 1. Themed Image Header Section
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: rowColor.withOpacity(0.02), // Subtle background color
+              color: rowColor.withOpacity(0.02),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(22),
               ),
@@ -821,7 +818,6 @@ class _GmssScreenState extends State<GmssScreen>
                       ),
                     ],
                   ),
-
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
@@ -848,7 +844,6 @@ class _GmssScreenState extends State<GmssScreen>
                   ),
                 ),
                 const SizedBox(height: 6),
-                // Origin Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -871,8 +866,6 @@ class _GmssScreenState extends State<GmssScreen>
               ],
             ),
           ),
-
-          // 2. Specifications Section
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -897,8 +890,6 @@ class _GmssScreenState extends State<GmssScreen>
               ),
             ),
           ),
-
-          // 3. Bottom Price and Action Area
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -994,7 +985,6 @@ class _GmssScreenState extends State<GmssScreen>
             : Border(bottom: BorderSide(color: Colors.grey.shade50, width: 1)),
       ),
       child: Row(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
