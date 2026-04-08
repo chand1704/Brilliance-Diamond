@@ -354,7 +354,7 @@ class _GmssScreenState extends State<GmssScreen>
       bool matchesClarity =
           (stoneClarityIdx >= _clarityRange.start.toInt() &&
           stoneClarityIdx <= _clarityRange.end.toInt());
-      // 3. CUT LOGIC
+      // 1. CUT LOGIC
       int stoneCutIdx = -1;
       const cutMapping = {
         'ID': 0, // IDEAL
@@ -373,7 +373,7 @@ class _GmssScreenState extends State<GmssScreen>
           (stoneCutIdx >= _cutRange.start.toInt() &&
           stoneCutIdx <= _cutRange.end.toInt());
       if (stoneCutIdx == -1) matchesCut = true;
-      // 4. POLISH LOGIC
+      // 2. POLISH LOGIC
       int stonePolishIdx = -1;
       const polishMapping = {
         'EX': 0, // EXCELLENT (Matches your first label)
@@ -391,7 +391,7 @@ class _GmssScreenState extends State<GmssScreen>
           (stonePolishIdx >= _polishRange.start.toInt() &&
           stonePolishIdx <= _polishRange.end.toInt());
       if (stonePolishIdx == -1) matchesPolish = true;
-      //  5. FLUORESCENCE LOGIC
+      //  3. FLUORESCENCE LOGIC
       int stoneFlIdx = -1;
       const flMapping = {
         'NONE': 0,
@@ -417,7 +417,7 @@ class _GmssScreenState extends State<GmssScreen>
           (stoneFlIdx >= _flRange.start.toInt() &&
           stoneFlIdx <= _flRange.end.toInt());
       if (stoneFlIdx == -1) matchesFl = true;
-      // 8. SYMMETRY LOGIC
+      // 5. SYMMETRY LOGIC
       int stoneSymIdx = -1;
       const symMapping = {
         'EX': 3, // EXCELLENT
@@ -437,7 +437,7 @@ class _GmssScreenState extends State<GmssScreen>
           (stoneSymIdx >= _symRange.start.toInt() &&
           stoneSymIdx <= _symRange.end.toInt());
       if (stoneSymIdx == -1) matchesSym = true;
-      // 9. DEPTH % LOGIC
+      // 6. DEPTH % LOGIC
       double stoneDepth = 0.0;
       if (stone.depth is String) {
         stoneDepth = double.tryParse(stone.depth as String) ?? 0.0;
@@ -447,7 +447,7 @@ class _GmssScreenState extends State<GmssScreen>
       bool matchesDepth =
           (stoneDepth >= _depthRange.start && stoneDepth <= _depthRange.end);
       if (stoneDepth == 0) matchesDepth = true;
-      // 10. TABLE % LOGIC
+      // 7. TABLE % LOGIC
       double stoneTable = 0.0;
       if (stone.table is String) {
         stoneTable = double.tryParse(stone.table as String) ?? 0.0;
