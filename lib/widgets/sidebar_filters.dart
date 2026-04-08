@@ -292,11 +292,14 @@ class SidebarFilters extends StatelessWidget {
             color: Color(0xFF2D3142),
           ),
         ),
+        const SizedBox(height: 5),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 3,
             activeTrackColor: themeColor,
             thumbColor: themeColor,
+            showValueIndicator: ShowValueIndicator.never,
+            overlayColor: themeColor.withOpacity(0.1),
           ),
           child: RangeSlider(
             values: saturationRange,
@@ -304,6 +307,27 @@ class SidebarFilters extends StatelessWidget {
             max: (saturationLabels.length - 1).toDouble(),
             divisions: saturationLabels.length - 1,
             onChanged: onSaturationChanged,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: saturationLabels.map((label) {
+              int index = saturationLabels.indexOf(label);
+              bool isActive =
+                  index >= saturationRange.start &&
+                  index <= saturationRange.end;
+
+              return Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: isActive ? Colors.black : Colors.grey,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],

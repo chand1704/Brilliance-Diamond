@@ -330,16 +330,36 @@ class _GmssScreenState extends State<GmssScreen>
     final List<GmssStone> filtered = allStones.where((stone) {
       bool matchesColor = false;
       if (isFancySearch) {
+        bool isStoneFancy =
+            stone.colorStr.toLowerCase().contains("fancy") ||
+            (stone.fancy_color != null && stone.fancy_color.isNotEmpty);
         if (selectedFancyColorId == null) {
-          matchesColor =
-              stone.colorStr.toLowerCase().contains("fancy") ||
-              (stone.fancy_color != null && stone.fancy_color.isNotEmpty);
+          matchesColor = isStoneFancy;
         } else {
           String searchColor = selectedFancyColor?.toUpperCase() ?? "";
           matchesColor =
               (stone.id == selectedFancyColorId) ||
               stone.colorStr.toUpperCase().contains(searchColor) ||
               stone.fancy_color.toUpperCase().contains(searchColor);
+        }
+        int stoneIntensityIdx = -1;
+
+        String intensitySearchString = "${stone.fancy_color} ${stone.colorStr}"
+            .toUpperCase();
+
+        stoneIntensityIdx = saturationLabels.indexWhere(
+          (label) => intensitySearchString.contains(label.toUpperCase()),
+
+          //     (stone.fancy_color ?? "").trim().toUpperCase().contains(
+          //   label.toUpperCase(),
+          // ),
+        );
+
+        if (stoneIntensityIdx != -1) {
+          bool matchesSaturation =
+              (stoneIntensityIdx >= _saturationRange.start.toInt() &&
+              stoneIntensityIdx <= _saturationRange.end.toInt());
+          if (!matchesSaturation) return false;
         }
       } else {
         int colorIdx = shadeLabels.indexOf(stone.colorStr.trim().toUpperCase());
