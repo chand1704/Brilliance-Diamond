@@ -1769,7 +1769,6 @@ class _GmssScreenState extends State<GmssScreen>
               ],
             ),
           ),
-
           if (_currentTab == 0)
             Row(
               mainAxisSize: MainAxisSize.min,
