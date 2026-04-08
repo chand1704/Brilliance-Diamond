@@ -121,35 +121,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         debugPrint("Stone not found in APIL $e");
         if (mounted) setState(() => _isLoading = false);
       }
-      // _updateUI(widget.stone!);
-      // return;
     }
-    // if (savedJson != null) {
-    //   try {
-    //     final Map<String, dynamic> stoneMap = jsonDecode(savedJson);
-    //     final stone = GmssStone.fromJson(
-    //       stoneMap,
-    //       isLab: stoneMap['isLab'] ?? false,
-    //     );
-    //     if (stone.id.toString() == widget.stoneId) {
-    //       _updateUI(stone);
-    //       return;
-    //     }
-    //   } catch (e) {
-    //     debugPrint("Error parsing local stone data: $e");
-    //   }
-    // }
-    // if (widget.stoneId != null) {
-    //   try {
-    //     final allStones = await GmssApiService.fetchLabGrownData();
-    //     final foundStone = allStones.firstWhere(
-    //       (s) => s.id.toString() == widget.stoneId,
-    //     );
-    //     _updateUI(foundStone);
-    //   } catch (e) {
-    //     if (mounted) setState(() => _isLoading = false);
-    //   }
-    // }
   }
 
   void _updateUI(GmssStone stone) {
@@ -163,9 +135,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     _registerVideoFactory();
 
     if (stone.video_link.isNotEmpty && stone.video_link != "null") {
-      // Use a consistent ID for the 360 Viewer
       final String popupViewId = 'diamond-360-viewer-${stone.id}';
-
       ui.platformViewRegistry.registerViewFactory(
         popupViewId,
         (int viewId) => html.IFrameElement()
@@ -181,7 +151,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   void _registerVideoFactory() {
     if (_currentStone == null) return;
     final String viewId = 'embedded-diamond-video-${_currentStone!.id}';
-
     String videoUrl = _currentStone!.video_link;
     if (videoUrl.isNotEmpty || videoUrl == "null") {
       videoUrl = "assets/images/video.webm";
@@ -203,87 +172,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     });
   }
 
-  // void _showVideoPopup(String videoUrl) {
-  //   if (_currentStone == null || videoUrl.isEmpty || videoUrl == "null") {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("360 Video is not available.")),
-  //     );
-  //     return;
-  //   }
-  //   final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
-  //   // if (videoUrl.isEmpty || videoUrl == "null") {
-  //   //     ScaffoldMessenger.of(context).showSnackBar(
-  //   //       const SnackBar(
-  //   //         content: Text("360 Video is not available for this diamond."),
-  //   //       ),
-  //   //     );
-  //   //     return;
-  //   //   }
-  //   //   final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
-  //   //     showDialog(
-  //   //       context: context,
-  //   //       builder: (context) => Dialog(
-  //   //         backgroundColor: Colors.white,
-  //   //         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-  //   //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //   //         child: Column(
-  //   //           mainAxisSize: MainAxisSize.min,
-  //   //           children: [
-  //   //             Padding(
-  //   //               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  //   //               child: Row(
-  //   //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //   //                 children: [
-  //   //                   IconButton(
-  //   //                     onPressed: () => Navigator.pop(context),
-  //   //                     icon: const Icon(Icons.close, color: Colors.black),
-  //   //                   ),
-  //   //                 ],
-  //   //               ),
-  //   //             ),
-  //   //             Container(
-  //   //               width: MediaQuery.of(context).size.width * 0.8,
-  //   //               height: MediaQuery.of(context).size.height * 0.7,
-  //   //               child: HtmlElementView(viewType: popupViewId),
-  //   //             ),
-  //   //           ],
-  //   //         ),
-  //   //       ),
-  //   //     );
-  //   //   }
-  //   // }
-  //   showDialog(
-  //     context: context,
-  //
-  //     builder: (context) => Dialog(
-  //       backgroundColor: Colors.white,
-  //       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           // Header with Close Button
-  //           Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: Align(
-  //               alignment: Alignment.centerRight,
-  //               child: IconButton(
-  //                 onPressed: () => Navigator.pop(context),
-  //                 icon: const Icon(Icons.close, color: Colors.black),
-  //               ),
-  //             ),
-  //           ),
-  //           // IFrame Container
-  //           SizedBox(
-  //             width: MediaQuery.of(context).size.width * 0.85,
-  //             height: MediaQuery.of(context).size.height * 0.75,
-  //             child: HtmlElementView(viewType: popupViewId),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
   void _showVideoPopup(String videoUrl) {
     if (_currentStone == null || videoUrl.isEmpty || videoUrl == "null") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -291,12 +179,9 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       );
       return;
     }
-
     final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
-
     showDialog(
       context: context,
-      // barrierColor: Colors.black87, // Premium dark background
       builder: (context) => Dialog(
         backgroundColor: Colors.white,
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -304,7 +189,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Close Button Header
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
@@ -313,12 +197,11 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 icon: const Icon(Icons.close, color: Colors.black, size: 28),
               ),
             ),
-            // The Video Container
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.85,
               height: MediaQuery.of(context).size.height * 0.75,
               child: HtmlElementView(
-                key: ValueKey(popupViewId), // Force identification
+                key: ValueKey(popupViewId),
                 viewType: popupViewId,
               ),
             ),
@@ -586,19 +469,10 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 ),
               ),
               onPressed: () {
-                // 1. Update the LocalStorage
                 GmssStone.toggleSaveStone(_currentStone!);
-
-                // 2. Trigger a local rebuild to flip the heart immediately
                 setState(() {});
-
-                // 3. Notify the parent/callback
                 widget.onFavoriteToggle(!isFavorite);
-
-                // 4. Show Feedback
-                ScaffoldMessenger.of(
-                  context,
-                ).clearSnackBars(); // Clear existing ones
+                ScaffoldMessenger.of(context).clearSnackBars();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -778,15 +652,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Text(
-        //   "$originText Diamond".toUpperCase(),
-        //   style: TextStyle(
-        //     color: themeColor,
-        //     fontWeight: FontWeight.bold,
-        //     fontSize: 12,
-        //     letterSpacing: 1.2,
-        //   ),
-        // ),
         Text(
           "${_currentStone!.weight} Carat ${_currentStone!.shapeStr} $originText Diamond",
           style: const TextStyle(
@@ -796,39 +661,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        // Wrap(
-        //   spacing: 10,
-        //   runSpacing: 10,
-        //   crossAxisAlignment: WrapCrossAlignment.center,
-        //   children: [
-        //     _buildSpecChip("${_currentStone!.weight} Carat"),
-        //     _buildSpecChip("${_currentStone!.colorStr} Color"),
-        //     _buildSpecChip("${_currentStone!.clarityStr} Clarity"),
-        //     _buildSpecChip("${_currentStone!.cut_code} Cut"),
-        //
-        //     // GestureDetector(
-        //     //
-        //     //   onTap: _showTechnicalDetailsPanel,
-        //     //   child: Row(
-        //     //     mainAxisSize: MainAxisSize.min,
-        //     //     children: [
-        //     //       Text(
-        //     //         "More Details",
-        //     //         style: TextStyle(
-        //     //           fontSize: 12,
-        //     //           fontWeight: FontWeight.bold,
-        //     //           color: Colors.grey.shade700,
-        //     //           decoration: TextDecoration.underline,
-        //     //         ),
-        //     //       ),
-        //     //       const SizedBox(width: 4),
-        //     //       const Icon(Icons.arrow_forward, size: 14),
-        //     //     ],
-        //     //   ),
-        //     // ),
-        //   ],
-        // ),
-        // const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -843,7 +675,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
                 style: const TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.w900,
-                  // color: themeColor,
                 ),
               ),
               const Text(
@@ -974,17 +805,6 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSpecChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      color: const Color(0xFFF5F5F5),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
