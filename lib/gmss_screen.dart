@@ -928,7 +928,7 @@ class _GmssScreenState extends State<GmssScreen>
   }
 
   Widget _buildVerticalComparison(GmssStone stone) {
-    final rowColor = stone.isLab ? Colors.teal : Colors.blue.shade700;
+    final rowColor = stone.isLab ? Colors.teal : Colors.blue.shade900;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

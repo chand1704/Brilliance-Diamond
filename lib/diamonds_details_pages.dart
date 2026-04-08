@@ -343,26 +343,32 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     );
   }
 
-  Widget _buildTechRow(String label, String value) {
+  Widget _buildTechRow(String label, String value, {bool isLast = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: Colors.grey.shade100)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Colors.grey.shade600,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
           ),
           Text(
-            value.isEmpty ? "None" : value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            value.isEmpty || value == "null" ? "None" : value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF2D3142),
+            ),
           ),
         ],
       ),
@@ -440,7 +446,13 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             ),
           ),
           const SizedBox(width: 30),
-          Expanded(flex: 3, child: Container(child: _buildProductInfoPanel())),
+          Expanded(
+            flex: 3,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: _buildProductInfoPanel(),
+            ),
+          ),
         ],
       ),
     );
@@ -776,9 +788,19 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
 
   Widget _buildProductInfoPanel() {
     final String originText = _currentStone!.isLab ? "Lab Grown" : "Natural";
+    final Color themeColor = const Color(0xFF005AAB);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Text(
+        //   "$originText Diamond".toUpperCase(),
+        //   style: TextStyle(
+        //     color: themeColor,
+        //     fontWeight: FontWeight.bold,
+        //     fontSize: 12,
+        //     letterSpacing: 1.2,
+        //   ),
+        // ),
         Text(
           "${_currentStone!.weight} Carat ${_currentStone!.shapeStr} $originText Diamond",
           style: const TextStyle(
@@ -788,60 +810,122 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            _buildSpecChip("${_currentStone!.weight} Carat"),
-            _buildSpecChip("${_currentStone!.colorStr} Color"),
-            _buildSpecChip("${_currentStone!.clarityStr} Clarity"),
-            _buildSpecChip("${_currentStone!.cut_code} Cut"),
-            GestureDetector(
-              onTap: _showTechnicalDetailsPanel,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "More Details",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade700,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.arrow_forward, size: 14),
-                ],
+        // Wrap(
+        //   spacing: 10,
+        //   runSpacing: 10,
+        //   crossAxisAlignment: WrapCrossAlignment.center,
+        //   children: [
+        //     _buildSpecChip("${_currentStone!.weight} Carat"),
+        //     _buildSpecChip("${_currentStone!.colorStr} Color"),
+        //     _buildSpecChip("${_currentStone!.clarityStr} Clarity"),
+        //     _buildSpecChip("${_currentStone!.cut_code} Cut"),
+        //
+        //     // GestureDetector(
+        //     //
+        //     //   onTap: _showTechnicalDetailsPanel,
+        //     //   child: Row(
+        //     //     mainAxisSize: MainAxisSize.min,
+        //     //     children: [
+        //     //       Text(
+        //     //         "More Details",
+        //     //         style: TextStyle(
+        //     //           fontSize: 12,
+        //     //           fontWeight: FontWeight.bold,
+        //     //           color: Colors.grey.shade700,
+        //     //           decoration: TextDecoration.underline,
+        //     //         ),
+        //     //       ),
+        //     //       const SizedBox(width: 4),
+        //     //       const Icon(Icons.arrow_forward, size: 14),
+        //     //     ],
+        //     //   ),
+        //     // ),
+        //   ],
+        // ),
+        // const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: themeColor.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "\$${_currentStone!.total_price.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w900,
+                  // color: themeColor,
+                ),
               ),
-            ),
-          ],
+              const Text(
+                "Starting at \$30.08/mo. See options",
+                style: TextStyle(color: Colors.grey, fontSize: 13),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 30),
-        Text(
-          "\$${_currentStone!.total_price.toStringAsFixed(2)}",
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
-        ),
+
+        const SizedBox(height: 25),
         const Text(
-          "Starting at \$30.08/mo. See options",
-          style: TextStyle(color: Colors.grey, fontSize: 13),
+          "DIAMOND DETAILS",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 14,
+            letterSpacing: 1.5,
+            color: Colors.black87,
+          ),
         ),
+        const SizedBox(height: 15),
+
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              _buildTechRow("Stock Number", _currentStone!.stockNo),
+              _buildTechRow("Carat Weight", "${_currentStone!.weight} ct."),
+              _buildTechRow("Color", _currentStone!.colorStr),
+              _buildTechRow("Clarity", _currentStone!.clarityStr),
+              _buildTechRow("Cut", _currentStone!.cut_code),
+              _buildTechRow("Certification", _currentStone!.lab),
+              _buildTechRow(
+                "Measurements",
+                "${_currentStone!.length}*${_currentStone!.width}*${_currentStone!.depth} mm",
+              ),
+              _buildTechRow("Depth%", "${_currentStone!.depth}%"),
+              _buildTechRow("Table%", "${_currentStone!.table}%"),
+              _buildTechRow("Polish", _currentStone!.polish),
+              _buildTechRow("Symmetry", _currentStone!.symmetry),
+              _buildTechRow("Gridle", _currentStone!.gridle_condition),
+            ],
+          ),
+        ),
+
         const SizedBox(height: 40),
+
         SizedBox(
           width: double.infinity,
-          height: 55,
+          height: 58,
           child: ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF005AAB),
-              shape: const RoundedRectangleBorder(),
+              backgroundColor: themeColor,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadiusGeometry.circular(12),
+              ),
             ),
             child: const Text(
               "CHOOSE THIS DIAMOND",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 1,
               ),
             ),
           ),
@@ -849,12 +933,14 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: 55,
+          height: 58,
           child: OutlinedButton(
             onPressed: () {},
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFF005AAB)),
-              shape: const RoundedRectangleBorder(),
+              side: BorderSide(color: themeColor, width: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadiusGeometry.circular(12),
+              ),
             ),
             child: const Text(
               "ADD TO CART",
@@ -865,7 +951,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             ),
           ),
         ),
-        const Divider(height: 60),
+        const Divider(height: 40),
         _buildTrustRow(),
       ],
     );
@@ -929,12 +1015,28 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   }
 
   Widget _trustItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey),
-        const SizedBox(height: 5),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      ],
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 22, color: const Color(0xFF005AAB)),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
