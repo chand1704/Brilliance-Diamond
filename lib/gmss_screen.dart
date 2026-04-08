@@ -349,10 +349,6 @@ class _GmssScreenState extends State<GmssScreen>
 
         stoneIntensityIdx = saturationLabels.indexWhere(
           (label) => intensitySearchString.contains(label.toUpperCase()),
-
-          //     (stone.fancy_color ?? "").trim().toUpperCase().contains(
-          //   label.toUpperCase(),
-          // ),
         );
 
         if (stoneIntensityIdx != -1) {
