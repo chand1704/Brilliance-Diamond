@@ -10,6 +10,15 @@ class GmssApiService {
   static const String naturalAuthKey = 'wwoy95kxfwll';
   static List<GmssStone>? _cachedLabStones;
   static List<GmssStone>? _cachedNaturalStones;
+  static Future<GmssStone> fetchStoneById(String id) async {
+    final labData = await fetchLabGrownData();
+    final naturalData = await fetchNaturalData();
+
+    return [
+      ...labData,
+      ...naturalData,
+    ].firstWhere((stone) => stone.id.toString() == id);
+  }
 
   static Future<List<GmssStone>> fetchLabGrownData() async {
     if (_cachedLabStones != null && _cachedLabStones!.isNotEmpty) {

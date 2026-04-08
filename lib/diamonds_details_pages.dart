@@ -80,14 +80,17 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _loadStoneData();
+    if (widget.stone != null) {
+      _currentStone = widget.stone;
+      _caratNotifier.value = _currentStone!.weight;
+      _isLoading = false;
+      _registerVideoFactory();
+    } else {
+      _loadStoneData();
+    }
   }
 
   Future<void> _loadStoneData() async {
-    if (widget.stone != null) {
-      _updateUI(widget.stone!);
-      return;
-    }
     final String? savedJson = html.window.localStorage['selected_stone_data'];
     if (savedJson != null) {
       try {
@@ -96,25 +99,57 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
           stoneMap,
           isLab: stoneMap['isLab'] ?? false,
         );
-        if (stone.id.toString() == widget.stoneId) {
-          _updateUI(stone);
-          return;
-        }
+
+        _updateUI(stone);
+        return;
       } catch (e) {
         debugPrint("Error parsing local stone data: $e");
       }
     }
-    if (widget.stoneId != null) {
+
+    if (widget.stone != null) {
       try {
-        final allStones = await GmssApiService.fetchLabGrownData();
-        final foundStone = allStones.firstWhere(
-          (s) => s.id.toString() == widget.stoneId,
-        );
+        final labStones = await GmssApiService.fetchLabGrownData();
+        final naturalStones = await GmssApiService.fetchNaturalData();
+
+        GmssStone foundStone = [
+          ...labStones,
+          ...naturalStones,
+        ].firstWhere((s) => s.id.toString() == widget.stoneId);
         _updateUI(foundStone);
       } catch (e) {
+        debugPrint("Stone not found in APIL $e");
         if (mounted) setState(() => _isLoading = false);
       }
+      // _updateUI(widget.stone!);
+      // return;
     }
+    // if (savedJson != null) {
+    //   try {
+    //     final Map<String, dynamic> stoneMap = jsonDecode(savedJson);
+    //     final stone = GmssStone.fromJson(
+    //       stoneMap,
+    //       isLab: stoneMap['isLab'] ?? false,
+    //     );
+    //     if (stone.id.toString() == widget.stoneId) {
+    //       _updateUI(stone);
+    //       return;
+    //     }
+    //   } catch (e) {
+    //     debugPrint("Error parsing local stone data: $e");
+    //   }
+    // }
+    // if (widget.stoneId != null) {
+    //   try {
+    //     final allStones = await GmssApiService.fetchLabGrownData();
+    //     final foundStone = allStones.firstWhere(
+    //       (s) => s.id.toString() == widget.stoneId,
+    //     );
+    //     _updateUI(foundStone);
+    //   } catch (e) {
+    //     if (mounted) setState(() => _isLoading = false);
+    //   }
+    // }
   }
 
   void _updateUI(GmssStone stone) {
@@ -126,6 +161,21 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     });
     GmssStone.addToHistory(stone);
     _registerVideoFactory();
+
+    if (stone.video_link.isNotEmpty && stone.video_link != "null") {
+      // Use a consistent ID for the 360 Viewer
+      final String popupViewId = 'diamond-360-viewer-${stone.id}';
+
+      ui.platformViewRegistry.registerViewFactory(
+        popupViewId,
+        (int viewId) => html.IFrameElement()
+          ..src = stone.video_link
+          ..style.border = 'none'
+          ..width = '100%'
+          ..height = '100%'
+          ..setAttribute('allowfullscreen', 'true'),
+      );
+    }
   }
 
   void _registerVideoFactory() {
@@ -153,193 +203,129 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     });
   }
 
+  // void _showVideoPopup(String videoUrl) {
+  //   if (_currentStone == null || videoUrl.isEmpty || videoUrl == "null") {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text("360 Video is not available.")),
+  //     );
+  //     return;
+  //   }
+  //   final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
+  //   // if (videoUrl.isEmpty || videoUrl == "null") {
+  //   //     ScaffoldMessenger.of(context).showSnackBar(
+  //   //       const SnackBar(
+  //   //         content: Text("360 Video is not available for this diamond."),
+  //   //       ),
+  //   //     );
+  //   //     return;
+  //   //   }
+  //   //   final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
+  //   //     showDialog(
+  //   //       context: context,
+  //   //       builder: (context) => Dialog(
+  //   //         backgroundColor: Colors.white,
+  //   //         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+  //   //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //   //         child: Column(
+  //   //           mainAxisSize: MainAxisSize.min,
+  //   //           children: [
+  //   //             Padding(
+  //   //               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //   //               child: Row(
+  //   //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //   //                 children: [
+  //   //                   IconButton(
+  //   //                     onPressed: () => Navigator.pop(context),
+  //   //                     icon: const Icon(Icons.close, color: Colors.black),
+  //   //                   ),
+  //   //                 ],
+  //   //               ),
+  //   //             ),
+  //   //             Container(
+  //   //               width: MediaQuery.of(context).size.width * 0.8,
+  //   //               height: MediaQuery.of(context).size.height * 0.7,
+  //   //               child: HtmlElementView(viewType: popupViewId),
+  //   //             ),
+  //   //           ],
+  //   //         ),
+  //   //       ),
+  //   //     );
+  //   //   }
+  //   // }
+  //   showDialog(
+  //     context: context,
+  //
+  //     builder: (context) => Dialog(
+  //       backgroundColor: Colors.white,
+  //       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           // Header with Close Button
+  //           Padding(
+  //             padding: const EdgeInsets.all(8.0),
+  //             child: Align(
+  //               alignment: Alignment.centerRight,
+  //               child: IconButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 icon: const Icon(Icons.close, color: Colors.black),
+  //               ),
+  //             ),
+  //           ),
+  //           // IFrame Container
+  //           SizedBox(
+  //             width: MediaQuery.of(context).size.width * 0.85,
+  //             height: MediaQuery.of(context).size.height * 0.75,
+  //             child: HtmlElementView(viewType: popupViewId),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
   void _showVideoPopup(String videoUrl) {
-    if (_currentStone == null) return;
-
-    if (videoUrl.isEmpty || videoUrl == "null") {
+    if (_currentStone == null || videoUrl.isEmpty || videoUrl == "null") {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("360 Video is not available for this diamond."),
-        ),
+        const SnackBar(content: Text("360 Video is not available.")),
       );
       return;
     }
 
-    final String popupViewId =
-        'diamond-iframe-${_currentStone!.id}-${DateTime.now().millisecondsSinceEpoch}';
+    final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
 
-    ui.platformViewRegistry.registerViewFactory(
-      popupViewId,
-      (int viewId) => html.IFrameElement()
-        ..src = videoUrl
-        ..style.border = 'none'
-        ..width = '100%'
-        ..height = '100%'
-        ..setAttribute('allowfullscreen', 'true'),
-    );
     showDialog(
       context: context,
+      // barrierColor: Colors.black87, // Premium dark background
       builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Close Button Header
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 35),
+                padding: const EdgeInsets.all(12),
                 onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close, color: Colors.black, size: 28),
               ),
             ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: MediaQuery.of(context).size.height * 0.8,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Stack(
-                  children: [
-                    HtmlElementView(key: UniqueKey(), viewType: popupViewId),
-                    FutureBuilder(
-                      future: Future.delayed(const Duration(milliseconds: 2)),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return const SizedBox.shrink();
-                        }
-                        return Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          color: Colors.white,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const CircularProgressIndicator(
-                                strokeWidth: 3,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF005AAB),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                "Initializing 360° View...",
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+            // The Video Container
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.85,
+              height: MediaQuery.of(context).size.height * 0.75,
+              child: HtmlElementView(
+                key: ValueKey(popupViewId), // Force identification
+                viewType: popupViewId,
               ),
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
-    );
-  }
-
-  void _showTechnicalDetailsPanel() {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Dismiss',
-      transitionDuration: const Duration(milliseconds: 2),
-      pageBuilder: (context, animation1, animation2) {
-        return Align(
-          alignment: Alignment.centerRight,
-          child: Material(
-            elevation: 16,
-            child: Container(
-              constraints: BoxConstraints(
-                minWidth: 350,
-                maxWidth: MediaQuery.of(context).size.width * 0.35,
-              ),
-              height: double.infinity,
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "${_currentStone!.isLab ? 'Lab Grown' : 'Natural'} Diamond: Specifications",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            height: 1.3,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        _buildTechRow("Stock Number :", _currentStone!.stockNo),
-                        _buildTechRow("Shape :", _currentStone!.shapeStr),
-                        _buildTechRow(
-                          "Carat Weight :",
-                          "${_currentStone!.weight} ct.",
-                        ),
-                        _buildTechRow("Color :", _currentStone!.colorStr),
-                        _buildTechRow("Clarity :", _currentStone!.clarityStr),
-                        _buildTechRow("Cut :", _currentStone!.cut_code),
-                        _buildTechRow(
-                          "Measurements :",
-                          "${_currentStone!.length}x${_currentStone!.width}x${_currentStone!.depth} mm",
-                        ),
-                        _buildTechRow(
-                          "Length of Width :",
-                          "${_currentStone!.width}",
-                        ),
-                        _buildTechRow("Certification :", _currentStone!.lab),
-                        _buildTechRow("Depth% :", "${_currentStone!.depth}%"),
-                        _buildTechRow("Table% :", "${_currentStone!.table}%"),
-                        _buildTechRow("Polish :", _currentStone!.polish),
-                        _buildTechRow("Symmetry :", _currentStone!.symmetry),
-                        _buildTechRow(
-                          "Gridle :",
-                          _currentStone!.gridle_condition,
-                        ),
-                        _buildTechRow("Culet :", _currentStone!.culet_size),
-                        _buildTechRow(
-                          "Fluorescence :",
-                          _currentStone!.fl_intensity,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-      transitionBuilder: (context, animation1, animation2, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation1),
-          child: child,
-        );
-      },
     );
   }
 
@@ -380,7 +366,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
     if (_isLoading || _currentStone == null) {
       return Scaffold(
         backgroundColor: Colors.white,
-        body: SingleChildScrollView(child: _buildSkeletonLoader()),
+        body: _buildSkeletonLoader(),
       );
     }
     double screenWidth = MediaQuery.of(context).size.width;
@@ -588,7 +574,7 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
             right: 20,
             child: IconButton(
               icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 2),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return ScaleTransition(scale: animation, child: child);
                 },
