@@ -672,35 +672,12 @@ class _GmssScreenState extends State<GmssScreen>
                 FutureBuilder<List<GmssStone>>(
                   future: _future,
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData
-                    // &&
-                    // snapshot.connectionState == ConnectionState.waiting
-                    ) {
-                      // return SliverPadding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //     horizontal: 24,
-                      //     vertical: 20,
-                      //   ),
-                      //   sliver: SliverGrid(
-                      //     gridDelegate:
-                      //         const SliverGridDelegateWithFixedCrossAxisCount(
-                      //           crossAxisCount: 4,
-                      //           childAspectRatio: 0.87,
-                      //           crossAxisSpacing: 15,
-                      //           mainAxisSpacing: 15,
-                      //         ),
-                      //     delegate: SliverChildBuilderDelegate(
-                      //       (context, index) => _buildSkeletonCard(),
-                      //       childCount: 8,
-                      //     ),
-                      //   ),
-                      // );
+                    if (!snapshot.hasData) {
                       _lastRetrievedData = snapshot.data;
                     }
                     bool isFirstLoad =
                         snapshot.connectionState == ConnectionState.waiting &&
                         _lastRetrievedData == null;
-
                     if (isFirstLoad) {
                       return SliverPadding(
                         padding: const EdgeInsets.symmetric(
@@ -722,15 +699,11 @@ class _GmssScreenState extends State<GmssScreen>
                         ),
                       );
                     }
-
                     final List<GmssStone> sourceData =
                         snapshot.data ?? _lastRetrievedData ?? [];
                     final List<GmssStone> searchResults = _applyFiltering(
                       sourceData,
                     );
-                    // final List<GmssStone> searchResults = _applyFiltering(
-                    //   snapshot.data ?? [],
-                    // );
                     List<GmssStone> displayStones;
                     if (_currentTab == 1) {
                       displayStones = _recentlyViewed;
@@ -750,91 +723,6 @@ class _GmssScreenState extends State<GmssScreen>
                     } else {
                       displayStones = searchResults;
                     }
-                    //     return SliverPadding(
-                    //       padding: const EdgeInsets.only(
-                    //         left: 24,
-                    //         right: 24,
-                    //         bottom: 20,
-                    //         top: 0,
-                    //       ),
-                    //       sliver: displayStones.isEmpty
-                    //           ? const SliverToBoxAdapter(
-                    //               child: Center(child: Text("No data found")),
-                    //             )
-                    //           : (_currentTab == 2)
-                    //           ? SliverGrid(
-                    //               gridDelegate:
-                    //                   const SliverGridDelegateWithFixedCrossAxisCount(
-                    //                     crossAxisCount: 2,
-                    //                     childAspectRatio: 0.87,
-                    //                     crossAxisSpacing: 20,
-                    //                     mainAxisSpacing: 20,
-                    //                   ),
-                    //               delegate: SliverChildBuilderDelegate((
-                    //                 context,
-                    //                 index,
-                    //               ) {
-                    //                 final stone = displayStones[index];
-                    //                 return _buildVerticalComparison(stone);
-                    //               }, childCount: displayStones.length),
-                    //             )
-                    //           : isGridView
-                    //           ? SliverGrid(
-                    //               gridDelegate:
-                    //                   const SliverGridDelegateWithMaxCrossAxisExtent(
-                    //                     maxCrossAxisExtent: 300,
-                    //                     childAspectRatio: 0.92,
-                    //                     crossAxisSpacing: 15,
-                    //                     mainAxisSpacing: 15,
-                    //                   ),
-                    //               delegate: SliverChildBuilderDelegate((
-                    //                 context,
-                    //                 index,
-                    //               ) {
-                    //                 final stone = displayStones[index];
-                    //                 return AnimatedSwitcher(
-                    //                   duration: const Duration(milliseconds: 2),
-                    //                   child: DiamondCard(
-                    //                     key: ValueKey(
-                    //                       "diamond-${stone.stockNo}-${_currentTab}",
-                    //                     ),
-                    //                     stone: stone,
-                    //                     isFavorite: _savedStones.any(
-                    //                       (s) => s.stockNo == stone.stockNo,
-                    //                     ),
-                    //                     onFavoriteTap: () => _toggleSave(stone),
-                    //                     onCardTap: () => _handleCardTap(stone),
-                    //                     themeColor: themeColor,
-                    //                   ),
-                    //                 );
-                    //               }, childCount: displayStones.length),
-                    //             )
-                    //           : SliverMainAxisGroup(
-                    //               slivers: [
-                    //                 if (snapshot.connectionState ==
-                    //                     ConnectionState.waiting)
-                    //                   const SliverToBoxAdapter(
-                    //                     child: LinearProgressIndicator(
-                    //                       minHeight: 2,
-                    //                       color: Colors.teal,
-                    //                       backgroundColor: Colors.transparent,
-                    //                     ),
-                    //                   ),
-                    //                 SliverToBoxAdapter(child: _buildListHeader()),
-                    //                 SliverList(
-                    //                   delegate: SliverChildBuilderDelegate((
-                    //                     context,
-                    //                     index,
-                    //                   ) {
-                    //                     final stone = displayStones[index];
-                    //                     return _buildDiamondRow(stone, themeColor);
-                    //                   }, childCount: displayStones.length),
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //     );
-                    //   },
-                    // ),
                     return SliverPadding(
                       padding: const EdgeInsets.only(
                         left: 24,
@@ -1106,88 +994,6 @@ class _GmssScreenState extends State<GmssScreen>
               ),
             ),
           ),
-          // Container(
-          //   padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-          //   decoration: BoxDecoration(
-          //     border: Border(top: BorderSide(color: Colors.grey.shade50)),
-          //   ),
-          //   child: Column(
-          //     children: [
-          //       Text(
-          //         "\$${stone.total_price.toStringAsFixed(2)}",
-          //         style: TextStyle(
-          //           fontWeight: FontWeight.w900,
-          //           fontSize: 26,
-          //           color: rowColor,
-          //           letterSpacing: -0.5,
-          //         ),
-          //       ),
-          //       const SizedBox(height: 16),
-          //       Row(
-          //         children: [
-          //           Expanded(
-          //             child: ElevatedButton(
-          //               onPressed: () {},
-          //               style: ElevatedButton.styleFrom(
-          //                 backgroundColor: rowColor,
-          //                 foregroundColor: Colors.white,
-          //                 elevation: 0,
-          //                 minimumSize: const Size(0, 40),
-          //                 shape: RoundedRectangleBorder(
-          //                   borderRadius: BorderRadius.circular(10),
-          //                 ),
-          //               ),
-          //               child: const Text(
-          //                 "ADD TO CART",
-          //                 style: TextStyle(
-          //                   fontWeight: FontWeight.bold,
-          //                   fontSize: 10,
-          //                 ),
-          //               ),
-          //             ),
-          //           ),
-          //           const SizedBox(width: 10),
-          //           Expanded(
-          //             child: OutlinedButton(
-          //               onPressed: () => _handleCardTap(stone),
-          //               style: OutlinedButton.styleFrom(
-          //                 side: BorderSide(
-          //                   color: rowColor.withOpacity(0.5),
-          //                   width: 1.5,
-          //                 ),
-          //                 foregroundColor: rowColor,
-          //                 minimumSize: const Size(0, 40),
-          //                 shape: RoundedRectangleBorder(
-          //                   borderRadius: BorderRadius.circular(10),
-          //                 ),
-          //               ),
-          //               child: const Text(
-          //                 "DETAILS",
-          //                 style: TextStyle(
-          //                   fontWeight: FontWeight.bold,
-          //                   fontSize: 10,
-          //                 ),
-          //               ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       const SizedBox(height: 12),
-          //       InkWell(
-          //         onTap: () => _toggleSave(stone),
-          //         child: Text(
-          //           "Remove from comparison",
-          //           style: TextStyle(
-          //             color: Colors.red.shade400,
-          //             fontSize: 10,
-          //             fontWeight: FontWeight.w500,
-          //           ),
-          //         ),
-          //       ),
-          //       const SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );
