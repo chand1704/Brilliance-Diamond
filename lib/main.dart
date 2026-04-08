@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         }
         return null;
       },
-      home: const GmssScreen(),
+      home: GmssScreen(),
     );
   }
 }
