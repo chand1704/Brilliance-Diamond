@@ -180,36 +180,120 @@ class _DiamondDetailScreenState extends State<DiamondDetailScreen> {
       return;
     }
     final String popupViewId = 'diamond-360-viewer-${_currentStone!.id}';
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.white,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                padding: const EdgeInsets.all(12),
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: Colors.black, size: 28),
+      barrierDismissible: true,
+      barrierLabel: "360View",
+      transitionDuration: const Duration(milliseconds: 0),
+      pageBuilder: (context, anim1, anim2) {
+        return Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 40,
+                  spreadRadius: 10,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                children: [
+                  HtmlElementView(
+                    key: ValueKey(popupViewId),
+                    viewType: popupViewId,
+                  ),
+                  Positioned(
+                    top: 20,
+                    right: 20,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(color: Colors.black12, blurRadius: 10),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 25,
+                    left: 25,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(
+                          "360° HIGH-DEFINITION VIEW",
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
+                            letterSpacing: 2,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.85,
-              height: MediaQuery.of(context).size.height * 0.75,
-              child: HtmlElementView(
-                key: ValueKey(popupViewId),
-                viewType: popupViewId,
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return Transform.scale(
+          scale: Curves.easeOutBack.transform(anim1.value),
+          child: Opacity(opacity: anim1.value, child: child),
+        );
+      },
     );
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => Dialog(
+    //     backgroundColor: Colors.white,
+    //     insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    //     child: Column(
+    //       mainAxisSize: MainAxisSize.min,
+    //       children: [
+    //         Align(
+    //           alignment: Alignment.centerRight,
+    //           child: IconButton(
+    //             padding: const EdgeInsets.all(12),
+    //             onPressed: () => Navigator.pop(context),
+    //             icon: const Icon(Icons.close, color: Colors.black, size: 28),
+    //           ),
+    //         ),
+    //         SizedBox(
+    //           width: MediaQuery.of(context).size.width * 0.85,
+    //           height: MediaQuery.of(context).size.height * 0.75,
+    //           child: HtmlElementView(
+    //             key: ValueKey(popupViewId),
+    //             viewType: popupViewId,
+    //           ),
+    //         ),
+    //         const SizedBox(height: 10),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
   Widget _buildTechRow(String label, String value, {bool isLast = false}) {
